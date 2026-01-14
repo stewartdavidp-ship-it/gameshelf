@@ -1,0 +1,3601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="description" content="Track your daily puzzle games, build streaks, and discover new favorites">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Game Shelf">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <title>Game Shelf - Your Daily Puzzle Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-card: #1f2940;
+            --bg-hover: #2a3a5a;
+            --accent-gold: #f4d35e;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-red: #f87171;
+            --accent-purple: #a78bfa;
+            --accent-orange: #fb923c;
+            --accent-pink: #f472b6;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --text-muted: #6b7280;
+        }
+
+        body.light-mode {
+            --bg-primary: #f5f5f7;
+            --bg-secondary: #e8e8ed;
+            --bg-card: #ffffff;
+            --bg-hover: #f0f0f5;
+            --accent-gold: #d4a012;
+            --accent-green: #22c55e;
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f97316;
+            --accent-pink: #ec4899;
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a5a;
+            --text-muted: #8b8b9a;
+        }
+
+        body.light-mode .game-card,
+        body.light-mode .community-card,
+        body.light-mode .discover-card,
+        body.light-mode .review-card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        body.light-mode .header h1 {
+            background: linear-gradient(135deg, #d4a012, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        body.light-mode .share-preview {
+            background: linear-gradient(135deg, #f5f5f7, #e8e8ed);
+            border-color: var(--accent-purple);
+        }
+
+        body.light-mode .nav-tab.active {
+            background: var(--accent-gold);
+            color: #fff;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--bg-secondary);
+            position: relative;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .menu-btn {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-secondary);
+            border: none;
+            color: var(--text-secondary);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn:hover {
+            background: var(--bg-hover);
+            color: var(--accent-gold);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+
+        .header .tagline {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 25px;
+            background: var(--bg-secondary);
+            padding: 5px;
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px 15px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 25px 0 15px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .add-btn {
+            background: var(--bg-hover);
+            border: 2px dashed var(--text-muted);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .add-btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        /* Game Grid */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 15px;
+        }
+
+        .game-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .game-card:hover {
+            background: var(--bg-hover);
+            transform: translateY(-3px);
+        }
+
+        .game-card.played-today {
+            border-color: var(--accent-green);
+        }
+
+        .game-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .game-card .name {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .game-card .streak {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .game-card .streak.active {
+            color: var(--accent-gold);
+        }
+
+        .game-card .check-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent-green);
+            color: #000;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .game-card .remove-btn {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0,0,0,0.3);
+            border: none;
+            color: var(--text-muted);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .game-card:hover .remove-btn {
+            opacity: 1;
+        }
+
+        .game-card .remove-btn:hover {
+            background: var(--accent-red);
+            color: #fff;
+        }
+
+        .game-card .rating {
+            margin-top: 5px;
+        }
+
+        .game-card .rating .star {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .game-card .rating .star.filled {
+            color: var(--accent-gold);
+        }
+
+        /* Featured Games (RB Games) */
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 15px;
+        }
+
+        .featured-card {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-hover));
+            border: 2px solid var(--accent-purple);
+            border-radius: 16px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .featured-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.2);
+        }
+
+        .featured-card.played-today {
+            border-color: var(--accent-green);
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-purple);
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        /* New Game Spotlight */
+        .spotlight-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            border: 2px solid var(--accent-orange);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .spotlight-card .icon {
+            font-size: 4rem;
+        }
+
+        .spotlight-card .info {
+            flex: 1;
+        }
+
+        .spotlight-card .badge {
+            background: var(--accent-orange);
+            color: #000;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .spotlight-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .spotlight-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .spotlight-card .btn {
+            padding: 10px 20px;
+        }
+
+        /* Community Links */
+        .community-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .community-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .community-card:hover {
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+        }
+
+        .community-card .icon {
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+
+        .community-card.discord .icon { background: #5865F2; }
+        .community-card.reddit .icon { background: #FF4500; }
+        .community-card.twitter .icon { background: #1DA1F2; }
+        .community-card.facebook .icon { background: #1877F2; }
+        .community-card.youtube .icon { background: #FF0000; }
+        .community-card.tiktok .icon { background: #000000; }
+        .community-card.threads .icon { background: #000000; }
+        .community-card.bluesky .icon { background: #0085FF; }
+        .community-card.mastodon .icon { background: #6364FF; }
+
+        .community-card .info h4 {
+            font-size: 1rem;
+            margin-bottom: 3px;
+        }
+
+        .community-card .info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Reviews Section */
+        .review-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .review-header .icon {
+            font-size: 2.5rem;
+        }
+
+        .review-header .info h4 {
+            font-size: 1.1rem;
+        }
+
+        .review-header .stars {
+            color: var(--accent-gold);
+        }
+
+        .review-notes {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 15px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            min-height: 60px;
+        }
+
+        .review-notes:empty::before {
+            content: 'No notes yet. Click to add...';
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Discover Grid */
+        .discover-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .discover-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .discover-card:hover {
+            background: var(--bg-hover);
+        }
+
+        .discover-card .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .discover-card .icon {
+            font-size: 2rem;
+        }
+
+        .discover-card .name {
+            font-weight: 700;
+        }
+
+        .discover-card .source {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .discover-card .description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .discover-card .tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .discover-card .tag {
+            background: var(--bg-secondary);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .modal h2 {
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .modal p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Game List in Registration */
+        .game-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .game-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .game-list-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .game-list-item.selected {
+            background: var(--bg-hover);
+            border: 2px solid var(--accent-green);
+        }
+
+        .game-list-item .icon {
+            font-size: 1.5rem;
+        }
+
+        .game-list-item .info {
+            flex: 1;
+        }
+
+        .game-list-item .name {
+            font-weight: 600;
+        }
+
+        .game-list-item .source {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .game-list-item .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: transparent;
+            transition: all 0.2s;
+        }
+
+        .game-list-item.selected .checkbox {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: #000;
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--bg-hover);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        /* Star Rating Input */
+        .star-rating-input {
+            display: flex;
+            gap: 5px;
+        }
+
+        .star-rating-input .star {
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star-rating-input .star:hover,
+        .star-rating-input .star.filled {
+            color: var(--accent-gold);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--bg-secondary);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+                padding-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header .tagline {
+                font-size: 0.85rem;
+            }
+
+            .stats-bar {
+                gap: 15px;
+                padding: 12px;
+            }
+
+            .stat-value {
+                font-size: 1.4rem;
+            }
+
+            .stat-label {
+                font-size: 0.65rem;
+            }
+
+            .game-grid, .featured-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .game-card {
+                padding: 15px 10px;
+            }
+
+            .game-card .icon {
+                font-size: 2rem;
+            }
+
+            .game-card .name {
+                font-size: 0.85rem;
+            }
+
+            .nav-tabs {
+                gap: 3px;
+                padding: 4px;
+            }
+
+            .nav-tab {
+                padding: 10px 8px;
+                font-size: 0.75rem;
+                min-width: 70px;
+            }
+
+            .section-header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .section-title {
+                font-size: 0.95rem;
+            }
+
+            .add-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+
+            .spotlight-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px 15px;
+            }
+
+            .spotlight-card .icon {
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+            }
+
+            .community-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .share-preview {
+                padding: 15px;
+            }
+
+            .share-stats-row {
+                gap: 15px;
+            }
+
+            .share-stat-value {
+                font-size: 1.4rem;
+            }
+
+            .share-games-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            .share-buttons {
+                flex-direction: column;
+            }
+
+            .share-buttons .btn {
+                min-width: 100%;
+            }
+
+            .modal-content {
+                margin: 10px;
+                max-height: calc(100vh - 20px);
+            }
+
+            .discover-grid {
+                gap: 10px;
+            }
+
+            .discover-card {
+                padding: 12px;
+            }
+
+            .discover-card .icon {
+                font-size: 1.8rem;
+            }
+
+            .review-card {
+                padding: 15px;
+            }
+
+            .chat-messages {
+                max-height: 250px;
+            }
+
+            .featured-badge {
+                font-size: 0.55rem;
+                padding: 2px 5px;
+            }
+
+            /* Settings menu full width on mobile */
+            .settings-menu {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .game-grid, .featured-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .game-card {
+                padding: 12px 8px;
+            }
+
+            .game-card .icon {
+                font-size: 1.8rem;
+            }
+
+            .game-card .name {
+                font-size: 0.8rem;
+            }
+
+            .nav-tab {
+                padding: 8px 6px;
+                font-size: 0.7rem;
+            }
+
+            .stats-bar {
+                gap: 10px;
+            }
+
+            .stat-value {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Touch-friendly adjustments */
+        @media (hover: none) and (pointer: coarse) {
+            .game-card {
+                transition: transform 0.1s;
+            }
+
+            .game-card:active {
+                transform: scale(0.98);
+            }
+
+            .nav-tab:active {
+                opacity: 0.8;
+            }
+
+            .btn:active {
+                transform: scale(0.98);
+            }
+        }
+
+        /* Safe area for notched phones */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(15px, env(safe-area-inset-left));
+                padding-right: max(15px, env(safe-area-inset-right));
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
+            }
+        }
+
+        /* RSS List */
+        .rss-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rss-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rss-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .rss-icon {
+            font-size: 1.5rem;
+        }
+
+        .rss-info {
+            flex: 1;
+        }
+
+        .rss-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .rss-url {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        .copy-btn {
+            background: var(--bg-hover);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .rss-item:hover .copy-btn {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        /* Chat/Discussion */
+        .chat-container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .chat-message {
+            background: var(--bg-secondary);
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .chat-message:last-child {
+            margin-bottom: 0;
+        }
+
+        .chat-message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .chat-message-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .chat-message-text {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .chat-message-delete {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .chat-message:hover .chat-message-delete {
+            opacity: 1;
+        }
+
+        .chat-message-delete:hover {
+            color: var(--accent-red);
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--bg-hover);
+        }
+
+        .chat-input-container input {
+            flex: 1;
+            padding: 10px 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--bg-hover);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .chat-input-container input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        .chat-empty {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+        }
+
+        /* Calendar Heatmap */
+        .calendar-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .calendar-nav button {
+            background: var(--bg-card);
+            border: none;
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .calendar-nav button:hover {
+            background: var(--bg-hover);
+            color: var(--accent-gold);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .calendar-day-label {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            padding: 4px 0;
+            font-weight: 600;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            transform: scale(1.1);
+            z-index: 1;
+        }
+
+        .calendar-day.empty {
+            background: transparent;
+            cursor: default;
+        }
+
+        .calendar-day.empty:hover {
+            transform: none;
+        }
+
+        .calendar-day.level-0 { background: var(--bg-card); }
+        .calendar-day.level-1 { background: rgba(74, 222, 128, 0.25); }
+        .calendar-day.level-2 { background: rgba(74, 222, 128, 0.5); }
+        .calendar-day.level-3 { background: rgba(74, 222, 128, 0.75); }
+        .calendar-day.level-4 { background: var(--accent-green); color: #000; }
+
+        .calendar-day.today {
+            border: 2px solid var(--accent-gold);
+        }
+
+        .calendar-legend {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            margin-top: 12px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .legend-box {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .calendar-month-label {
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .calendar-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .calendar-day:hover .calendar-tooltip {
+            opacity: 1;
+        }
+
+        /* Achievements */
+        .achievements-section {
+            margin-top: 25px;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .achievement-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .achievement-card.unlocked {
+            border-color: var(--accent-gold);
+            background: linear-gradient(135deg, var(--bg-card), rgba(244, 211, 94, 0.1));
+        }
+
+        .achievement-card.locked {
+            opacity: 0.5;
+        }
+
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .achievement-card.locked .achievement-icon {
+            filter: grayscale(1);
+        }
+
+        .achievement-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .achievement-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .achievement-card.unlocked .achievement-desc {
+            color: var(--accent-gold);
+        }
+
+        .achievements-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            background: var(--bg-card);
+            border-radius: 10px;
+        }
+
+        .achievements-progress-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .achievements-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-purple));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .achievements-progress-text {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            min-width: 50px;
+            text-align: right;
+        }
+
+        /* Share Text Parser */
+        .parse-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+        }
+
+        .parse-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .parse-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            background: var(--bg-card);
+            border: 2px solid var(--bg-hover);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+
+        .parse-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        .parse-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .parse-result {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .parse-result.show {
+            display: block;
+        }
+
+        .parse-result.success {
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .parse-result.error {
+            border-left: 4px solid var(--accent-red);
+        }
+
+        .parse-result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .parse-result-icon {
+            font-size: 1.5rem;
+        }
+
+        .parse-result-game {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .parse-result-score {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .parse-btn {
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        /* Share Shelf */
+        .share-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--bg-secondary);
+        }
+
+        .share-preview {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid var(--accent-purple);
+        }
+
+        .share-preview-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .share-preview-header h3 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .share-preview-header p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .share-stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .share-stat {
+            text-align: center;
+        }
+
+        .share-stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+        }
+
+        .share-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .share-games-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .share-game-item {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .share-game-item .icon {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .share-game-item .name {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .share-game-item .streak {
+            font-size: 0.65rem;
+            color: var(--accent-gold);
+        }
+
+        .share-footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .share-buttons .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        /* Settings Menu */
+        .settings-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            max-width: 320px;
+            height: 100%;
+            background: var(--bg-card);
+            z-index: 1500;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+        }
+
+        .settings-menu.active {
+            transform: translateX(0);
+        }
+
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1400;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .settings-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+
+        .settings-header h2 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+        }
+
+        .settings-close {
+            background: var(--bg-secondary);
+            border: none;
+            color: var(--text-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .settings-close:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .settings-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .settings-item-label .icon {
+            font-size: 1.2rem;
+        }
+
+        .toggle-switch {
+            width: 52px;
+            height: 28px;
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: var(--accent-green);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+
+        .settings-footer {
+            padding: 20px;
+            border-top: 1px solid var(--bg-secondary);
+            text-align: center;
+        }
+
+        .settings-version {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .settings-copyright {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .settings-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+
+        .settings-link:hover {
+            color: var(--accent-gold);
+        }
+
+        .settings-link .icon {
+            font-size: 1.2rem;
+        }
+
+        /* Theme Preview */
+        .theme-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .theme-option {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid var(--bg-secondary);
+            background: var(--bg-primary);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .theme-option.active {
+            border-color: var(--accent-gold);
+        }
+
+        .theme-option:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .theme-option .preview {
+            width: 100%;
+            height: 30px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .theme-option.dark .preview {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+        }
+
+        .theme-option.light .preview {
+            background: linear-gradient(135deg, #f5f5f7, #e8e8ed);
+        }
+
+        .theme-option .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-green);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <button class="menu-btn" onclick="toggleSettingsMenu()" aria-label="Open menu">☰</button>
+                <div>
+                    <h1>🎮 Game Shelf</h1>
+                    <p class="tagline">Your Daily Puzzle Hub</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('games')">🎯 Games</button>
+            <button class="nav-tab" onclick="switchTab('discover')">🔍 Discover</button>
+            <button class="nav-tab" onclick="switchTab('reviews')">⭐ Reviews</button>
+            <button class="nav-tab" onclick="switchTab('community')">💬 Community</button>
+        </div>
+
+        <!-- Games Tab -->
+        <div class="tab-content active" id="tab-games">
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value" id="today-count">0</div>
+                    <div class="stat-label">Played Today</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="best-streak">0</div>
+                    <div class="stat-label">Best Streak</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="total-games">0</div>
+                    <div class="stat-label">Games</div>
+                </div>
+            </div>
+
+            <!-- Featured Games (Your Games) -->
+            <div class="section-header">
+                <span class="section-title">⭐ Featured</span>
+            </div>
+            <div class="featured-grid" id="featured-games"></div>
+
+            <!-- Other Games -->
+            <div class="section-header">
+                <span class="section-title">📚 My Games</span>
+                <button class="add-btn" onclick="showAddGameModal()">+ Add Game</button>
+            </div>
+            <div class="game-grid" id="my-games"></div>
+
+            <!-- Calendar Heatmap -->
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <span class="calendar-title">📅 Activity History</span>
+                    <div class="calendar-nav">
+                        <button onclick="prevMonth()">◀</button>
+                        <button onclick="nextMonth()">▶</button>
+                    </div>
+                </div>
+                <div class="calendar-month-label" id="calendar-month-label">January 2026</div>
+                <div class="calendar-grid" id="calendar-grid">
+                    <div class="calendar-day-label">S</div>
+                    <div class="calendar-day-label">M</div>
+                    <div class="calendar-day-label">T</div>
+                    <div class="calendar-day-label">W</div>
+                    <div class="calendar-day-label">T</div>
+                    <div class="calendar-day-label">F</div>
+                    <div class="calendar-day-label">S</div>
+                </div>
+                <div class="calendar-legend">
+                    <span>Less</span>
+                    <div class="legend-box level-0" style="background: var(--bg-card);"></div>
+                    <div class="legend-box level-1" style="background: rgba(74, 222, 128, 0.25);"></div>
+                    <div class="legend-box level-2" style="background: rgba(74, 222, 128, 0.5);"></div>
+                    <div class="legend-box level-3" style="background: rgba(74, 222, 128, 0.75);"></div>
+                    <div class="legend-box level-4" style="background: var(--accent-green);"></div>
+                    <span>More</span>
+                </div>
+            </div>
+
+            <!-- Quick Log (Share Text Parser) -->
+            <div class="parse-section">
+                <div class="parse-title">
+                    <span>📋</span> Quick Log - Paste Your Results
+                </div>
+                <textarea class="parse-input" id="parse-input" placeholder="Paste your game results here...
+
+Examples:
+Wordle 1,234 4/6
+🟨⬛⬛⬛⬛
+🟨🟨⬛⬛⬛
+🟩🟩🟩⬛⬛
+🟩🟩🟩🟩🟩
+
+Connections Puzzle #123
+🟩🟩🟩🟩
+🟨🟨🟨🟨
+🟪🟪🟪🟪
+🟦🟦🟦🟦"></textarea>
+                <div class="parse-result" id="parse-result">
+                    <div class="parse-result-header">
+                        <span class="parse-result-icon" id="parse-result-icon">🟩</span>
+                        <div>
+                            <div class="parse-result-game" id="parse-result-game">Wordle</div>
+                            <div class="parse-result-score" id="parse-result-score">4/6 - Great job!</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary parse-btn" onclick="parseShareText()">✨ Log Result</button>
+            </div>
+
+            <!-- Achievements -->
+            <div class="achievements-section">
+                <div class="section-header">
+                    <span class="section-title">🏆 Achievements</span>
+                </div>
+                <div class="achievements-progress">
+                    <div class="achievements-progress-bar">
+                        <div class="achievements-progress-fill" id="achievements-progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="achievements-progress-text" id="achievements-progress-text">0/12</div>
+                </div>
+                <div class="achievements-grid" id="achievements-grid"></div>
+            </div>
+
+            <!-- Share Your Shelf -->
+            <div class="share-section">
+                <div class="section-header">
+                    <span class="section-title">📤 Share Your Shelf</span>
+                </div>
+                <div class="share-preview" id="share-preview">
+                    <div class="share-preview-header">
+                        <h3>🎮 My Game Shelf</h3>
+                        <p id="share-date"></p>
+                    </div>
+                    <div class="share-stats-row">
+                        <div class="share-stat">
+                            <div class="share-stat-value" id="share-played">0</div>
+                            <div class="share-stat-label">Played Today</div>
+                        </div>
+                        <div class="share-stat">
+                            <div class="share-stat-value" id="share-streak">0</div>
+                            <div class="share-stat-label">Best Streak</div>
+                        </div>
+                        <div class="share-stat">
+                            <div class="share-stat-value" id="share-total">0</div>
+                            <div class="share-stat-label">Total Games</div>
+                        </div>
+                    </div>
+                    <div class="share-games-grid" id="share-games"></div>
+                    <div class="share-footer">gameshelf.app • Your Daily Puzzle Hub</div>
+                </div>
+                <div class="share-buttons">
+                    <button class="btn btn-primary" onclick="shareAsImage()">📷 Save Image</button>
+                    <button class="btn btn-secondary" onclick="shareAsText()">📋 Copy Text</button>
+                    <button class="btn btn-secondary" onclick="shareNative()">📤 Share</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div class="toast" id="toast">Copied!</div>
+
+        <!-- Discover Tab -->
+        <div class="tab-content" id="tab-discover">
+            <!-- Spotlight -->
+            <div class="spotlight-card" id="spotlight-game">
+                <span class="icon">🆕</span>
+                <div class="info">
+                    <span class="badge">🔥 New This Week</span>
+                    <h3>Connections</h3>
+                    <p>Group 16 words into 4 categories. A viral hit from the NY Times puzzle team!</p>
+                    <button class="btn btn-primary btn-small" onclick="addGameFromDiscover('connections')">+ Add to Shelf</button>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <span class="section-title">🔍 Discover New Games</span>
+            </div>
+            <div class="discover-grid" id="discover-list"></div>
+        </div>
+
+        <!-- Reviews Tab -->
+        <div class="tab-content" id="tab-reviews">
+            <div class="section-header">
+                <span class="section-title">⭐ My Reviews & Notes</span>
+            </div>
+            <div id="reviews-list"></div>
+            <div class="empty-state" id="reviews-empty" style="display:none;">
+                <div class="icon">📝</div>
+                <p>No reviews yet.<br>Add games to your shelf and rate them!</p>
+            </div>
+        </div>
+
+        <!-- Community Tab -->
+        <div class="tab-content" id="tab-community">
+            <div class="section-header">
+                <span class="section-title">💬 Word Game Communities</span>
+            </div>
+            <div class="community-grid">
+                <a href="https://discord.gg/wordgames" target="_blank" class="community-card discord">
+                    <div class="icon">💬</div>
+                    <div class="info">
+                        <h4>Discord</h4>
+                        <p>Join word game chat rooms</p>
+                    </div>
+                </a>
+                <a href="https://reddit.com/r/wordle" target="_blank" class="community-card reddit">
+                    <div class="icon">🔴</div>
+                    <div class="info">
+                        <h4>r/wordle</h4>
+                        <p>Daily Wordle discussions</p>
+                    </div>
+                </a>
+                <a href="https://reddit.com/r/NYTGames" target="_blank" class="community-card reddit">
+                    <div class="icon">🔴</div>
+                    <div class="info">
+                        <h4>r/NYTGames</h4>
+                        <p>All NY Times puzzles</p>
+                    </div>
+                </a>
+                <a href="https://twitter.com/search?q=wordle" target="_blank" class="community-card twitter">
+                    <div class="icon">🐦</div>
+                    <div class="info">
+                        <h4>Twitter/X</h4>
+                        <p>Share your results</p>
+                    </div>
+                </a>
+                <a href="https://www.facebook.com/groups/wordlegame" target="_blank" class="community-card facebook">
+                    <div class="icon">📘</div>
+                    <div class="info">
+                        <h4>Facebook Groups</h4>
+                        <p>Connect with players</p>
+                    </div>
+                </a>
+                <a href="https://www.youtube.com/results?search_query=daily+word+games" target="_blank" class="community-card youtube">
+                    <div class="icon">▶️</div>
+                    <div class="info">
+                        <h4>YouTube</h4>
+                        <p>Tips & walkthroughs</p>
+                    </div>
+                </a>
+                <a href="https://www.tiktok.com/search?q=wordle" target="_blank" class="community-card tiktok">
+                    <div class="icon">🎵</div>
+                    <div class="info">
+                        <h4>TikTok</h4>
+                        <p>Short-form puzzle content</p>
+                    </div>
+                </a>
+                <a href="https://www.threads.net/search?q=wordle" target="_blank" class="community-card threads">
+                    <div class="icon">🧵</div>
+                    <div class="info">
+                        <h4>Threads</h4>
+                        <p>Share & discuss</p>
+                    </div>
+                </a>
+                <a href="https://bsky.app/search?q=wordle" target="_blank" class="community-card bluesky">
+                    <div class="icon">🦋</div>
+                    <div class="info">
+                        <h4>Bluesky</h4>
+                        <p>Word game community</p>
+                    </div>
+                </a>
+                <a href="https://mastodon.social/tags/wordle" target="_blank" class="community-card mastodon">
+                    <div class="icon">🐘</div>
+                    <div class="info">
+                        <h4>Mastodon</h4>
+                        <p>#wordle discussions</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="section-header" style="margin-top: 30px;">
+                <span class="section-title">📰 Game News & Updates</span>
+            </div>
+            <div class="community-grid">
+                <a href="https://www.nytimes.com/spotlight/games" target="_blank" class="community-card">
+                    <div class="icon" style="background: var(--bg-hover);">📰</div>
+                    <div class="info">
+                        <h4>NY Times Games</h4>
+                        <p>Official game updates</p>
+                    </div>
+                </a>
+                <a href="https://www.rockpapershotgun.com/wordle-today" target="_blank" class="community-card">
+                    <div class="icon" style="background: var(--bg-hover);">🎮</div>
+                    <div class="info">
+                        <h4>Rock Paper Shotgun</h4>
+                        <p>Daily hints & tips</p>
+                    </div>
+                </a>
+                <a href="https://dailygameshub.com" target="_blank" class="community-card">
+                    <div class="icon" style="background: var(--bg-hover);">🗂️</div>
+                    <div class="info">
+                        <h4>Daily Games Hub</h4>
+                        <p>Discover more games</p>
+                    </div>
+                </a>
+                <a href="https://www.polygon.com/wordle-guide" target="_blank" class="community-card">
+                    <div class="icon" style="background: var(--bg-hover);">🔷</div>
+                    <div class="info">
+                        <h4>Polygon</h4>
+                        <p>Hints & game guides</p>
+                    </div>
+                </a>
+                <a href="https://www.pcgamer.com/games/puzzle/" target="_blank" class="community-card">
+                    <div class="icon" style="background: var(--bg-hover);">💻</div>
+                    <div class="info">
+                        <h4>PC Gamer</h4>
+                        <p>Puzzle game news</p>
+                    </div>
+                </a>
+                <a href="https://kotaku.com/tag/wordle" target="_blank" class="community-card">
+                    <div class="icon" style="background: var(--bg-hover);">🕹️</div>
+                    <div class="info">
+                        <h4>Kotaku</h4>
+                        <p>Gaming culture & news</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="section-header" style="margin-top: 30px;">
+                <span class="section-title">📡 RSS Feeds</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.9rem;">Add these to your RSS reader for daily updates:</p>
+            <div class="rss-list">
+                <div class="rss-item" onclick="copyToClipboard('https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/spotlight/games/rss.xml')">
+                    <span class="rss-icon">📰</span>
+                    <div class="rss-info">
+                        <div class="rss-name">NY Times Games</div>
+                        <div class="rss-url">nytimes.com/.../games/rss.xml</div>
+                    </div>
+                    <span class="copy-btn">📋 Copy</span>
+                </div>
+                <div class="rss-item" onclick="copyToClipboard('https://www.rockpapershotgun.com/feed/tag/wordle')">
+                    <span class="rss-icon">🎮</span>
+                    <div class="rss-info">
+                        <div class="rss-name">Rock Paper Shotgun - Wordle</div>
+                        <div class="rss-url">rockpapershotgun.com/feed/tag/wordle</div>
+                    </div>
+                    <span class="copy-btn">📋 Copy</span>
+                </div>
+                <div class="rss-item" onclick="copyToClipboard('https://www.polygon.com/rss/index.xml')">
+                    <span class="rss-icon">🔷</span>
+                    <div class="rss-info">
+                        <div class="rss-name">Polygon Gaming</div>
+                        <div class="rss-url">polygon.com/rss/index.xml</div>
+                    </div>
+                    <span class="copy-btn">📋 Copy</span>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 30px;">
+                <span class="section-title">💬 Discussion Board</span>
+            </div>
+            <div class="chat-container" id="chat-container">
+                <div class="chat-messages" id="chat-messages"></div>
+                <div class="chat-input-container">
+                    <input type="text" id="chat-input" placeholder="Share your thoughts, tips, or today's results..." maxlength="280">
+                    <button class="btn btn-primary btn-small" onclick="postChatMessage()">Post</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            v1.4.0 • Game Shelf
+        </footer>
+    </div>
+
+    <!-- Welcome/Registration Modal -->
+    <div class="modal-overlay" id="welcome-modal">
+        <div class="modal">
+            <h2>👋 Welcome to Game Shelf!</h2>
+            <p>Select the daily games you play. We'll help you track your progress and streaks!</p>
+            
+            <div class="game-list" id="registration-list"></div>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="completeRegistration()" style="flex:1">Get Started</button>
+                <button class="btn btn-secondary" onclick="skipRegistration()">Skip</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Game Modal -->
+    <div class="modal-overlay" id="add-game-modal">
+        <div class="modal">
+            <h2>➕ Add a Game</h2>
+            <p>Choose from popular games or add a custom one.</p>
+            
+            <div class="game-list" id="add-game-list"></div>
+            
+            <div style="text-align: center; margin: 20px 0; color: var(--text-muted);">— or add custom —</div>
+            
+            <div class="form-group">
+                <label>Game Name</label>
+                <input type="text" id="custom-name" placeholder="e.g., Wordle">
+            </div>
+            <div class="form-group">
+                <label>Game URL</label>
+                <input type="text" id="custom-url" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Icon (emoji)</label>
+                <input type="text" id="custom-icon" placeholder="🎮" maxlength="2">
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="addSelectedGames()" style="flex:1">Add Games</button>
+                <button class="btn btn-secondary" onclick="closeAddGameModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal-overlay" id="review-modal">
+        <div class="modal">
+            <h2>⭐ Rate & Review</h2>
+            <div id="review-game-header" style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <span id="review-game-icon" style="font-size: 2.5rem;"></span>
+                <div>
+                    <h3 id="review-game-name" style="margin: 0;"></h3>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Your Rating</label>
+                <div class="star-rating-input" id="rating-input">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Notes (optional)</label>
+                <textarea id="review-notes" placeholder="Your thoughts on this game..."></textarea>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="saveReview()" style="flex:1">Save Review</button>
+                <button class="btn btn-secondary" onclick="closeReviewModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <!-- Settings Menu (slide-out) -->
+    <div class="settings-overlay" id="settings-overlay" onclick="toggleSettingsMenu()"></div>
+    <div class="settings-menu" id="settings-menu">
+        <div class="settings-header">
+            <h2>☰ Menu</h2>
+            <button class="settings-close" onclick="toggleSettingsMenu()">✕</button>
+        </div>
+        <div class="settings-body">
+            <div class="settings-section">
+                <div class="settings-section-title">Appearance</div>
+                <div class="theme-options">
+                    <div class="theme-option dark active" onclick="setTheme('dark')" id="theme-dark">
+                        <div class="preview"></div>
+                        <div class="label">🌙 Dark</div>
+                    </div>
+                    <div class="theme-option light" onclick="setTheme('light')" id="theme-light">
+                        <div class="preview"></div>
+                        <div class="label">☀️ Light</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-section-title">Data</div>
+                <a href="#" class="settings-link" onclick="exportData(); return false;">
+                    <span class="icon">📤</span>
+                    Export Data
+                </a>
+                <a href="#" class="settings-link" onclick="showWelcome(); toggleSettingsMenu(); return false;">
+                    <span class="icon">🔄</span>
+                    Re-run Setup
+                </a>
+                <a href="#" class="settings-link" onclick="resetAllData(); return false;" style="color: var(--accent-red);">
+                    <span class="icon">🗑️</span>
+                    Reset All Data
+                </a>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-section-title">About</div>
+                <a href="#" class="settings-link" onclick="showAbout(); return false;">
+                    <span class="icon">ℹ️</span>
+                    About Game Shelf
+                </a>
+                <a href="https://github.com/stewartdavidp-ship-it" target="_blank" class="settings-link">
+                    <span class="icon">💻</span>
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+        <div class="settings-footer">
+            <div class="settings-version">Game Shelf v1.4.0</div>
+            <div class="settings-copyright">© 2025 RB Games</div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal-overlay" id="about-modal">
+        <div class="modal">
+            <h2>🎮 About Game Shelf</h2>
+            <p style="color: var(--text-secondary); margin: 15px 0; line-height: 1.6;">
+                Game Shelf is your personal daily puzzle hub. Track your games, build streaks, discover new puzzles, and share your progress with friends.
+            </p>
+            <div style="background: var(--bg-secondary); border-radius: 10px; padding: 15px; margin: 15px 0;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="color: var(--text-muted);">Version</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">1.4.0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="color: var(--text-muted);">Released</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">January 2026</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Developer</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">RB Games</span>
+                </div>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 15px 0;">
+                <strong>Featured Games:</strong> Rungs, Slate, Quotle, Word Boxing
+            </p>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="closeAboutModal()" style="flex:1">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ DATA ============
+        const FEATURED_GAMES = [
+            { id: 'rungs', name: 'Rungs', icon: '🪜', url: 'https://stewartdavidp-ship-it.github.io/Rungstest/', featured: true, description: 'Pair words and arrange in order' },
+            { id: 'slate', name: 'Slate', icon: '🪨', url: 'https://stewartdavidp-ship-it.github.io/Slate/', featured: true, description: 'Fill in consonants to reveal words' },
+            { id: 'quotle', name: 'Quotle', icon: '💬', url: 'https://stewartdavidp-ship-it.github.io/Quotle/', featured: true, description: 'Guess the famous quote' },
+            { id: 'wordboxing', name: 'Word Boxing', icon: '🥊', url: 'https://stewartdavidp-ship-it.github.io/WordBoxing/', featured: true, description: 'Multiplayer word battle' }
+        ];
+
+        const POPULAR_GAMES = [
+            { id: 'wordle', name: 'Wordle', icon: '🟩', url: 'https://www.nytimes.com/games/wordle/index.html', source: 'NY Times', description: 'Guess the 5-letter word in 6 tries', tags: ['word', 'daily'] },
+            { id: 'connections', name: 'Connections', icon: '🔗', url: 'https://www.nytimes.com/games/connections', source: 'NY Times', description: 'Group 16 words into 4 categories', tags: ['word', 'categories'] },
+            { id: 'strands', name: 'Strands', icon: '🧵', url: 'https://www.nytimes.com/games/strands', source: 'NY Times', description: 'Find themed words in a letter grid', tags: ['word', 'search'] },
+            { id: 'spelling-bee', name: 'Spelling Bee', icon: '🐝', url: 'https://www.nytimes.com/puzzles/spelling-bee', source: 'NY Times', description: 'Make words using 7 letters', tags: ['word', 'vocabulary'] },
+            { id: 'mini', name: 'Mini Crossword', icon: '📝', url: 'https://www.nytimes.com/crosswords/game/mini', source: 'NY Times', description: 'Quick daily crossword', tags: ['crossword', 'quick'] },
+            { id: 'letterboxed', name: 'Letterboxed', icon: '📦', url: 'https://www.nytimes.com/puzzles/letter-boxed', source: 'NY Times', description: 'Connect letters on a box', tags: ['word', 'puzzle'] },
+            { id: 'tiles', name: 'Tiles', icon: '🀄', url: 'https://www.nytimes.com/puzzles/tiles', source: 'NY Times', description: 'Match tiles to clear the board', tags: ['matching', 'visual'] },
+            { id: 'vertex', name: 'Vertex', icon: '📐', url: 'https://www.nytimes.com/puzzles/vertex', source: 'NY Times', description: 'Connect dots without crossing', tags: ['logic', 'visual'] },
+            { id: 'immaculate-grid', name: 'Immaculate Grid', icon: '⚾', url: 'https://www.immaculategrid.com/', source: 'Sports', description: 'Baseball trivia grid', tags: ['sports', 'trivia'] },
+            { id: 'costcodle', name: 'Costcodle', icon: '🛒', url: 'https://costcodle.com/', source: 'Fun', description: 'Guess Costco product prices', tags: ['fun', 'guessing'] },
+            { id: 'tradle', name: 'Tradle', icon: '🚢', url: 'https://oec.world/en/tradle/', source: 'Geography', description: 'Guess country by exports', tags: ['geography', 'economics'] },
+            { id: 'worldle', name: 'Worldle', icon: '🌍', url: 'https://worldle.teuteuf.fr/', source: 'Geography', description: 'Guess country by outline', tags: ['geography'] },
+            { id: 'globle', name: 'Globle', icon: '🌎', url: 'https://globle-game.com/', source: 'Geography', description: 'Find the mystery country', tags: ['geography'] },
+            { id: 'foodguessr', name: 'FoodGuessr', icon: '🍔', url: 'https://www.foodguessr.com/', source: 'Fun', description: 'Guess food origins', tags: ['food', 'geography'] },
+            { id: 'quordle', name: 'Quordle', icon: '4️⃣', url: 'https://www.merriam-webster.com/games/quordle/', source: 'Words', description: 'Solve 4 Wordles at once', tags: ['word', 'challenge'] },
+            { id: 'octordle', name: 'Octordle', icon: '8️⃣', url: 'https://octordle.com/', source: 'Words', description: 'Solve 8 Wordles at once', tags: ['word', 'challenge'] },
+            { id: 'semantle', name: 'Semantle', icon: '🧠', url: 'https://semantle.com/', source: 'Words', description: 'Guess by word meaning similarity', tags: ['word', 'AI'] },
+            { id: 'redactle', name: 'Redactle', icon: '█', url: 'https://redactle.net/', source: 'Knowledge', description: 'Guess the Wikipedia article', tags: ['trivia', 'deduction'] },
+        ];
+
+        // ============ STATE ============
+        let userData = {
+            registered: false,
+            games: [],
+            stats: {},
+            reviews: {},
+            chatMessages: [],
+            history: {}, // { 'YYYY-MM-DD': { gamesPlayed: 3, totalGames: 8 } }
+            achievements: {} // { achievementId: unlockedDate }
+        };
+
+        let currentReviewGameId = null;
+        let currentRating = 0;
+        let calendarMonth = new Date().getMonth();
+        let calendarYear = new Date().getFullYear();
+
+        // Achievements definitions
+        const ACHIEVEMENTS = [
+            { id: 'first-game', name: 'First Steps', icon: '👶', desc: 'Play your first game', check: (d) => d.stats.totalCompleted >= 1 },
+            { id: 'streak-3', name: 'Hat Trick', icon: '🎩', desc: '3-day streak', check: (d) => getMaxStreak(d) >= 3 },
+            { id: 'streak-7', name: 'Week Warrior', icon: '⚔️', desc: '7-day streak', check: (d) => getMaxStreak(d) >= 7 },
+            { id: 'streak-30', name: 'Monthly Master', icon: '👑', desc: '30-day streak', check: (d) => getMaxStreak(d) >= 30 },
+            { id: 'games-5', name: 'Collector', icon: '📚', desc: 'Add 5 games to shelf', check: (d) => (FEATURED_GAMES.length + d.games.length) >= 5 },
+            { id: 'games-10', name: 'Enthusiast', icon: '🎮', desc: 'Add 10 games to shelf', check: (d) => (FEATURED_GAMES.length + d.games.length) >= 10 },
+            { id: 'perfect-day', name: 'Perfect Day', icon: '💯', desc: 'Play all games in one day', check: (d) => hasPerfectDay(d) },
+            { id: 'early-bird', name: 'Early Bird', icon: '🐦', desc: 'Play before 7 AM', check: (d) => d.achievements?.['early-bird'] },
+            { id: 'night-owl', name: 'Night Owl', icon: '🦉', desc: 'Play after 11 PM', check: (d) => d.achievements?.['night-owl'] },
+            { id: 'reviewer', name: 'Critic', icon: '⭐', desc: 'Write 3 reviews', check: (d) => Object.keys(d.reviews || {}).length >= 3 },
+            { id: 'social', name: 'Social Butterfly', icon: '🦋', desc: 'Share your shelf', check: (d) => d.achievements?.['social'] },
+            { id: 'centurion', name: 'Centurion', icon: '🏛️', desc: 'Complete 100 games total', check: (d) => d.stats.totalCompleted >= 100 },
+        ];
+
+        // ============ INIT ============
+        function init() {
+            loadData();
+            loadTheme();
+            
+            if (!userData.registered) {
+                showWelcome();
+            }
+            
+            renderFeaturedGames();
+            renderMyGames();
+            renderDiscoverList();
+            renderReviews();
+            renderChat();
+            updateStats();
+            updateSharePreview();
+            setupStarRating();
+            renderCalendar();
+            renderAchievements();
+            checkTimeAchievements();
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('gameShelfData');
+            if (saved) {
+                userData = JSON.parse(saved);
+                // Migrate old data
+                if (!userData.reviews) userData.reviews = {};
+                if (!userData.chatMessages) userData.chatMessages = [];
+                if (!userData.history) userData.history = {};
+                if (!userData.achievements) userData.achievements = {};
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('gameShelfData', JSON.stringify(userData));
+        }
+
+        // ============ SETTINGS MENU ============
+        function toggleSettingsMenu() {
+            const menu = document.getElementById('settings-menu');
+            const overlay = document.getElementById('settings-overlay');
+            menu.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function setTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-light').classList.add('active');
+                document.getElementById('theme-dark').classList.remove('active');
+            } else {
+                document.body.classList.remove('light-mode');
+                document.getElementById('theme-dark').classList.add('active');
+                document.getElementById('theme-light').classList.remove('active');
+            }
+            localStorage.setItem('gameShelfTheme', theme);
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('gameShelfTheme') || 'dark';
+            setTheme(savedTheme);
+        }
+
+        function showAbout() {
+            toggleSettingsMenu();
+            document.getElementById('about-modal').classList.add('active');
+        }
+
+        function closeAboutModal() {
+            document.getElementById('about-modal').classList.remove('active');
+        }
+
+        // ============ TAB NAVIGATION ============
+        function switchTab(tabId) {
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        // ============ REGISTRATION ============
+        function showWelcome() {
+            const list = document.getElementById('registration-list');
+            list.innerHTML = POPULAR_GAMES.slice(0, 10).map(game => `
+                <div class="game-list-item" onclick="toggleRegistrationGame('${game.id}')" data-id="${game.id}">
+                    <span class="icon">${game.icon}</span>
+                    <div class="info">
+                        <div class="name">${game.name}</div>
+                        <div class="source">${game.source}</div>
+                    </div>
+                    <div class="checkbox">✓</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('welcome-modal').classList.add('active');
+        }
+
+        function toggleRegistrationGame(id) {
+            const item = document.querySelector(`#registration-list .game-list-item[data-id="${id}"]`);
+            item.classList.toggle('selected');
+        }
+
+        function completeRegistration() {
+            const selected = document.querySelectorAll('#registration-list .game-list-item.selected');
+            const selectedIds = Array.from(selected).map(el => el.dataset.id);
+            
+            selectedIds.forEach(id => {
+                const game = POPULAR_GAMES.find(g => g.id === id);
+                if (game && !userData.games.find(g => g.id === id)) {
+                    userData.games.push({ ...game });
+                    userData.stats[id] = { lastPlayed: null, streak: 0, totalPlays: 0 };
+                }
+            });
+            
+            userData.registered = true;
+            saveData();
+            
+            document.getElementById('welcome-modal').classList.remove('active');
+            renderMyGames();
+            renderDiscoverList();
+            updateStats();
+        }
+
+        function skipRegistration() {
+            userData.registered = true;
+            saveData();
+            document.getElementById('welcome-modal').classList.remove('active');
+        }
+
+        // ============ RENDERING ============
+        function renderFeaturedGames() {
+            const container = document.getElementById('featured-games');
+            container.innerHTML = FEATURED_GAMES.map(game => {
+                const stats = userData.stats[game.id] || { lastPlayed: null, streak: 0 };
+                const playedToday = isToday(stats.lastPlayed);
+                const review = userData.reviews[game.id];
+                
+                return `
+                    <div class="featured-card ${playedToday ? 'played-today' : ''}" onclick="playGame('${game.id}', '${game.url}', true)">
+                        <span class="featured-badge">RB Games</span>
+                        ${playedToday ? '<span class="check-badge">✓</span>' : ''}
+                        <span class="icon">${game.icon}</span>
+                        <div class="name">${game.name}</div>
+                        <div class="streak ${stats.streak > 0 ? 'active' : ''}">
+                            ${stats.streak > 0 ? '🔥 ' + stats.streak + ' day streak' : 'Start your streak!'}
+                        </div>
+                        ${review && review.rating ? `<div class="rating">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderMyGames() {
+            const container = document.getElementById('my-games');
+            
+            if (userData.games.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="icon">📚</div>
+                        <p>No games added yet.<br>Click "Add Game" to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = userData.games.map(game => {
+                const stats = userData.stats[game.id] || { lastPlayed: null, streak: 0 };
+                const playedToday = isToday(stats.lastPlayed);
+                const review = userData.reviews[game.id];
+                
+                return `
+                    <div class="game-card ${playedToday ? 'played-today' : ''}" onclick="playGame('${game.id}', '${game.url}')">
+                        <button class="remove-btn" onclick="event.stopPropagation(); removeGame('${game.id}')">✕</button>
+                        ${playedToday ? '<span class="check-badge">✓</span>' : ''}
+                        <span class="icon">${game.icon}</span>
+                        <div class="name">${game.name}</div>
+                        <div class="streak ${stats.streak > 0 ? 'active' : ''}">
+                            ${stats.streak > 0 ? '🔥 ' + stats.streak : 'No streak'}
+                        </div>
+                        ${review && review.rating ? `<div class="rating">${'<span class="star filled">★</span>'.repeat(review.rating)}${'<span class="star">★</span>'.repeat(5-review.rating)}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDiscoverList() {
+            const existingIds = [...userData.games.map(g => g.id), ...FEATURED_GAMES.map(g => g.id)];
+            const available = POPULAR_GAMES.filter(g => !existingIds.includes(g.id));
+            
+            const container = document.getElementById('discover-list');
+            
+            if (available.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="icon">🎉</div>
+                        <p>You've added all the games!<br>Check the Community tab for more.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = available.map(game => `
+                <div class="discover-card" onclick="addGameFromDiscover('${game.id}')">
+                    <div class="header">
+                        <span class="icon">${game.icon}</span>
+                        <div>
+                            <div class="name">${game.name}</div>
+                            <div class="source">${game.source}</div>
+                        </div>
+                    </div>
+                    <div class="description">${game.description}</div>
+                    <div class="tags">
+                        ${game.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderReviews() {
+            const allGames = [...FEATURED_GAMES, ...userData.games];
+            const gamesWithStats = allGames.filter(g => userData.stats[g.id] && userData.stats[g.id].totalPlays > 0);
+            
+            const container = document.getElementById('reviews-list');
+            const emptyState = document.getElementById('reviews-empty');
+            
+            if (gamesWithStats.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            container.innerHTML = gamesWithStats.map(game => {
+                const stats = userData.stats[game.id] || {};
+                const review = userData.reviews[game.id] || {};
+                
+                return `
+                    <div class="review-card">
+                        <div class="review-header">
+                            <span class="icon">${game.icon}</span>
+                            <div class="info">
+                                <h4>${game.name}</h4>
+                                <div class="stars">${review.rating ? '★'.repeat(review.rating) + '☆'.repeat(5-review.rating) : '<span style="color: var(--text-muted)">Not rated</span>'}</div>
+                            </div>
+                            <div style="margin-left: auto; text-align: right; font-size: 0.8rem; color: var(--text-muted);">
+                                <div>🔥 ${stats.streak || 0} streak</div>
+                                <div>📊 ${stats.totalPlays || 0} plays</div>
+                            </div>
+                        </div>
+                        <div class="review-notes" onclick="openReviewModal('${game.id}')">${review.notes || ''}</div>
+                        <div class="review-actions">
+                            <button class="btn btn-secondary btn-small" onclick="openReviewModal('${game.id}')">✏️ ${review.rating ? 'Edit' : 'Add'} Review</button>
+                            <button class="btn btn-secondary btn-small" onclick="playGame('${game.id}', '${game.url}', ${game.featured || false})">▶️ Play</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ============ GAME ACTIONS ============
+        function playGame(id, url, featured = false) {
+            // Initialize stats if needed
+            if (!userData.stats[id]) {
+                userData.stats[id] = { lastPlayed: null, streak: 0, totalPlays: 0 };
+            }
+            
+            const stats = userData.stats[id];
+            const today = getTodayString();
+            const yesterday = getYesterdayString();
+            
+            // Update streak logic
+            if (stats.lastPlayed !== today) {
+                if (stats.lastPlayed === yesterday) {
+                    stats.streak++;
+                } else if (stats.lastPlayed !== today) {
+                    stats.streak = 1;
+                }
+                stats.totalPlays++;
+                stats.lastPlayed = today;
+                
+                // Track total completed
+                if (!userData.stats.totalCompleted) userData.stats.totalCompleted = 0;
+                userData.stats.totalCompleted++;
+            }
+            
+            saveData();
+            recordHistory();
+            
+            // Re-render and update
+            renderFeaturedGames();
+            renderMyGames();
+            renderReviews();
+            updateStats();
+            renderCalendar();
+            
+            // Check achievements
+            checkAndUnlockAchievements();
+            unlockTimeAchievement();
+            
+            // Open game in new tab
+            window.open(url, '_blank');
+        }
+
+        function removeGame(id) {
+            if (!confirm('Remove this game from your shelf?')) return;
+            
+            userData.games = userData.games.filter(g => g.id !== id);
+            delete userData.stats[id];
+            delete userData.reviews[id];
+            saveData();
+            renderMyGames();
+            renderDiscoverList();
+            renderReviews();
+            updateStats();
+        }
+
+        function addGameFromDiscover(id) {
+            const game = POPULAR_GAMES.find(g => g.id === id);
+            if (game && !userData.games.find(g => g.id === id)) {
+                userData.games.push({ ...game });
+                userData.stats[id] = { lastPlayed: null, streak: 0, totalPlays: 0 };
+                saveData();
+                renderMyGames();
+                renderDiscoverList();
+                updateStats();
+                
+                // Show confirmation
+                alert(`${game.icon} ${game.name} added to your shelf!`);
+            }
+        }
+
+        // ============ ADD GAME ============
+        function showAddGameModal() {
+            const existingIds = [...userData.games.map(g => g.id), ...FEATURED_GAMES.map(g => g.id)];
+            const available = POPULAR_GAMES.filter(g => !existingIds.includes(g.id));
+            
+            const list = document.getElementById('add-game-list');
+            
+            if (available.length > 0) {
+                list.innerHTML = available.map(game => `
+                    <div class="game-list-item" onclick="toggleAddGame('${game.id}')" data-id="${game.id}">
+                        <span class="icon">${game.icon}</span>
+                        <div class="info">
+                            <div class="name">${game.name}</div>
+                            <div class="source">${game.source}</div>
+                        </div>
+                        <div class="checkbox">✓</div>
+                    </div>
+                `).join('');
+            } else {
+                list.innerHTML = '<p style="text-align:center; color: var(--text-muted);">All popular games added! Use the form below to add custom games.</p>';
+            }
+            
+            // Clear custom inputs
+            document.getElementById('custom-name').value = '';
+            document.getElementById('custom-url').value = '';
+            document.getElementById('custom-icon').value = '';
+            
+            document.getElementById('add-game-modal').classList.add('active');
+        }
+
+        function closeAddGameModal() {
+            document.getElementById('add-game-modal').classList.remove('active');
+        }
+
+        function toggleAddGame(id) {
+            const item = document.querySelector(`#add-game-list .game-list-item[data-id="${id}"]`);
+            item.classList.toggle('selected');
+        }
+
+        function addSelectedGames() {
+            // Add selected popular games
+            const selected = document.querySelectorAll('#add-game-list .game-list-item.selected');
+            const selectedIds = Array.from(selected).map(el => el.dataset.id);
+            
+            selectedIds.forEach(id => {
+                const game = POPULAR_GAMES.find(g => g.id === id);
+                if (game && !userData.games.find(g => g.id === id)) {
+                    userData.games.push({ ...game });
+                    userData.stats[id] = { lastPlayed: null, streak: 0, totalPlays: 0 };
+                }
+            });
+            
+            // Add custom game if filled in
+            const customName = document.getElementById('custom-name').value.trim();
+            const customUrl = document.getElementById('custom-url').value.trim();
+            const customIcon = document.getElementById('custom-icon').value.trim() || '🎮';
+            
+            if (customName && customUrl) {
+                const customId = 'custom-' + Date.now();
+                userData.games.push({
+                    id: customId,
+                    name: customName,
+                    url: customUrl,
+                    icon: customIcon,
+                    source: 'Custom',
+                    description: 'Custom game',
+                    tags: ['custom']
+                });
+                userData.stats[customId] = { lastPlayed: null, streak: 0, totalPlays: 0 };
+            }
+            
+            saveData();
+            closeAddGameModal();
+            renderMyGames();
+            renderDiscoverList();
+            updateStats();
+        }
+
+        // ============ REVIEWS ============
+        function setupStarRating() {
+            const stars = document.querySelectorAll('#rating-input .star');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    currentRating = parseInt(star.dataset.value);
+                    updateStarDisplay();
+                });
+                star.addEventListener('mouseenter', () => {
+                    highlightStars(parseInt(star.dataset.value));
+                });
+            });
+            
+            document.getElementById('rating-input').addEventListener('mouseleave', () => {
+                updateStarDisplay();
+            });
+        }
+
+        function highlightStars(count) {
+            const stars = document.querySelectorAll('#rating-input .star');
+            stars.forEach((star, i) => {
+                star.classList.toggle('filled', i < count);
+            });
+        }
+
+        function updateStarDisplay() {
+            highlightStars(currentRating);
+        }
+
+        function openReviewModal(gameId) {
+            currentReviewGameId = gameId;
+            
+            const game = [...FEATURED_GAMES, ...userData.games].find(g => g.id === gameId);
+            const review = userData.reviews[gameId] || {};
+            
+            document.getElementById('review-game-icon').textContent = game.icon;
+            document.getElementById('review-game-name').textContent = game.name;
+            document.getElementById('review-notes').value = review.notes || '';
+            
+            currentRating = review.rating || 0;
+            updateStarDisplay();
+            
+            document.getElementById('review-modal').classList.add('active');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('review-modal').classList.remove('active');
+            currentReviewGameId = null;
+            currentRating = 0;
+        }
+
+        function saveReview() {
+            if (!currentReviewGameId) return;
+            
+            userData.reviews[currentReviewGameId] = {
+                rating: currentRating,
+                notes: document.getElementById('review-notes').value.trim(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            saveData();
+            closeReviewModal();
+            renderFeaturedGames();
+            renderMyGames();
+            renderReviews();
+        }
+
+        // ============ SETTINGS ============
+        function resetAllData() {
+            if (!confirm('This will delete all your games and stats. Are you sure?')) return;
+            
+            localStorage.removeItem('gameShelfData');
+            localStorage.removeItem('gameShelfTheme');
+            userData = { registered: false, games: [], stats: {}, reviews: {}, chatMessages: [], history: {}, achievements: {} };
+            
+            toggleSettingsMenu();
+            renderFeaturedGames();
+            renderMyGames();
+            renderDiscoverList();
+            renderReviews();
+            renderChat();
+            updateStats();
+            renderCalendar();
+            renderAchievements();
+            showWelcome();
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(userData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gameshelf-backup.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('📤 Data exported!');
+        }
+
+        // ============ CALENDAR HEATMAP ============
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const monthLabel = document.getElementById('calendar-month-label');
+            
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+            monthLabel.textContent = `${months[calendarMonth]} ${calendarYear}`;
+            
+            // Clear existing days (keep labels)
+            const existingDays = grid.querySelectorAll('.calendar-day');
+            existingDays.forEach(day => day.remove());
+            
+            // Get first day of month and total days
+            const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+            const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+            const today = new Date();
+            const todayStr = getTodayString();
+            
+            // Add empty cells for days before first of month
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                grid.appendChild(empty);
+            }
+            
+            // Add days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayData = getHistoryForDate(dateStr);
+                const level = getActivityLevel(dayData);
+                const isToday = dateStr === todayStr;
+                
+                const dayEl = document.createElement('div');
+                dayEl.className = `calendar-day level-${level}${isToday ? ' today' : ''}`;
+                dayEl.textContent = day;
+                
+                // Tooltip
+                if (dayData.gamesPlayed > 0) {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'calendar-tooltip';
+                    tooltip.textContent = `${dayData.gamesPlayed}/${dayData.totalGames} games`;
+                    dayEl.appendChild(tooltip);
+                }
+                
+                grid.appendChild(dayEl);
+            }
+        }
+
+        function getHistoryForDate(dateStr) {
+            // Check if we have history data
+            if (userData.history && userData.history[dateStr]) {
+                return userData.history[dateStr];
+            }
+            
+            // Fallback: calculate from stats
+            const allStats = { ...userData.stats };
+            let gamesPlayed = 0;
+            
+            Object.values(allStats).forEach(stat => {
+                if (stat.lastPlayed === dateStr) gamesPlayed++;
+            });
+            
+            return {
+                gamesPlayed,
+                totalGames: FEATURED_GAMES.length + userData.games.length
+            };
+        }
+
+        function getActivityLevel(dayData) {
+            if (!dayData || dayData.gamesPlayed === 0) return 0;
+            const ratio = dayData.gamesPlayed / Math.max(dayData.totalGames, 1);
+            if (ratio >= 0.9) return 4;
+            if (ratio >= 0.6) return 3;
+            if (ratio >= 0.3) return 2;
+            return 1;
+        }
+
+        function prevMonth() {
+            calendarMonth--;
+            if (calendarMonth < 0) {
+                calendarMonth = 11;
+                calendarYear--;
+            }
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            const now = new Date();
+            const targetDate = new Date(calendarYear, calendarMonth + 1, 1);
+            if (targetDate <= now) {
+                calendarMonth++;
+                if (calendarMonth > 11) {
+                    calendarMonth = 0;
+                    calendarYear++;
+                }
+                renderCalendar();
+            }
+        }
+
+        function recordHistory() {
+            const today = getTodayString();
+            const allStats = { ...userData.stats };
+            let gamesPlayed = 0;
+            
+            Object.values(allStats).forEach(stat => {
+                if (stat.lastPlayed === today) gamesPlayed++;
+            });
+            
+            userData.history[today] = {
+                gamesPlayed,
+                totalGames: FEATURED_GAMES.length + userData.games.length
+            };
+            
+            saveData();
+        }
+
+        // ============ ACHIEVEMENTS ============
+        function getMaxStreak(data) {
+            let maxStreak = 0;
+            Object.values(data.stats || {}).forEach(stat => {
+                if (stat.streak > maxStreak) maxStreak = stat.streak;
+            });
+            return maxStreak;
+        }
+
+        function hasPerfectDay(data) {
+            const history = data.history || {};
+            for (const day of Object.values(history)) {
+                if (day.gamesPlayed > 0 && day.gamesPlayed >= day.totalGames) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkTimeAchievements() {
+            const hour = new Date().getHours();
+            if (hour < 7 && !userData.achievements['early-bird']) {
+                // Will be unlocked when they play a game
+            }
+            if (hour >= 23 && !userData.achievements['night-owl']) {
+                // Will be unlocked when they play a game
+            }
+        }
+
+        function unlockTimeAchievement() {
+            const hour = new Date().getHours();
+            if (hour < 7 && !userData.achievements['early-bird']) {
+                userData.achievements['early-bird'] = getTodayString();
+                showToast('🏆 Achievement Unlocked: Early Bird!');
+            }
+            if (hour >= 23 && !userData.achievements['night-owl']) {
+                userData.achievements['night-owl'] = getTodayString();
+                showToast('🏆 Achievement Unlocked: Night Owl!');
+            }
+        }
+
+        function checkAndUnlockAchievements() {
+            let newUnlocks = [];
+            
+            ACHIEVEMENTS.forEach(achievement => {
+                if (!userData.achievements[achievement.id] && achievement.check(userData)) {
+                    userData.achievements[achievement.id] = getTodayString();
+                    newUnlocks.push(achievement);
+                }
+            });
+            
+            if (newUnlocks.length > 0) {
+                saveData();
+                renderAchievements();
+                newUnlocks.forEach(a => {
+                    setTimeout(() => showToast(`🏆 ${a.icon} ${a.name} unlocked!`), 500);
+                });
+            }
+        }
+
+        function renderAchievements() {
+            const grid = document.getElementById('achievements-grid');
+            const progressFill = document.getElementById('achievements-progress-fill');
+            const progressText = document.getElementById('achievements-progress-text');
+            
+            let unlockedCount = 0;
+            
+            grid.innerHTML = ACHIEVEMENTS.map(achievement => {
+                const isUnlocked = userData.achievements && userData.achievements[achievement.id];
+                if (isUnlocked) unlockedCount++;
+                
+                return `
+                    <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}">
+                        <span class="achievement-icon">${achievement.icon}</span>
+                        <div class="achievement-name">${achievement.name}</div>
+                        <div class="achievement-desc">${isUnlocked ? '✓ Unlocked' : achievement.desc}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            const percentage = (unlockedCount / ACHIEVEMENTS.length) * 100;
+            progressFill.style.width = percentage + '%';
+            progressText.textContent = `${unlockedCount}/${ACHIEVEMENTS.length}`;
+        }
+
+        // ============ SHARE TEXT PARSING ============
+        const GAME_PATTERNS = [
+            {
+                id: 'wordle',
+                name: 'Wordle',
+                icon: '🟩',
+                pattern: /Wordle\s+[\d,]+\s+(\d|X)\/6/i,
+                extract: (match) => {
+                    const score = match[0].match(/(\d|X)\/6/)[1];
+                    return { score: score === 'X' ? 'X/6' : `${score}/6`, success: score !== 'X' };
+                }
+            },
+            {
+                id: 'connections',
+                name: 'Connections',
+                icon: '🔗',
+                pattern: /Connections\s*\n?Puzzle\s*#?\d+/i,
+                extract: (match, text) => {
+                    const lines = text.split('\n').filter(l => /^[🟨🟩🟦🟪]+$/.test(l.trim()));
+                    const mistakes = lines.length - 4;
+                    return { score: `${Math.max(0, 4 - mistakes)} mistakes`, success: mistakes <= 4 };
+                }
+            },
+            {
+                id: 'strands',
+                name: 'Strands',
+                icon: '🧵',
+                pattern: /Strands\s*#?\d+/i,
+                extract: (match, text) => {
+                    const hints = (text.match(/💡/g) || []).length;
+                    return { score: hints > 0 ? `${hints} hints` : 'No hints!', success: true };
+                }
+            },
+            {
+                id: 'quordle',
+                name: 'Quordle',
+                icon: '4️⃣',
+                pattern: /Daily\s+Quordle\s+\d+/i,
+                extract: () => ({ score: 'Completed', success: true })
+            },
+            {
+                id: 'octordle',
+                name: 'Octordle',
+                icon: '8️⃣',
+                pattern: /Daily\s+Octordle\s+#?\d+/i,
+                extract: () => ({ score: 'Completed', success: true })
+            },
+            {
+                id: 'worldle',
+                name: 'Worldle',
+                icon: '🌍',
+                pattern: /#Worldle\s+#?\d+/i,
+                extract: (match, text) => {
+                    const guesses = (text.match(/[🟩🟨⬛🟧⬜]/g) || []).length / 5;
+                    return { score: `${Math.ceil(guesses)}/6 guesses`, success: true };
+                }
+            },
+            {
+                id: 'globle',
+                name: 'Globle',
+                icon: '🌎',
+                pattern: /🌎\s*\w+\s+\d+,\s+\d+\s+🌍/i,
+                extract: () => ({ score: 'Completed', success: true })
+            }
+        ];
+
+        function parseShareText() {
+            const input = document.getElementById('parse-input');
+            const result = document.getElementById('parse-result');
+            const resultIcon = document.getElementById('parse-result-icon');
+            const resultGame = document.getElementById('parse-result-game');
+            const resultScore = document.getElementById('parse-result-score');
+            
+            const text = input.value.trim();
+            
+            if (!text) {
+                showToast('Please paste your game results');
+                return;
+            }
+            
+            let matched = false;
+            
+            for (const game of GAME_PATTERNS) {
+                const match = text.match(game.pattern);
+                if (match) {
+                    const extracted = game.extract(match, text);
+                    
+                    // Mark the game as played
+                    const gameId = game.id;
+                    const today = getTodayString();
+                    
+                    if (!userData.stats[gameId]) {
+                        userData.stats[gameId] = { lastPlayed: null, streak: 0, totalPlays: 0 };
+                    }
+                    
+                    if (userData.stats[gameId].lastPlayed !== today) {
+                        userData.stats[gameId].lastPlayed = today;
+                        userData.stats[gameId].streak++;
+                        userData.stats[gameId].totalPlays = (userData.stats[gameId].totalPlays || 0) + 1;
+                        
+                        // Also track in totalCompleted
+                        if (!userData.stats.totalCompleted) userData.stats.totalCompleted = 0;
+                        userData.stats.totalCompleted++;
+                    }
+                    
+                    saveData();
+                    recordHistory();
+                    
+                    // Show result
+                    result.classList.add('show');
+                    result.classList.remove('error');
+                    result.classList.add('success');
+                    resultIcon.textContent = game.icon;
+                    resultGame.textContent = game.name;
+                    resultScore.textContent = extracted.score + (extracted.success ? ' ✓' : '');
+                    
+                    // Update UI
+                    renderFeaturedGames();
+                    renderMyGames();
+                    updateStats();
+                    renderCalendar();
+                    checkAndUnlockAchievements();
+                    unlockTimeAchievement();
+                    
+                    showToast(`✓ ${game.name} logged!`);
+                    input.value = '';
+                    
+                    matched = true;
+                    break;
+                }
+            }
+            
+            if (!matched) {
+                result.classList.add('show');
+                result.classList.remove('success');
+                result.classList.add('error');
+                resultIcon.textContent = '❓';
+                resultGame.textContent = 'Unknown Game';
+                resultScore.textContent = 'Could not parse results. Try another format.';
+            }
+        }
+
+        // ============ STATS ============
+        function updateStats() {
+            const today = getTodayString();
+            const allStats = { ...userData.stats };
+            
+            // Count played today
+            let playedToday = 0;
+            let bestStreak = 0;
+            
+            Object.values(allStats).forEach(stat => {
+                if (stat.lastPlayed === today) playedToday++;
+                if (stat.streak > bestStreak) bestStreak = stat.streak;
+            });
+            
+            const totalGames = FEATURED_GAMES.length + userData.games.length;
+            
+            document.getElementById('today-count').textContent = playedToday;
+            document.getElementById('best-streak').textContent = bestStreak;
+            document.getElementById('total-games').textContent = totalGames;
+            
+            // Also update share preview
+            updateSharePreview();
+        }
+
+        // ============ UTILITIES ============
+        function getTodayString() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        function getYesterdayString() {
+            const now = new Date();
+            now.setDate(now.getDate() - 1);
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        function isToday(dateStr) {
+            return dateStr === getTodayString();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 RSS URL copied!');
+            }).catch(() => {
+                showToast('Failed to copy');
+            });
+        }
+
+        // ============ CHAT/DISCUSSION ============
+        function renderChat() {
+            const container = document.getElementById('chat-messages');
+            const messages = userData.chatMessages || [];
+            
+            if (messages.length === 0) {
+                container.innerHTML = `
+                    <div class="chat-empty">
+                        <p>💬 No messages yet!</p>
+                        <p style="font-size: 0.8rem;">Share your daily results, tips, or thoughts.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = messages.map((msg, index) => `
+                <div class="chat-message">
+                    <div class="chat-message-header">
+                        <span class="chat-message-time">${formatChatTime(msg.timestamp)}</span>
+                        <button class="chat-message-delete" onclick="deleteChatMessage(${index})">🗑️</button>
+                    </div>
+                    <div class="chat-message-text">${escapeHtml(msg.text)}</div>
+                </div>
+            `).join('');
+            
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function postChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            if (!userData.chatMessages) userData.chatMessages = [];
+            
+            userData.chatMessages.push({
+                text: text,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Keep only last 50 messages
+            if (userData.chatMessages.length > 50) {
+                userData.chatMessages = userData.chatMessages.slice(-50);
+            }
+            
+            saveData();
+            input.value = '';
+            renderChat();
+        }
+
+        function deleteChatMessage(index) {
+            if (!confirm('Delete this message?')) return;
+            userData.chatMessages.splice(index, 1);
+            saveData();
+            renderChat();
+        }
+
+        function formatChatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+            
+            return date.toLocaleDateString();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Handle Enter key in chat
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatInput = document.getElementById('chat-input');
+            if (chatInput) {
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        postChatMessage();
+                    }
+                });
+            }
+        });
+
+        // ============ SHARE SHELF ============
+        function updateSharePreview() {
+            const today = getTodayString();
+            const allStats = { ...userData.stats };
+            
+            let playedToday = 0;
+            let bestStreak = 0;
+            
+            Object.values(allStats).forEach(stat => {
+                if (stat.lastPlayed === today) playedToday++;
+                if (stat.streak > bestStreak) bestStreak = stat.streak;
+            });
+            
+            const totalGames = FEATURED_GAMES.length + userData.games.length;
+            
+            // Update share preview stats
+            document.getElementById('share-played').textContent = playedToday;
+            document.getElementById('share-streak').textContent = bestStreak;
+            document.getElementById('share-total').textContent = totalGames;
+            document.getElementById('share-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+            
+            // Show games in share preview
+            const allGames = [...FEATURED_GAMES, ...userData.games].slice(0, 8);
+            document.getElementById('share-games').innerHTML = allGames.map(game => {
+                const stats = userData.stats[game.id] || { streak: 0 };
+                const playedToday = isToday(stats.lastPlayed);
+                return `
+                    <div class="share-game-item" style="${playedToday ? 'border: 2px solid var(--accent-green);' : ''}">
+                        <span class="icon">${game.icon}</span>
+                        <div class="name">${game.name}</div>
+                        ${stats.streak > 0 ? `<div class="streak">🔥${stats.streak}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function shareAsText() {
+            const today = getTodayString();
+            const allStats = { ...userData.stats };
+            
+            let playedToday = 0;
+            let bestStreak = 0;
+            
+            Object.values(allStats).forEach(stat => {
+                if (stat.lastPlayed === today) playedToday++;
+                if (stat.streak > bestStreak) bestStreak = stat.streak;
+            });
+            
+            const totalGames = FEATURED_GAMES.length + userData.games.length;
+            const allGames = [...FEATURED_GAMES, ...userData.games];
+            
+            let text = `🎮 My Game Shelf\n`;
+            text += `${new Date().toLocaleDateString()}\n\n`;
+            text += `📊 Today: ${playedToday}/${totalGames} | 🔥 Best Streak: ${bestStreak}\n\n`;
+            
+            const playedGames = allGames.filter(g => allStats[g.id] && isToday(allStats[g.id].lastPlayed));
+            if (playedGames.length > 0) {
+                text += `✅ Played: ${playedGames.map(g => g.icon).join(' ')}\n`;
+            }
+            
+            text += `\n🎯 gameshelf.app`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 Copied to clipboard!');
+                // Unlock social achievement
+                if (!userData.achievements['social']) {
+                    userData.achievements['social'] = getTodayString();
+                    saveData();
+                    checkAndUnlockAchievements();
+                }
+            });
+        }
+
+        function shareNative() {
+            const today = getTodayString();
+            const allStats = { ...userData.stats };
+            
+            let playedToday = 0;
+            let bestStreak = 0;
+            
+            Object.values(allStats).forEach(stat => {
+                if (stat.lastPlayed === today) playedToday++;
+                if (stat.streak > bestStreak) bestStreak = stat.streak;
+            });
+            
+            const totalGames = FEATURED_GAMES.length + userData.games.length;
+            
+            const shareData = {
+                title: 'My Game Shelf',
+                text: `🎮 Game Shelf - ${playedToday}/${totalGames} played today! Best streak: ${bestStreak}🔥`,
+                url: 'https://gameshelf.app'
+            };
+            
+            if (navigator.share) {
+                navigator.share(shareData).then(() => {
+                    // Unlock social achievement
+                    if (!userData.achievements['social']) {
+                        userData.achievements['social'] = getTodayString();
+                        saveData();
+                        checkAndUnlockAchievements();
+                    }
+                }).catch(() => {});
+            } else {
+                shareAsText();
+            }
+        }
+
+        async function shareAsImage() {
+            const preview = document.getElementById('share-preview');
+            
+            try {
+                // Use html2canvas if available, otherwise fallback
+                if (typeof html2canvas !== 'undefined') {
+                    const canvas = await html2canvas(preview, {
+                        backgroundColor: '#1a1a2e',
+                        scale: 2
+                    });
+                    
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'gameshelf-' + getTodayString() + '.png';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        showToast('📷 Image saved!');
+                    });
+                } else {
+                    // Fallback: copy text instead
+                    showToast('📋 Copying text instead...');
+                    shareAsText();
+                }
+            } catch (err) {
+                shareAsText();
+            }
+        }
+
+        // ============ START ============
+        init();
+
+        // Close modals on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
