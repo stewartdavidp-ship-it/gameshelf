@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.0.0">
+    <meta name="version" content="1.2.0.3">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
     
@@ -646,6 +646,74 @@
         .share-today-btn:active {
             opacity: 0.9;
             transform: scale(0.98);
+        }
+        
+        /* Floating Action Button for Share */
+        .share-fab {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .share-fab.visible {
+            display: flex;
+        }
+        
+        .share-fab:active {
+            transform: scale(0.95);
+        }
+        
+        .share-fab-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--accent-green);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
+        
+        /* Weekly Recap Card */
+        .weekly-recap-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 10px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .weekly-recap-btn:active {
+            background: var(--bg-secondary);
         }
         
         /* Widget Cards */
@@ -6803,9 +6871,13 @@
     <!-- Header -->
     <header class="header">
         <div class="logo">
-            <span>ð®</span>
+            <svg viewBox="0 0 110 80" width="32" height="23" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                <defs><linearGradient id="gsLogoG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#5568d8"/></linearGradient><linearGradient id="gsLogoS" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#9061f9"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs>
+                <g transform="rotate(10, 75, 40)"><rect x="55" y="10" width="48" height="55" rx="6" fill="url(#gsLogoS)"/><circle cx="55" cy="37" r="10" fill="var(--bg-primary, #1a1a2e)"/><text x="80" y="48" font-family="Arial" font-size="30" font-weight="bold" fill="white" text-anchor="middle">S</text></g>
+                <g transform="rotate(-10, 35, 40)"><rect x="5" y="10" width="48" height="55" rx="6" fill="url(#gsLogoG)"/><circle cx="53" cy="37" r="10" fill="url(#gsLogoG)"/><text x="28" y="48" font-family="Arial" font-size="30" font-weight="bold" fill="white" text-anchor="middle">G</text></g>
+            </svg>
             <span>Game Shelf</span>
-            <span style="font-size: 0.6rem; color: var(--accent-orange); margin-left: 4px; font-weight: bold;">v1.0.0</span>
+            <span style="font-size: 0.6rem; color: var(--accent-orange); margin-left: 4px; font-weight: bold;">v1.2.0.3</span>
         </div>
         <div class="header-right">
             <div class="wallet-display">
@@ -6939,6 +7011,21 @@
                             Reset All Data
                         </a>
                     </div>
+                    
+                    <!-- Developer -->
+                    <div class="settings-section">
+                        <div class="settings-section-title">ð§ª Developer</div>
+                        <div class="settings-toggle-row">
+                            <label>
+                                <span class="icon">ð¬</span>
+                                <span>Test Mode</span>
+                            </label>
+                            <input type="checkbox" id="test-mode-toggle" onchange="toggleTestMode(this.checked)">
+                        </div>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 4px 0 0 36px;">
+                            Use test repos for GS Originals (Quotle, Slate, Rungs, Word Boxing)
+                        </p>
+                    </div>
                 </div>
             </div>
             
@@ -7019,7 +7106,7 @@
             </div>
         </div>
         <div class="settings-footer">
-            <div class="settings-version">Game Shelf PWA v1.0.0</div>
+            <div class="settings-version">Game Shelf PWA v1.2.0.3</div>
         </div>
     </div>
     
@@ -7377,6 +7464,10 @@
                     <span>ð¤</span>
                     <span>Quick Share All Results</span>
                 </button>
+                <button class="weekly-recap-btn" onclick="openWeeklyRecap()">
+                    <span>ð</span>
+                    <span>Share Weekly Recap</span>
+                </button>
             </div>
             
             <!-- Message Composer -->
@@ -7483,6 +7574,12 @@
             </div>
         </div>
     </main>
+    
+    <!-- Floating Share Button -->
+    <button class="share-fab" id="share-fab" onclick="quickShareRecap()" title="Share Today's Results">
+        ð¤
+        <span class="share-fab-badge" id="share-fab-badge">0</span>
+    </button>
     
     <!-- Bottom Navigation -->
     <nav class="nav-bar">
@@ -10795,6 +10892,40 @@ Tip: You can paste multiple games at once!" oninput="parseLogInput()"></textarea
             wordboxing: { id: 'wordboxing', name: 'Word Boxing', icon: 'ð¥', url: 'https://stewartdavidp-ship-it.github.io/WordBoxing/', hasApp: false }
         };
         
+        // Test URLs for GS Originals (used when Test Mode is enabled)
+        const GS_ORIGINALS_TEST_URLS = {
+            quotle: 'https://stewartdavidp-ship-it.github.io/Quotle-test/',
+            slate: 'https://stewartdavidp-ship-it.github.io/Slate-test/',
+            rungs: 'https://stewartdavidp-ship-it.github.io/Rungs-test/',
+            wordboxing: 'https://stewartdavidp-ship-it.github.io/WordBoxing-test/'
+        };
+        
+        // Production URLs for GS Originals (default)
+        const GS_ORIGINALS_PROD_URLS = {
+            quotle: 'https://stewartdavidp-ship-it.github.io/Quotle/',
+            slate: 'https://stewartdavidp-ship-it.github.io/Slate/',
+            rungs: 'https://stewartdavidp-ship-it.github.io/Rungstest/',
+            wordboxing: 'https://stewartdavidp-ship-it.github.io/WordBoxing/'
+        };
+        
+        // Check if game is a GS Original
+        function isGSOriginal(gameId) {
+            return ['quotle', 'slate', 'rungs', 'wordboxing'].includes(gameId);
+        }
+        
+        // Get URL for game (respects test mode for GS Originals)
+        function getGameUrl(gameId) {
+            if (isGSOriginal(gameId) && isTestModeEnabled()) {
+                return GS_ORIGINALS_TEST_URLS[gameId];
+            }
+            return GAMES[gameId]?.url;
+        }
+        
+        // Check if test mode is enabled
+        function isTestModeEnabled() {
+            return localStorage.getItem('gameshelf_test_mode') === 'true';
+        }
+        
         // App info for publishers that have apps
         const APP_INFO = {
             nyt: {
@@ -13582,6 +13713,18 @@ Tip: You can paste multiple games at once!" oninput="parseLogInput()"></textarea
             showToast(enabled ? 'â¡ Auto-log enabled - results logged automatically' : 'ð Manual mode - confirm each log');
         }
         
+        function toggleTestMode(enabled) {
+            localStorage.setItem('gameshelf_test_mode', enabled ? 'true' : 'false');
+            showToast(enabled ? 'ð§ª Test Mode ON - using test repos for GS Originals' : 'ð Test Mode OFF - using production repos');
+        }
+        
+        function initTestModeToggle() {
+            const toggle = document.getElementById('test-mode-toggle');
+            if (toggle) {
+                toggle.checked = isTestModeEnabled();
+            }
+        }
+        
         // ============ REFERRAL SYSTEM ============
         const REFERRAL_REWARDS = {
             invite: 10,      // Tier 1: Send invite
@@ -14562,8 +14705,8 @@ Tip: You can paste multiple games at once!" oninput="parseLogInput()"></textarea
         }
         
         function showAbout() {
-            const version = '1.0.0';
-            const aboutText = `ð® Game Shelf PWA
+            const version = '1.2.0.3';
+            const aboutText = `ð§© Game Shelf PWA
 
 Track your daily puzzle games in one place!
 
@@ -16722,6 +16865,14 @@ Made with â¤ï¸ for puzzle enthusiasts`;
                 shareBtn.style.display = played > 0 ? 'flex' : 'none';
             }
             
+            // Show/hide floating share button (FAB)
+            const fab = document.getElementById('share-fab');
+            const fabBadge = document.getElementById('share-fab-badge');
+            if (fab) {
+                fab.classList.toggle('visible', played > 0);
+                if (fabBadge) fabBadge.textContent = played;
+            }
+            
             if (played === 0) {
                 document.getElementById('games-today-text').textContent = 'Play your first game!';
             } else if (played >= goal) {
@@ -17338,7 +17489,13 @@ Made with â¤ï¸ for puzzle enthusiasts`;
             console.log(`ð® Launching ${game.name}...`);
             
             // Determine which URL to use
-            let launchUrl = game.url; // Default: browser URL
+            // For GS Originals, check test mode; otherwise use game.url
+            let launchUrl = getGameUrl(gameId) || game.url;
+            
+            // Log test mode status for GS Originals
+            if (isGSOriginal(gameId) && isTestModeEnabled()) {
+                console.log(`ð§ª Test Mode: Using test URL for ${game.name}`);
+            }
             
             // Check for custom URL first
             const customUrl = appData.customUrls?.[gameId];
@@ -17349,7 +17506,10 @@ Made with â¤ï¸ for puzzle enthusiasts`;
                 const pref = appData.launchPrefs?.[gameId];
                 if (pref === 'app' && game.hasApp) {
                     // They prefer the app - use the same URL, iOS/Android will intercept via Universal Links
-                    launchUrl = game.url;
+                    // Note: keep original URL for universal links, not test URL
+                    if (!isGSOriginal(gameId)) {
+                        launchUrl = game.url;
+                    }
                     console.log(`ð± Launching via app (Universal Link): ${launchUrl}`);
                 } else {
                     console.log(`ð Launching in browser: ${launchUrl}`);
@@ -17571,30 +17731,6 @@ Made with â¤ï¸ for puzzle enthusiasts`;
             
             // Don't show if clipboard already detected this game
             if (detectedClipboard?.result?.gameId === lastLaunchedGame) return;
-            
-            // For Game Shelf games, check if there's actually a result in localStorage
-            // These games use localStorage sync, so only prompt if we found a result
-            if (GAMESHELF_GAME_IDS.includes(lastLaunchedGame)) {
-                const latestKey = `gameshelf_${lastLaunchedGame}_latest`;
-                const stored = localStorage.getItem(latestKey);
-                if (stored) {
-                    try {
-                        const payload = JSON.parse(stored);
-                        const today = getTodayString();
-                        // Only prompt if the result is from today
-                        if (payload.date === today || payload.puzzleId === today) {
-                            // There's a valid result - sync will pick it up, no need for prompt
-                            syncGameShelfGames();
-                            lastLaunchedGame = null;
-                            return;
-                        }
-                    } catch (e) {
-                        console.error('Error checking Game Shelf result:', e);
-                    }
-                }
-                // No result found for Game Shelf game - don't prompt, they didn't complete it
-                return;
-            }
             
             const game = GAMES[lastLaunchedGame];
             if (!game) return;
@@ -17843,43 +17979,23 @@ Made with â¤ï¸ for puzzle enthusiasts`;
             // Don't show during onboarding
             if (document.getElementById('setup-container')?.classList.contains('active')) return;
             
-            // Check if there's a pending game we launched
-            if (lastLaunchedGame) {
-                const todayHistory = getTodayHistory();
-                if (!todayHistory[lastLaunchedGame]) {
-                    // For Game Shelf games, check if there's actually a result
-                    if (GAMESHELF_GAME_IDS.includes(lastLaunchedGame)) {
-                        const latestKey = `gameshelf_${lastLaunchedGame}_latest`;
-                        const stored = localStorage.getItem(latestKey);
-                        if (stored) {
-                            try {
-                                const payload = JSON.parse(stored);
-                                const today = getTodayString();
-                                if (payload.date === today || payload.puzzleId === today) {
-                                    // Result exists - sync it automatically
-                                    syncGameShelfGames();
-                                    lastLaunchedGame = null;
-                                    return;
-                                }
-                            } catch (e) {
-                                console.error('Error checking Game Shelf result:', e);
-                            }
-                        }
-                        // No result for Game Shelf game - don't show tap-to-log
-                        return;
-                    }
-                    
-                    // Non-Game Shelf game - show tap-to-log
-                    const game = GAMES[lastLaunchedGame];
-                    if (game) {
-                        showTapToLogCard(game);
-                        return;
-                    }
-                }
+            // Don't show if no game was launched from Game Shelf
+            // This prevents the prompt from appearing when user switches to other apps
+            if (!lastLaunchedGame) return;
+            
+            const todayHistory = getTodayHistory();
+            
+            // Don't show if the launched game is already logged
+            if (todayHistory[lastLaunchedGame]) {
+                lastLaunchedGame = null;
+                return;
             }
             
-            // Otherwise show generic prompt
-            showTapToLogCard();
+            // Show tap-to-log for the specific game that was launched
+            const game = GAMES[lastLaunchedGame];
+            if (game) {
+                showTapToLogCard(game);
+            }
         }
         
         // Clipboard++ Mode - Continuous monitoring
@@ -18633,7 +18749,7 @@ Made with â¤ï¸ for puzzle enthusiasts`;
             }
             
             // CTA
-            lines.push('via Game Shelf ð®');
+            lines.push('via Game Shelf ð§©');
             
             return lines.join('\n');
         }
@@ -18643,14 +18759,14 @@ Made with â¤ï¸ for puzzle enthusiasts`;
             const gameIds = Object.keys(todayHistory);
             
             if (gameIds.length === 0) {
-                return 'No games played yet today!\n\nvia Game Shelf ð®';
+                return 'No games played yet today!\n\nvia Game Shelf ð§©';
             }
             
             let lines = [];
             
             // Header with game count
             const gameCount = gameIds.length;
-            lines.push(`ð® Daily Puzzle Recap â¢ ${gameCount} game${gameCount !== 1 ? 's' : ''}`);
+            lines.push(`ð§© Daily Puzzle Recap â¢ ${gameCount} game${gameCount !== 1 ? 's' : ''}`);
             lines.push('');
             
             // List games with scores
@@ -18704,9 +18820,160 @@ Made with â¤ï¸ for puzzle enthusiasts`;
                 lines.push('');
             }
             
-            lines.push('via Game Shelf ð®');
+            lines.push('via Game Shelf ð§©');
             
             return lines.join('\n');
+        }
+        
+        // Generate weekly recap message
+        function generateWeeklyRecapMessage() {
+            const weekData = getWeeklyStats();
+            
+            if (weekData.totalGames === 0) {
+                return 'No games played this week yet!\n\nvia Game Shelf ð§©';
+            }
+            
+            let lines = [];
+            
+            // Header
+            lines.push('ð Weekly Puzzle Recap');
+            lines.push(`${weekData.startDate} - ${weekData.endDate}`);
+            lines.push('');
+            
+            // Key stats
+            lines.push(`ð® ${weekData.totalGames} games played`);
+            lines.push(`ð ${weekData.daysActive}/7 days active`);
+            
+            if (weekData.winRate > 0) {
+                lines.push(`ð ${weekData.winRate}% win rate`);
+            }
+            
+            if (weekData.perfectCount > 0) {
+                lines.push(`â­ ${weekData.perfectCount} perfect${weekData.perfectCount !== 1 ? 's' : ''}`);
+            }
+            
+            lines.push('');
+            
+            // Top games
+            if (weekData.topGames.length > 0) {
+                lines.push('Top games:');
+                weekData.topGames.slice(0, 3).forEach((g, i) => {
+                    const medal = ['ð¥', 'ð¥', 'ð¥'][i];
+                    lines.push(`${medal} ${g.icon} ${g.name} (${g.count}x)`);
+                });
+                lines.push('');
+            }
+            
+            // Friend comparison
+            if (weekData.friendsBeaten > 0) {
+                lines.push(`ð Beat ${weekData.friendsBeaten} friend${weekData.friendsBeaten !== 1 ? 's' : ''} this week!`);
+                lines.push('');
+            }
+            
+            // Best streak
+            if (weekData.bestStreak > 1) {
+                lines.push(`ð¥ Best streak: ${weekData.bestStreak} days`);
+                lines.push('');
+            }
+            
+            lines.push('via Game Shelf ð§©');
+            
+            return lines.join('\n');
+        }
+        
+        // Get weekly statistics
+        function getWeeklyStats() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0 = Sunday
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - dayOfWeek);
+            
+            const stats = {
+                totalGames: 0,
+                daysActive: 0,
+                perfectCount: 0,
+                wins: 0,
+                losses: 0,
+                winRate: 0,
+                topGames: [],
+                bestStreak: 0,
+                friendsBeaten: 0,
+                startDate: startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                endDate: today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            };
+            
+            const gameCounts = {};
+            const activeDays = new Set();
+            
+            // Iterate through each day of the week
+            for (let i = 0; i <= dayOfWeek; i++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                const dayHistory = appData.history?.[dateStr] || {};
+                
+                const dayGames = Object.keys(dayHistory);
+                if (dayGames.length > 0) {
+                    activeDays.add(dateStr);
+                }
+                
+                for (const gameId of dayGames) {
+                    const entry = dayHistory[gameId];
+                    const game = GAMES[gameId];
+                    
+                    stats.totalGames++;
+                    
+                    // Count by game
+                    if (!gameCounts[gameId]) {
+                        gameCounts[gameId] = { count: 0, icon: game?.icon || 'ð®', name: game?.name || gameId };
+                    }
+                    gameCounts[gameId].count++;
+                    
+                    // Win/loss
+                    if (entry.won === true) stats.wins++;
+                    else if (entry.won === false) stats.losses++;
+                    
+                    // Perfects
+                    const score = entry.score || '';
+                    if (score.includes('1/') || score.includes('Perfect') || score.includes('ð¯')) {
+                        stats.perfectCount++;
+                    }
+                }
+            }
+            
+            stats.daysActive = activeDays.size;
+            stats.winRate = stats.totalGames > 0 ? Math.round((stats.wins / stats.totalGames) * 100) : 0;
+            stats.bestStreak = getMaxStreak(appData);
+            
+            // Sort games by count
+            stats.topGames = Object.values(gameCounts)
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 5);
+            
+            // Count friends beaten (simplified - just count friends with less activity)
+            if (friendsData && friendsData.length > 0) {
+                for (const friend of friendsData) {
+                    const shelfData = friend.shelfData || friendsShelfData[friend.odataId] || {};
+                    const friendWeekGames = shelfData.weekCount || 0;
+                    if (stats.totalGames > friendWeekGames) {
+                        stats.friendsBeaten++;
+                    }
+                }
+            }
+            
+            return stats;
+        }
+        
+        // Open weekly recap share
+        function openWeeklyRecap() {
+            const message = generateWeeklyRecapMessage();
+            document.getElementById('instant-share-preview').value = message;
+            
+            // Generate weekly card
+            generateWeeklyShareCard();
+            
+            document.getElementById('instant-share-backdrop').classList.add('active');
+            document.getElementById('instant-share-sheet').classList.add('active');
         }
         
         // Get friend comparison stats for sharing
@@ -18989,7 +19256,7 @@ Made with â¤ï¸ for puzzle enthusiasts`;
             ctx.font = `600 ${isStory ? 18 : 14}px -apple-system, BlinkMacSystemFont, sans-serif`;
             ctx.fillStyle = style.secondary;
             ctx.textAlign = 'center';
-            ctx.fillText('via Game Shelf ð®', width / 2, height - (isStory ? 40 : 20));
+            ctx.fillText('via Game Shelf ð§©', width / 2, height - (isStory ? 40 : 20));
         }
         
         function drawStoryCard(ctx, width, height, style, todayHistory, gameIds) {
@@ -19117,7 +19384,7 @@ Made with â¤ï¸ for puzzle enthusiasts`;
             ctx.font = '700 28px -apple-system, BlinkMacSystemFont, sans-serif';
             ctx.fillStyle = style.text;
             ctx.textAlign = 'center';
-            ctx.fillText('ð® Daily Puzzle Recap', width / 2, 50);
+            ctx.fillText('ð§© Daily Puzzle Recap', width / 2, 50);
             
             // Date
             const today = new Date();
@@ -19177,6 +19444,112 @@ Made with â¤ï¸ for puzzle enthusiasts`;
                 ctx.fillStyle = style.accent;
                 ctx.fillText(`ð¥ Best streak: ${maxStreak} days`, width / 2, height - 60);
             }
+        }
+        
+        // Generate weekly recap image card
+        function generateWeeklyShareCard() {
+            const canvas = document.getElementById('share-card-canvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const style = IMAGE_STYLES[currentImageStyle];
+            const weekData = getWeeklyStats();
+            
+            // Use landscape format for weekly
+            const width = 600;
+            const height = 400;
+            canvas.width = width * 2;
+            canvas.height = height * 2;
+            canvas.style.width = '300px';
+            canvas.style.height = '200px';
+            ctx.scale(2, 2);
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, style.bgGradient[0]);
+            gradient.addColorStop(1, style.bgGradient[1]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Title
+            ctx.font = '700 28px -apple-system, BlinkMacSystemFont, sans-serif';
+            ctx.fillStyle = style.text;
+            ctx.textAlign = 'center';
+            ctx.fillText('ð Weekly Recap', width / 2, 45);
+            
+            // Date range
+            ctx.font = '500 14px -apple-system, BlinkMacSystemFont, sans-serif';
+            ctx.fillStyle = style.secondary;
+            ctx.fillText(`${weekData.startDate} - ${weekData.endDate}`, width / 2, 70);
+            
+            // Stats grid (2x2)
+            const statsData = [
+                { label: 'Games', value: weekData.totalGames, icon: 'ð®' },
+                { label: 'Days Active', value: `${weekData.daysActive}/7`, icon: 'ð' },
+                { label: 'Win Rate', value: `${weekData.winRate}%`, icon: 'ð' },
+                { label: 'Perfects', value: weekData.perfectCount, icon: 'â­' }
+            ];
+            
+            const gridStartY = 100;
+            const cellWidth = width / 2;
+            const cellHeight = 70;
+            
+            statsData.forEach((stat, i) => {
+                const col = i % 2;
+                const row = Math.floor(i / 2);
+                const x = col * cellWidth + cellWidth / 2;
+                const y = gridStartY + row * cellHeight;
+                
+                // Icon
+                ctx.font = '24px serif';
+                ctx.fillStyle = style.text;
+                ctx.fillText(stat.icon, x, y);
+                
+                // Value
+                ctx.font = '700 28px -apple-system, BlinkMacSystemFont, sans-serif';
+                ctx.fillStyle = style.accent;
+                ctx.fillText(String(stat.value), x, y + 35);
+                
+                // Label
+                ctx.font = '500 12px -apple-system, BlinkMacSystemFont, sans-serif';
+                ctx.fillStyle = style.secondary;
+                ctx.fillText(stat.label, x, y + 52);
+            });
+            
+            // Top games row
+            if (weekData.topGames.length > 0) {
+                ctx.font = '600 14px -apple-system, BlinkMacSystemFont, sans-serif';
+                ctx.fillStyle = style.secondary;
+                ctx.fillText('Top Games', width / 2, 265);
+                
+                const topGamesStr = weekData.topGames.slice(0, 3)
+                    .map(g => `${g.icon} ${g.name}`)
+                    .join('  â¢  ');
+                
+                ctx.font = '500 16px -apple-system, BlinkMacSystemFont, sans-serif';
+                ctx.fillStyle = style.text;
+                ctx.fillText(topGamesStr, width / 2, 290);
+            }
+            
+            // Bottom stats
+            let bottomY = 330;
+            
+            if (weekData.friendsBeaten > 0) {
+                ctx.font = '600 18px -apple-system, BlinkMacSystemFont, sans-serif';
+                ctx.fillStyle = style.accent;
+                ctx.fillText(`ð Beat ${weekData.friendsBeaten} friend${weekData.friendsBeaten !== 1 ? 's' : ''} this week!`, width / 2, bottomY);
+                bottomY += 30;
+            } else if (weekData.bestStreak > 1) {
+                ctx.font = '600 18px -apple-system, BlinkMacSystemFont, sans-serif';
+                ctx.fillStyle = style.accent;
+                ctx.fillText(`ð¥ ${weekData.bestStreak}-day streak`, width / 2, bottomY);
+                bottomY += 30;
+            }
+            
+            // Branding
+            ctx.font = '600 14px -apple-system, BlinkMacSystemFont, sans-serif';
+            ctx.fillStyle = style.secondary;
+            ctx.fillText('via Game Shelf ð§©', width / 2, height - 20);
         }
         
         function downloadShareCard() {
@@ -21823,6 +22196,9 @@ Made with â¤ï¸ for puzzle enthusiasts`;
                 autoLogToggle.checked = appData.settings?.autoLog !== false;
             }
             
+            // Load test mode setting
+            initTestModeToggle();
+            
             // Check for referral code in URL
             checkReferralParam();
             
@@ -21908,7 +22284,7 @@ Made with â¤ï¸ for puzzle enthusiasts`;
                 }
             }, 1000);
             
-            console.log('ð® Game Shelf PWA v1.0.0 initialized - Test helpers enabled');
+            console.log('ð§© Game Shelf PWA v1.2.0.3 initialized - Test helpers enabled');
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());
         }
