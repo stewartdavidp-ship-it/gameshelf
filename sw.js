@@ -1,7 +1,7 @@
 /**
  * Game Shelf PWA Service Worker v1.2.0.26
  * 
- * â ï¸ IMPORTANT: CACHE_VERSION must match app version!
+ * ⚠️ IMPORTANT: CACHE_VERSION must match app version!
  * Update this on EVERY release to force PWA update.
  */
 

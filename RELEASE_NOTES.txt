@@ -1,0 +1,25 @@
+Game Shelf v1.2.0.26
+====================
+Release Date: January 22, 2025
+
+URL FIX - RESTORE CAPITALIZED REPO NAMES
+----------------------------------------
+Fixed 404 errors when launching GS Originals games.
+
+The Issue:
+- URLs were changed to lowercase (quotle, slate, etc.)
+- GitHub Pages is case-sensitive
+- Repos still have capitalized names → 404 errors
+
+Fixed URLs:
+- Quotle:     .../Quotle/      (was .../quotle/)
+- Slate:      .../Slate/       (was .../slate/)
+- Rungs:      .../Rungstest/   (was .../rungs/)
+- Word Boxing: .../WordBoxing/ (was .../wordboxing/)
+
+Test URLs also restored to original format with hyphens:
+- .../Quotle-test/     (was .../quotletest/)
+- .../Slate-test/      (was .../slatetest/)
+- etc.
+
+This version matches v1.2.0.19 behavior exactly.
