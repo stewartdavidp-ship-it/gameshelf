@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.1.6.0">
+    <meta name="version" content="2.1.6.3">
     <meta name="gs-app-id" content="beta">
     
     <title>Game Shelf Beta Hub</title>
@@ -1093,6 +1093,18 @@
         /* Welcome modal */
         .welcome-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999; animation: fadeIn 0.3s ease; }
         .welcome-modal-content { background: var(--bg-card); border-radius: 24px; padding: 40px; max-width: 360px; width: 90%; text-align: center; border: 1px solid rgba(102, 126, 234, 0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(102, 126, 234, 0.15); animation: scaleIn 0.3s ease; }
+        
+        .survey-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9998; animation: fadeIn 0.3s ease; }
+        .survey-modal-content { background: var(--bg-card); border-radius: 24px; padding: 32px; max-width: 400px; width: 90%; text-align: center; border: 1px solid rgba(102, 126, 234, 0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(102, 126, 234, 0.15); animation: scaleIn 0.3s ease; }
+        .survey-modal-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+        .survey-modal-subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px; }
+        .survey-rating-scale { display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; }
+        .survey-rating-btn { width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg-secondary); color: var(--text-primary); font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
+        .survey-rating-btn:hover { border-color: var(--accent-purple); background: rgba(102, 126, 234, 0.15); transform: scale(1.1); }
+        .survey-rating-btn.selected { background: var(--accent-gradient); border-color: transparent; color: white; transform: scale(1.1); }
+        .survey-rating-labels { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 24px; padding: 0 8px; }
+        .survey-skip { background: none; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; padding: 12px; margin-top: 8px; }
+        .survey-skip:hover { color: var(--text-secondary); }
         .welcome-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; border: 3px solid var(--accent-purple); box-shadow: 0 0 20px rgba(102, 126, 234, 0.3); }
         .welcome-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
         .welcome-subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; }
@@ -1397,7 +1409,7 @@
         <footer>
             <p>Made with 🧩 for puzzle lovers everywhere</p>
             <p style="margin-top: 8px;">Questions? <a href="mailto:hello@gameshelf.co">hello@gameshelf.co</a></p>
-            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.6.0</p>
+            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.6.3</p>
         </footer>
     </div>
 
@@ -1472,7 +1484,7 @@
         
         <div class="onboarding-progress">
             <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" id="onboarding-progress-fill"></div></div>
-            <div class="onboarding-progress-text"><span id="onboarding-step">1</span> of 8</div>
+            <div class="onboarding-progress-text"><span id="onboarding-step">1</span> of 9</div>
         </div>
         
         <!-- Step 1: How did you hear about us -->
@@ -1486,8 +1498,9 @@
                     <label class="radio-option"><input type="radio" name="source" value="reddit"><span class="radio-circle"></span><span>Reddit</span></label>
                     <label class="radio-option"><input type="radio" name="source" value="search"><span class="radio-circle"></span><span>Google search</span></label>
                     <label class="radio-option"><input type="radio" name="source" value="appstore"><span class="radio-circle"></span><span>App Store / Play Store</span></label>
-                    <label class="radio-option"><input type="radio" name="source" value="other"><span class="radio-circle"></span><span>Other</span></label>
+                    <label class="radio-option"><input type="radio" name="source" value="other"><span class="radio-circle"></span><span>Other...</span></label>
                 </div>
+                <input type="text" class="other-input hidden" id="source-other-input" placeholder="Where did you hear about us?" style="margin-top: 12px; width: 100%; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); font-size: 0.95rem;">
             </div>
             <button class="register-cta" onclick="nextOnboardingStep(1)">Continue →</button>
         </div>
@@ -1524,8 +1537,9 @@
                     <label class="checkbox-option"><input type="checkbox" value="spelling-bee"><span class="checkbox-box"></span><span>🐝 Spelling Bee</span></label>
                     <label class="checkbox-option"><input type="checkbox" value="globle"><span class="checkbox-box"></span><span>🌎 Globle</span></label>
                     <label class="checkbox-option"><input type="checkbox" value="framed"><span class="checkbox-box"></span><span>🎬 Framed</span></label>
-                    <label class="checkbox-option"><input type="checkbox" value="other"><span class="checkbox-box"></span><span>🎯 Other</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="other" id="games-other-check"><span class="checkbox-box"></span><span>🎯 Other</span></label>
                 </div>
+                <input type="text" class="other-input hidden" id="games-other-input" placeholder="What other games do you play?" style="margin-top: 12px; width: 100%; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); font-size: 0.95rem;">
             </div>
             <div class="onboarding-nav">
                 <button class="register-cta secondary" onclick="prevOnboardingStep(3)">← Back</button>
@@ -1592,7 +1606,9 @@
                     <label class="checkbox-option"><input type="checkbox" value="discord"><span class="checkbox-box"></span><span>🎮 Discord</span></label>
                     <label class="checkbox-option"><input type="checkbox" value="slack"><span class="checkbox-box"></span><span>💼 Slack</span></label>
                     <label class="checkbox-option"><input type="checkbox" value="whatsapp"><span class="checkbox-box"></span><span>📞 WhatsApp</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="other" id="share-where-other-check"><span class="checkbox-box"></span><span>🔹 Other</span></label>
                 </div>
+                <input type="text" class="other-input hidden" id="share-where-other-input" placeholder="Where else do you share?" style="margin-top: 12px; width: 100%; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); font-size: 0.95rem;">
             </div>
             <div class="onboarding-nav">
                 <button class="register-cta secondary" onclick="prevOnboardingStep(6)">← Back</button>
@@ -1630,6 +1646,14 @@
                     <label class="radio-option"><input type="radio" name="compete" value="no"><span class="radio-circle"></span><span>No, I play solo</span></label>
                 </div>
             </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(8)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(8)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 9: Frustration -->
+        <div class="onboarding-step hidden" id="onboarding-step-9">
             <div class="card">
                 <h3 class="section-title"><span class="emoji">😤</span> Biggest puzzle tracking frustration?</h3>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">What problem should we solve first?</p>
@@ -1639,10 +1663,12 @@
                     <label class="radio-option"><input type="radio" name="frustration" value="sharing-hard"><span class="radio-circle"></span><span>Hard to share/compare with friends</span></label>
                     <label class="radio-option"><input type="radio" name="frustration" value="too-many-apps"><span class="radio-circle"></span><span>Too many apps to open each day</span></label>
                     <label class="radio-option"><input type="radio" name="frustration" value="none"><span class="radio-circle"></span><span>No major frustrations</span></label>
+                    <label class="radio-option"><input type="radio" name="frustration" value="other"><span class="radio-circle"></span><span>Other...</span></label>
                 </div>
+                <input type="text" class="other-input hidden" id="frustration-other-input" placeholder="Tell us your frustration..." style="margin-top: 12px; width: 100%; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); font-size: 0.95rem;">
             </div>
             <div class="onboarding-nav">
-                <button class="register-cta secondary" onclick="prevOnboardingStep(8)">← Back</button>
+                <button class="register-cta secondary" onclick="prevOnboardingStep(9)">← Back</button>
                 <button class="register-cta" onclick="completeOnboarding()" id="complete-onboarding-btn">🚀 Join the Beta!</button>
             </div>
         </div>
@@ -1672,25 +1698,6 @@
         <div class="card card-highlight">
             <h2 style="font-size: 1.3rem; margin-bottom: 4px;">👋 Welcome back, <span id="welcome-name">Friend</span>!</h2>
             <p style="color: var(--text-secondary); font-size: 0.9rem;">This is day <span id="beta-day-count">1</span> of you being in the beta.</p>
-        </div>
-        
-        <div class="card" id="daily-rating-section">
-            <h3 class="section-title"><span class="emoji">📋</span> How's Game Shelf Today?</h3>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Tap a number to rate your experience</p>
-            <div id="daily-rating-container">
-                <div class="rating-scale rating-scale-large">
-                    <button class="rating-btn rating-btn-large" onclick="selectDailyRating(1, this)">1</button>
-                    <button class="rating-btn rating-btn-large" onclick="selectDailyRating(2, this)">2</button>
-                    <button class="rating-btn rating-btn-large" onclick="selectDailyRating(3, this)">3</button>
-                    <button class="rating-btn rating-btn-large" onclick="selectDailyRating(4, this)">4</button>
-                    <button class="rating-btn rating-btn-large" onclick="selectDailyRating(5, this)">5</button>
-                </div>
-                <div class="rating-labels"><span>Needs work</span><span>Love it!</span></div>
-            </div>
-            <div id="daily-rating-complete" class="hidden" style="text-align: center; padding: 16px 0;">
-                <div style="font-size: 2rem; margin-bottom: 8px;">✓</div>
-                <p style="color: var(--accent-green); font-weight: 600;">Thanks for today's feedback!</p>
-            </div>
         </div>
         
         <div class="stats-grid">
@@ -1731,13 +1738,17 @@
         
         <footer style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.85rem;">
             <p><a href="mailto:hello@gameshelf.co" style="color: var(--accent-purple); text-decoration: none;">hello@gameshelf.co</a></p>
-            <p style="margin-top: 8px;">Beta Hub v2.1.6.0</p>
+            <p style="margin-top: 8px;">Beta Hub v2.1.6.3</p>
         </footer>
     </div>
 
     <script>
         // ============ FIREBASE ============
         const firebaseConfig = { apiKey: "AIzaSyBQVwn8vOrFTzLlm2MYIPBwgZV2xR9AuhM", authDomain: "word-boxing.firebaseapp.com", databaseURL: "https://word-boxing-default-rtdb.firebaseio.com", projectId: "word-boxing" };
+        
+        // ============ TEST MODE ============
+        // Set to true to always show onboarding (for testing), set to false for production
+        const TEST_MODE = true;
         let auth, db;
         try { 
             firebase.initializeApp(firebaseConfig); 
@@ -1864,7 +1875,11 @@
             const avatarEl = document.getElementById('header-avatar');
             avatarEl.dataset.name = name;
             avatarEl.src = currentUser.photoURL || defaultAvatar(name);
-            loadStats(); loadDailyRating(); loadJournal(); loadBetaDayCount();
+            loadStats(); loadJournal(); loadBetaDayCount();
+            
+            // Show survey modal after a brief delay (not on day 1, not if already answered today)
+            setTimeout(() => checkAndShowDailySurvey(), 500);
+            
             window.scrollTo(0, 0);
         }
         
@@ -1900,7 +1915,11 @@
                 const userType = await loadOrCreateUser();
                 const firstName = currentUser.displayName.split(' ')[0];
                 
-                if (userType === USER_TYPES.BETA) {
+                // TEST_MODE: Always show onboarding for testing
+                if (TEST_MODE) {
+                    console.log('[Beta] TEST_MODE enabled - showing onboarding');
+                    showRegister();
+                } else if (userType === USER_TYPES.BETA) {
                     // Full beta user - show welcome and go to dashboard
                     showWelcomeModal(firstName, currentUser.photoURL, () => {
                         showDashboard();
@@ -1955,18 +1974,22 @@
         
         // ============ ONBOARDING ============
         let onboardingStep = 1;
-        const TOTAL_STEPS = 8;
+        const TOTAL_STEPS = 9;
         const onboardingData = { 
-            source: null,      // Step 1: How they found us
-            experience: null,  // Step 2: How long playing
-            games: [],         // Step 3: Which games
-            frequency: null,   // Step 4: Puzzles per day
-            device: null,      // Step 5: Primary device
-            sharing: null,     // Step 6: Do they share
-            shareWhere: [],    // Step 6: Where they share
-            hints: null,       // Step 7: Hint usage
-            compete: null,     // Step 8: Competition
-            frustration: ''    // Step 8: Pain point (free text)
+            source: null,           // Step 1: How they found us
+            sourceOther: '',        // Step 1: "Other" text
+            experience: null,       // Step 2: How long playing
+            games: [],              // Step 3: Which games
+            gamesOther: '',         // Step 3: "Other" games text
+            frequency: null,        // Step 4: Puzzles per day
+            device: null,           // Step 5: Primary device
+            sharing: null,          // Step 6: Do they share
+            shareWhere: [],         // Step 6: Where they share
+            shareWhereOther: '',    // Step 6: "Other" platform text
+            hints: null,            // Step 7: Hint usage
+            compete: null,          // Step 8: Competition
+            frustration: null,      // Step 9: Pain point selection
+            frustrationOther: ''    // Step 9: "Other" frustration text
         };
         
         function updateOnboardingProgress() {
@@ -1974,13 +1997,46 @@
             document.getElementById('onboarding-step').textContent = onboardingStep;
         }
         
-        // Show/hide shareWhere based on sharing answer
+        // Setup "Other" text input toggles
+        function setupOtherToggles() {
+            // Source "other" toggle
+            document.querySelectorAll('#source-radios input').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    document.getElementById('source-other-input').classList.toggle('hidden', radio.value !== 'other');
+                });
+            });
+            
+            // Games "other" toggle
+            const gamesOtherCheck = document.getElementById('games-other-check');
+            if (gamesOtherCheck) {
+                gamesOtherCheck.addEventListener('change', () => {
+                    document.getElementById('games-other-input').classList.toggle('hidden', !gamesOtherCheck.checked);
+                });
+            }
+            
+            // Share-where "other" toggle
+            const shareWhereOtherCheck = document.getElementById('share-where-other-check');
+            if (shareWhereOtherCheck) {
+                shareWhereOtherCheck.addEventListener('change', () => {
+                    document.getElementById('share-where-other-input').classList.toggle('hidden', !shareWhereOtherCheck.checked);
+                });
+            }
+            
+            // Frustration "other" toggle
+            document.querySelectorAll('#frustration-radios input').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    document.getElementById('frustration-other-input').classList.toggle('hidden', radio.value !== 'other');
+                });
+            });
+        }
+        
+        // Show/hide shareWhere card based on sharing answer
         function setupSharingToggle() {
             const sharingRadios = document.querySelectorAll('#sharing-radios input');
-            const shareWhereSection = document.getElementById('share-where-section');
+            const shareWhereCard = document.getElementById('share-where-card');
             sharingRadios.forEach(radio => {
                 radio.addEventListener('change', () => {
-                    shareWhereSection.classList.toggle('hidden', radio.value === 'never');
+                    shareWhereCard.classList.toggle('hidden', radio.value === 'never');
                 });
             });
         }
@@ -1991,17 +2047,25 @@
                 const selected = document.querySelector('#source-radios input:checked');
                 if (!selected) return showToast('Please select an option');
                 onboardingData.source = selected.value;
-                console.log('[Beta] Step 1 - Source:', onboardingData.source);
+                if (selected.value === 'other') {
+                    onboardingData.sourceOther = document.getElementById('source-other-input')?.value.trim() || '';
+                }
+                console.log('[Beta] Step 1 - Source:', onboardingData.source, onboardingData.sourceOther);
             } else if (fromStep === 2) {
                 const selected = document.querySelector('#experience-radios input:checked');
                 if (!selected) return showToast('Please select an option');
                 onboardingData.experience = selected.value;
                 console.log('[Beta] Step 2 - Experience:', onboardingData.experience);
+                // Setup games "other" toggle for next step
+                setTimeout(() => setupOtherToggles(), 100);
             } else if (fromStep === 3) {
                 const checked = document.querySelectorAll('#games-checkboxes input:checked');
                 onboardingData.games = Array.from(checked).map(c => c.value);
                 if (onboardingData.games.length === 0) return showToast('Please select at least one game');
-                console.log('[Beta] Step 3 - Games:', onboardingData.games);
+                if (onboardingData.games.includes('other')) {
+                    onboardingData.gamesOther = document.getElementById('games-other-input')?.value.trim() || '';
+                }
+                console.log('[Beta] Step 3 - Games:', onboardingData.games, onboardingData.gamesOther);
             } else if (fromStep === 4) {
                 const selected = document.querySelector('#frequency-radios input:checked');
                 if (!selected) return showToast('Please select an option');
@@ -2014,18 +2078,29 @@
                 console.log('[Beta] Step 5 - Device:', onboardingData.device);
                 // Setup sharing toggle for next step
                 setTimeout(setupSharingToggle, 100);
+                setTimeout(setupOtherToggles, 100);
             } else if (fromStep === 6) {
                 const selected = document.querySelector('#sharing-radios input:checked');
                 if (!selected) return showToast('Please select an option');
                 onboardingData.sharing = selected.value;
                 const checked = document.querySelectorAll('#share-where-checkboxes input:checked');
                 onboardingData.shareWhere = Array.from(checked).map(c => c.value);
-                console.log('[Beta] Step 6 - Sharing:', onboardingData.sharing, 'Where:', onboardingData.shareWhere);
+                if (onboardingData.shareWhere.includes('other')) {
+                    onboardingData.shareWhereOther = document.getElementById('share-where-other-input')?.value.trim() || '';
+                }
+                console.log('[Beta] Step 6 - Sharing:', onboardingData.sharing, 'Where:', onboardingData.shareWhere, onboardingData.shareWhereOther);
             } else if (fromStep === 7) {
                 const selected = document.querySelector('#hints-radios input:checked');
                 if (!selected) return showToast('Please select an option');
                 onboardingData.hints = selected.value;
                 console.log('[Beta] Step 7 - Hints:', onboardingData.hints);
+            } else if (fromStep === 8) {
+                const selected = document.querySelector('#compete-radios input:checked');
+                if (!selected) return showToast('Please select an option');
+                onboardingData.compete = selected.value;
+                console.log('[Beta] Step 8 - Compete:', onboardingData.compete);
+                // Setup frustration "other" toggle for next step
+                setTimeout(setupOtherToggles, 100);
             }
             
             // Hide current, show next
@@ -2045,12 +2120,14 @@
         }
         
         async function completeOnboarding() {
-            // Collect final step data (step 8)
-            const competeSelected = document.querySelector('#compete-radios input:checked');
-            if (!competeSelected) return showToast('Please select a competition option');
-            onboardingData.compete = competeSelected.value;
-            onboardingData.frustration = document.getElementById('frustration-input')?.value.trim() || '';
-            console.log('[Beta] Step 8 - Compete:', onboardingData.compete, 'Frustration:', onboardingData.frustration);
+            // Collect final step data (step 9 - frustration)
+            const frustrationSelected = document.querySelector('#frustration-radios input:checked');
+            if (!frustrationSelected) return showToast('Please select an option');
+            onboardingData.frustration = frustrationSelected.value;
+            if (frustrationSelected.value === 'other') {
+                onboardingData.frustrationOther = document.getElementById('frustration-other-input')?.value.trim() || '';
+            }
+            console.log('[Beta] Step 9 - Frustration:', onboardingData.frustration, onboardingData.frustrationOther);
             
             const btn = document.getElementById('complete-onboarding-btn');
             btn.disabled = true;
@@ -2064,15 +2141,19 @@
                     joinedAt: now,
                     onboarding: {
                         source: onboardingData.source,
+                        sourceOther: onboardingData.sourceOther || null,
                         experience: onboardingData.experience,
                         games: onboardingData.games,
+                        gamesOther: onboardingData.gamesOther || null,
                         frequency: onboardingData.frequency,
                         device: onboardingData.device,
                         sharing: onboardingData.sharing,
                         shareWhere: onboardingData.shareWhere,
+                        shareWhereOther: onboardingData.shareWhereOther || null,
                         hints: onboardingData.hints,
                         compete: onboardingData.compete,
                         frustration: onboardingData.frustration,
+                        frustrationOther: onboardingData.frustrationOther || null,
                         completedAt: now
                     },
                     referredBy: referralData?.uid || null
@@ -2124,37 +2205,83 @@
             });
         }
         
-        // ============ DAILY RATING ============
-        function loadDailyRating() {
+        // ============ DAILY SURVEY MODAL ============
+        function checkAndShowDailySurvey() {
             const today = getTodayKey();
-            const todayRating = userData.earlyAccess?.dailyRatings?.[today];
             
+            // Check 1: Already rated today?
+            const todayRating = userData.earlyAccess?.dailyRatings?.[today];
             if (todayRating) {
-                document.getElementById('daily-rating-container').classList.add('hidden');
-                document.getElementById('daily-rating-complete').classList.remove('hidden');
-            } else {
-                document.getElementById('daily-rating-container').classList.remove('hidden');
-                document.getElementById('daily-rating-complete').classList.add('hidden');
+                console.log('[Beta] Already rated today, skipping survey');
+                return;
             }
+            
+            // Check 2: Day 1 of beta? (give them a day to explore first)
+            const joinedAt = userData.earlyAccess?.joinedAt || userData.createdAt;
+            const daysSinceJoin = Math.floor((Date.now() - joinedAt) / (1000 * 60 * 60 * 24));
+            if (daysSinceJoin < 1) {
+                console.log('[Beta] Day 1 of beta, skipping survey');
+                return;
+            }
+            
+            // Check 3: Modal already shown this session today?
+            const modalShownKey = `gs_survey_shown_${today}`;
+            if (sessionStorage.getItem(modalShownKey)) {
+                console.log('[Beta] Survey modal already shown today this session');
+                return;
+            }
+            
+            // All checks passed - show the modal
+            sessionStorage.setItem(modalShownKey, 'true');
+            showDailySurveyModal();
         }
         
-        function selectDailyRating(rating, btn) {
-            document.querySelectorAll('.rating-btn-large').forEach(b => b.classList.remove('selected'));
+        function showDailySurveyModal() {
+            const modal = document.createElement('div');
+            modal.className = 'survey-modal';
+            modal.id = 'daily-survey-modal';
+            modal.innerHTML = `
+                <div class="survey-modal-content">
+                    <div class="survey-modal-title">📋 Quick Check-in</div>
+                    <div class="survey-modal-subtitle">How's Game Shelf working for you?</div>
+                    <div class="survey-rating-scale">
+                        <button class="survey-rating-btn" onclick="selectSurveyRating(1, this)">1</button>
+                        <button class="survey-rating-btn" onclick="selectSurveyRating(2, this)">2</button>
+                        <button class="survey-rating-btn" onclick="selectSurveyRating(3, this)">3</button>
+                        <button class="survey-rating-btn" onclick="selectSurveyRating(4, this)">4</button>
+                        <button class="survey-rating-btn" onclick="selectSurveyRating(5, this)">5</button>
+                    </div>
+                    <div class="survey-rating-labels"><span>Needs work</span><span>Love it!</span></div>
+                    <button class="survey-skip" onclick="closeSurveyModal()">Maybe later</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function closeSurveyModal() {
+            document.getElementById('daily-survey-modal')?.remove();
+        }
+        
+        function selectSurveyRating(rating, btn) {
+            document.querySelectorAll('.survey-rating-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
             
-            setTimeout(() => showFeedbackModal(rating), 300);
+            setTimeout(() => {
+                closeSurveyModal();
+                showFeedbackModal(rating);
+            }, 300);
         }
         
         function showFeedbackModal(rating) {
             let prompt, emoji;
             if (rating <= 2) {
-                prompt = "What about your experience could we improve?";
+                prompt = "What could we improve?";
                 emoji = "🤔";
             } else if (rating === 3) {
                 prompt = "How do we make it better?";
                 emoji = "💭";
             } else {
-                prompt = "Can you tell us what you most liked?";
+                prompt = "What do you like most?";
                 emoji = "🎉";
             }
             
@@ -2180,21 +2307,22 @@
             const today = getTodayKey(), now = Date.now();
             const ratingData = { rating, feedback: feedback.trim(), timestamp: now };
             
-            await db.ref(`users/${currentUser.uid}/earlyAccess/dailyRatings/${today}`).set(ratingData);
-            
-            if (!userData.earlyAccess) userData.earlyAccess = {};
-            if (!userData.earlyAccess.dailyRatings) userData.earlyAccess.dailyRatings = {};
-            userData.earlyAccess.dailyRatings[today] = ratingData;
-            
-            // Remove modal
-            document.querySelector('.feedback-modal')?.remove();
-            
-            // Update UI
-            document.getElementById('daily-rating-container').classList.add('hidden');
-            document.getElementById('daily-rating-complete').classList.remove('hidden');
-            
-            showToast('✓ Thanks for your feedback!');
-            loadStats();
+            try {
+                await db.ref(`users/${currentUser.uid}/earlyAccess/dailyRatings/${today}`).set(ratingData);
+                
+                if (!userData.earlyAccess) userData.earlyAccess = {};
+                if (!userData.earlyAccess.dailyRatings) userData.earlyAccess.dailyRatings = {};
+                userData.earlyAccess.dailyRatings[today] = ratingData;
+                
+                // Remove modal
+                document.querySelector('.feedback-modal')?.remove();
+                
+                showToast('✓ Thanks for your feedback!');
+                loadStats();
+            } catch (e) {
+                console.error('[Beta] Failed to save rating:', e);
+                showToast('Failed to save. Please try again.');
+            }
         }
         
         // ============ JOURNAL ============
