@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.1.5.1">
+    <meta name="version" content="2.1.5.2">
     <meta name="gs-app-id" content="beta">
     
     <title>Game Shelf Beta Hub</title>
@@ -1356,7 +1356,7 @@
         <footer>
             <p>Made with 🧩 for puzzle lovers everywhere</p>
             <p style="margin-top: 8px;">Questions? <a href="mailto:hello@gameshelf.co">hello@gameshelf.co</a></p>
-            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.5.1</p>
+            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.5.2</p>
         </footer>
     </div>
 
@@ -1553,7 +1553,7 @@
         
         <footer style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.85rem;">
             <p><a href="mailto:hello@gameshelf.co" style="color: var(--accent-purple); text-decoration: none;">hello@gameshelf.co</a></p>
-            <p style="margin-top: 8px;">Beta Hub v2.1.5.1</p>
+            <p style="margin-top: 8px;">Beta Hub v2.1.5.2</p>
         </footer>
     </div>
 
@@ -1689,7 +1689,7 @@
                 const snap = await db.ref(`users/${refId}`).once('value');
                 const ref = snap.val();
                 if (ref?.earlyAccess) {
-                    referralData = { odometerId: refId, displayName: ref.displayName || 'A friend' };
+                    referralData = { uid: refId, displayName: ref.displayName || 'A friend' };
                     document.getElementById('referrer-name').textContent = referralData.displayName.split(' ')[0];
                     document.getElementById('referral-banner').classList.remove('hidden');
                     return true;
@@ -1709,7 +1709,7 @@
         
         auth?.onAuthStateChanged(async user => {
             if (user) {
-                currentUser = { odometerId: generateOdometerId(user.uid), displayName: user.displayName || 'Player', email: user.email, photoURL: user.photoURL };
+                currentUser = { uid: user.uid, odometerId: generateOdometerId(user.uid), displayName: user.displayName || 'Player', email: user.email, photoURL: user.photoURL };
                 const userType = await loadOrCreateUser();
                 const firstName = currentUser.displayName.split(' ')[0];
                 
@@ -1733,7 +1733,7 @@
         });
         
         async function loadOrCreateUser() {
-            const ref = db.ref(`users/${currentUser.odometerId}`);
+            const ref = db.ref(`users/${currentUser.uid}`);
             userData = (await ref.once('value')).val() || {};
             const now = Date.now();
             
@@ -1775,12 +1775,12 @@
             try {
                 const completeBetaRegistration = firebase.functions().httpsCallable('completeBetaRegistration');
                 const result = await completeBetaRegistration({
-                    referredBy: referralData?.odometerId || null
+                    referredBy: referralData?.uid || null
                 });
                 
                 if (result.data.success) {
                     // Refresh user data
-                    const ref = db.ref(`users/${currentUser.odometerId}`);
+                    const ref = db.ref(`users/${currentUser.uid}`);
                     userData = (await ref.once('value')).val();
                     
                     // Show welcome modal and go to dashboard
@@ -1859,7 +1859,7 @@
         
         async function submitAnswer(qId, val) {
             const today = getTodayKey(), now = Date.now();
-            await db.ref(`users/${currentUser.odometerId}/earlyAccess/surveyResponses/${qId}`).set({ answer: val, date: today, timestamp: now });
+            await db.ref(`users/${currentUser.uid}/earlyAccess/surveyResponses/${qId}`).set({ answer: val, date: today, timestamp: now });
             if (!userData.earlyAccess) userData.earlyAccess = {};
             if (!userData.earlyAccess.surveyResponses) userData.earlyAccess.surveyResponses = {};
             userData.earlyAccess.surveyResponses[qId] = { answer: val, date: today, timestamp: now };
@@ -1910,17 +1910,17 @@
             try {
                 const snap = await db.ref('users').orderByChild('earlyAccess/joinedAt').limitToLast(50).once('value');
                 const users = snap.val() || {}, scores = [];
-                for (const id in users) {
-                    const u = users[id]; if (!u.earlyAccess) continue;
+                for (const uid in users) {
+                    const u = users[uid]; if (!u.earlyAccess) continue;
                     let played = 0; for (const g in (u.games||{})) if (u.games[g].history) played += u.games[g].history.length;
                     const surveys = Object.keys(u.earlyAccess.surveyResponses||{}).length, streak = u.earlyAccess.surveyStreak||0;
-                    scores.push({ odometerId: id, name: u.displayName||'Player', photoURL: u.photoURL, score: played + surveys*2 + streak*5, played });
+                    scores.push({ uid: uid, name: u.displayName||'Player', photoURL: u.photoURL, score: played + surveys*2 + streak*5, played });
                 }
                 scores.sort((a,b) => b.score - a.score);
                 const top = scores.slice(0,10);
                 if (!top.length) { container.innerHTML = '<p style="color:var(--text-muted)">No testers yet!</p>'; return; }
                 container.innerHTML = top.map((u,i) => {
-                    const me = u.odometerId === currentUser.odometerId, rank = i<1?'gold':i<2?'silver':i<3?'bronze':'normal';
+                    const me = u.uid === currentUser.uid, rank = i<1?'gold':i<2?'silver':i<3?'bronze':'normal';
                     const fallback = defaultAvatar(u.name);
                     const avatar = u.photoURL || fallback;
                     return `<div class="leaderboard-item ${me?'highlight':''}"><div class="rank ${rank}">${i+1}</div><img class="leaderboard-avatar" src="${escapeHtml(avatar)}" onerror="this.onerror=null;this.src='${escapeHtml(fallback)}'"><div class="leaderboard-name">${escapeHtml(u.name)}${me?' (you)':''}</div><div><div class="leaderboard-score">${u.score} pts</div><div class="leaderboard-metric">${u.played} games</div></div></div>`;
@@ -1930,7 +1930,7 @@
         
         // ============ SHARE & INVITE ============
         function getShareLink() {
-            return `https://gameshelf.co/beta/?ref=${currentUser?.odometerId || ''}`;
+            return `https://gameshelf.co/beta/?ref=${currentUser?.uid || ''}`;
         }
         
         function shareReferral() {
