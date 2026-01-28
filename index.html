@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.1.7.0-ff">
+    <meta name="version" content="2.1.7.0">
     <meta name="gs-app-id" content="beta">
     
     <title>Game Shelf Beta Hub</title>
@@ -70,14 +70,14 @@
         
         /* ==================== FOUNDER'S NOTE BANNER ==================== */
         .founder-banner {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
-            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
-            padding: 16px 24px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.15));
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 18px 24px;
             text-align: center;
         }
         
         .founder-banner-content {
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
             display: flex;
             align-items: center;
@@ -86,16 +86,20 @@
             flex-wrap: wrap;
         }
         
-        .founder-banner .wave { font-size: 1.3rem; }
+        .founder-banner .wave { font-size: 1.4rem; }
         
         .founder-banner p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-size: 1.05rem;
+            font-weight: 500;
         }
         
         .founder-banner .signature {
-            color: var(--accent-purple);
-            font-weight: 600;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
         }
         
         /* ==================== LANDING VIEW STYLES ==================== */
@@ -1381,7 +1385,7 @@
         <div class="founder-banner">
             <div class="founder-banner-content">
                 <span class="wave">👋</span>
-                <p>You're one of 30 people I'm sharing this with. Thanks for helping me build something real. <span class="signature">— Dave</span></p>
+                <p>You're part of a select group I'm sharing this with. Thanks for helping me build something real. <span class="signature">— Dave</span></p>
             </div>
         </div>
         
@@ -1492,7 +1496,7 @@
         <footer>
             <p>Made with 🧩 for puzzle lovers everywhere</p>
             <p style="margin-top: 8px;">Questions? <a href="mailto:dave@gameshelf.co">dave@gameshelf.co</a></p>
-            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.7.0-ff</p>
+            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.7.0</p>
         </footer>
     </div>
 
@@ -1825,7 +1829,7 @@
         
         <footer style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.85rem;">
             <p><a href="mailto:dave@gameshelf.co" style="color: var(--accent-purple); text-decoration: none;">dave@gameshelf.co</a></p>
-            <p style="margin-top: 8px;">Beta Hub v2.1.7.0-ff</p>
+            <p style="margin-top: 8px;">Beta Hub v2.1.7.0</p>
         </footer>
     </div>
 
@@ -1834,7 +1838,7 @@
         const firebaseConfig = { apiKey: "AIzaSyBQVwn8vOrFTzLlm2MYIPBwgZV2xR9AuhM", authDomain: "word-boxing.firebaseapp.com", databaseURL: "https://word-boxing-default-rtdb.firebaseio.com", projectId: "word-boxing" };
         
         // ============ TEST MODE ============
-        const TEST_MODE = false;
+        const TEST_MODE = true;
         let auth, db;
         try { 
             firebase.initializeApp(firebaseConfig); 
@@ -2050,8 +2054,9 @@
                         lastLogin: Date.now()
                     });
                     
+                    // TEST_MODE: Don't auto-redirect, let user click through naturally
                     if (TEST_MODE) {
-                        showRegister();
+                        // Stay on landing page, user will click "Get Started"
                         return;
                     }
                     
