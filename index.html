@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.1.0">
+    <meta name="version" content="2.1.3">
     <meta name="gs-app-id" content="beta">
     
     <title>Game Shelf Beta Hub</title>
@@ -1075,6 +1075,50 @@
         
         .loading-spinner { width: 44px; height: 44px; border: 3px solid rgba(102, 126, 234, 0.15); border-top-color: var(--accent-purple); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 40px auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Logout button */
+        .logout-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; margin-left: 8px; }
+        .logout-btn:hover { border-color: rgba(237, 100, 100, 0.5); color: #ed6464; background: rgba(237, 100, 100, 0.1); }
+        
+        /* Welcome modal */
+        .welcome-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999; animation: fadeIn 0.3s ease; }
+        .welcome-modal-content { background: var(--bg-card); border-radius: 24px; padding: 40px; max-width: 360px; width: 90%; text-align: center; border: 1px solid rgba(102, 126, 234, 0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(102, 126, 234, 0.15); animation: scaleIn 0.3s ease; }
+        .welcome-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; border: 3px solid var(--accent-purple); box-shadow: 0 0 20px rgba(102, 126, 234, 0.3); }
+        .welcome-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+        .welcome-subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; }
+        .welcome-loader { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-muted); font-size: 0.85rem; }
+        .welcome-loader-dot { width: 6px; height: 6px; background: var(--accent-purple); border-radius: 50%; animation: welcomePulse 1s ease-in-out infinite; }
+        .welcome-loader-dot:nth-child(2) { animation-delay: 0.2s; }
+        .welcome-loader-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes welcomePulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+        
+        /* Beta Registration View (for pending users) */
+        .register-view { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; padding: 40px 24px; min-height: 100vh; }
+        .register-header { text-align: center; margin-bottom: 32px; }
+        .register-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; border: 3px solid var(--accent-purple); }
+        .register-greeting { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .register-title { font-size: 2rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
+        .register-subtitle { font-size: 1rem; color: var(--text-secondary); }
+        .register-cta { display: block; width: 100%; padding: 18px; background: var(--accent-gradient); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; font-family: inherit; box-shadow: var(--glow), 0 4px 20px rgba(102, 126, 234, 0.4); transition: all 0.3s ease; margin-top: 24px; }
+        .register-cta:hover { transform: translateY(-2px); box-shadow: var(--glow), 0 8px 30px rgba(102, 126, 234, 0.5); }
+        .register-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .register-note { text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-muted); }
+        
+        /* Mobile improvements */
+        @media (max-width: 600px) {
+            .game-tag { padding: 12px 14px; font-size: 0.9rem; min-height: 44px; }
+            .action-btn { min-height: 48px; }
+            .rating-btn { min-height: 48px; padding: 12px 6px; }
+            .answer-option { min-height: 48px; }
+            .submit-btn { min-height: 48px; }
+            .cta-button { padding: 16px 32px; }
+            .original-card { padding: 24px 16px; }
+            .step { padding: 20px; }
+            .user-info { gap: 6px; }
+            .user-name { font-size: 0.8rem; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        }
     </style>
 </head>
 <body>
@@ -1092,7 +1136,7 @@
                     <h1 class="brand-title">GAME SHELF</h1>
                     <h2 class="hero-headline">Track Every Daily Puzzle <span>in One Place</span></h2>
                     <p class="hero-subtitle">Finally, one app for all your daily puzzles.</p>
-                    <p class="game-list">Wordle • Connections • Strands • Mini • Spelling Bee • 36+ games</p>
+                    <p class="game-list">Wordle • Quordle • Connections • Framed • Globle • 36+ games</p>
                     
                     <button class="cta-button" onclick="showSignup()">
                         <svg viewBox="0 0 100 100" style="width: 2em; height: 2em; vertical-align: middle; margin-right: 0.3em;">
@@ -1170,47 +1214,42 @@
             </div>
             <div class="games-showcase">
                 <div class="game-category">
-                    <div class="category-header"><span class="category-icon">📰</span><h3>New York Times</h3><span class="game-count">• 6 games</span></div>
+                    <div class="category-header"><span class="category-icon">🔤</span><h3>Word Puzzles</h3><span class="game-count">• 14 games</span></div>
                     <div class="games-grid">
                         <span class="game-tag popular"><span class="icon">🟩</span> Wordle</span>
-                        <span class="game-tag popular"><span class="icon">🟪</span> Connections</span>
+                        <span class="game-tag popular"><span class="icon">4️⃣</span> Quordle</span>
+                        <span class="game-tag"><span class="icon">8️⃣</span> Octordle</span>
+                        <span class="game-tag"><span class="icon">2️⃣</span> Dordle</span>
+                        <span class="game-tag"><span class="icon">🧇</span> Waffle</span>
                         <span class="game-tag"><span class="icon">🧵</span> Strands</span>
-                        <span class="game-tag"><span class="icon">📝</span> Mini</span>
-                        <span class="game-tag popular"><span class="icon">🐝</span> Spelling Bee</span>
+                        <span class="game-tag"><span class="icon">🐝</span> Spelling Bee</span>
                         <span class="game-tag"><span class="icon">📦</span> Letterboxed</span>
-                    </div>
-                </div>
-                
-                <div class="game-category">
-                    <div class="category-header"><span class="category-icon">💼</span><h3>LinkedIn Games</h3><span class="game-count">• 5 games</span></div>
-                    <div class="games-grid">
-                        <span class="game-tag"><span class="icon">👑</span> Queens</span>
-                        <span class="game-tag"><span class="icon">💃</span> Tango</span>
-                        <span class="game-tag"><span class="icon">📍</span> Pinpoint</span>
+                        <span class="game-tag"><span class="icon">📝</span> Mini Crossword</span>
                         <span class="game-tag"><span class="icon">🧗</span> Crossclimb</span>
+                        <span class="game-tag"><span class="icon">🧠</span> Semantle</span>
+                        <span class="game-tag"><span class="icon">🎯</span> Contexto</span>
+                        <span class="game-tag"><span class="icon">█</span> Redactle</span>
                         <span class="game-tag"><span class="icon">⚡</span> Zip</span>
                     </div>
                 </div>
                 
                 <div class="game-category">
-                    <div class="category-header"><span class="category-icon">🔤</span><h3>Word Games</h3><span class="game-count">• 8 games</span></div>
+                    <div class="category-header"><span class="category-icon">🧩</span><h3>Logic & Patterns</h3><span class="game-count">• 6 games</span></div>
                     <div class="games-grid">
-                        <span class="game-tag"><span class="icon">4️⃣</span> Quordle</span>
-                        <span class="game-tag"><span class="icon">8️⃣</span> Octordle</span>
-                        <span class="game-tag"><span class="icon">2️⃣</span> Dordle</span>
-                        <span class="game-tag"><span class="icon">🧇</span> Waffle</span>
+                        <span class="game-tag popular"><span class="icon">🟪</span> Connections</span>
+                        <span class="game-tag"><span class="icon">👑</span> Queens</span>
+                        <span class="game-tag"><span class="icon">💃</span> Tango</span>
+                        <span class="game-tag"><span class="icon">📍</span> Pinpoint</span>
                         <span class="game-tag"><span class="icon">🧮</span> Nerdle</span>
-                        <span class="game-tag"><span class="icon">🎯</span> Contexto</span>
-                        <span class="game-tag"><span class="icon">🧠</span> Semantle</span>
-                        <span class="game-tag"><span class="icon">█</span> Redactle</span>
+                        <span class="game-tag"><span class="icon">🛒</span> Costcodle</span>
                     </div>
                 </div>
                 
                 <div class="game-category">
                     <div class="category-header"><span class="category-icon">🌍</span><h3>Geography</h3><span class="game-count">• 6 games</span></div>
                     <div class="games-grid">
+                        <span class="game-tag popular"><span class="icon">🌎</span> Globle</span>
                         <span class="game-tag"><span class="icon">🌍</span> Worldle</span>
-                        <span class="game-tag"><span class="icon">🌎</span> Globle</span>
                         <span class="game-tag"><span class="icon">🚢</span> Tradle</span>
                         <span class="game-tag"><span class="icon">✈️</span> Travle</span>
                         <span class="game-tag"><span class="icon">📸</span> WhereTaken</span>
@@ -1219,9 +1258,9 @@
                 </div>
                 
                 <div class="game-category">
-                    <div class="category-header"><span class="category-icon">🎬</span><h3>Entertainment</h3><span class="game-count">• 5 games</span></div>
+                    <div class="category-header"><span class="category-icon">🎬</span><h3>Movies, Music & TV</h3><span class="game-count">• 5 games</span></div>
                     <div class="games-grid">
-                        <span class="game-tag"><span class="icon">🎬</span> Framed</span>
+                        <span class="game-tag popular"><span class="icon">🎬</span> Framed</span>
                         <span class="game-tag"><span class="icon">🎭</span> Actorle</span>
                         <span class="game-tag"><span class="icon">🎥</span> Moviedle</span>
                         <span class="game-tag"><span class="icon">🎵</span> Heardle</span>
@@ -1230,10 +1269,9 @@
                 </div>
                 
                 <div class="game-category">
-                    <div class="category-header"><span class="category-icon">⚾</span><h3>Sports & Misc</h3><span class="game-count">• 2 games</span></div>
+                    <div class="category-header"><span class="category-icon">⚾</span><h3>Sports</h3><span class="game-count">• 1 game</span></div>
                     <div class="games-grid">
                         <span class="game-tag"><span class="icon">⚾</span> Immaculate Grid</span>
-                        <span class="game-tag"><span class="icon">🛒</span> Costcodle</span>
                     </div>
                 </div>
             </div>
@@ -1316,8 +1354,8 @@
         
         <footer>
             <p>Made with 🧩 for puzzle lovers everywhere</p>
-            <p style="margin-top: 8px;">Questions? <a href="mailto:hello@gameshelf.co">hello@gameshelf.co</a></p>
-            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.0</p>
+            <p style="margin-top: 8px;">Questions? <a href="/cdn-cgi/l/email-protection#553d3039393a1532343830263d3039337b363a"><span class="__cf_email__" data-cfemail="345c5158585b7453555951475c5158521a575b">[email&#160;protected]</span></a></p>
+            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.3</p>
         </footer>
     </div>
 
@@ -1381,6 +1419,45 @@
         </div>
     </div>
 
+    <!-- ==================== REGISTER VIEW (for pending users) ==================== -->
+    <div id="register-view" class="register-view hidden">
+        <div class="register-header">
+            <img class="register-avatar" id="register-avatar" src="" alt="" onerror="this.onerror=null;this.src=defaultAvatar(this.dataset.name||'?')">
+            <p class="register-greeting">Hey <span id="register-name">there</span>! 👋</p>
+            <h1 class="register-title">Join the Beta Program</h1>
+            <p class="register-subtitle">You're already a Game Shelf user. Complete your beta registration to unlock exclusive features.</p>
+        </div>
+        
+        <div class="card card-highlight">
+            <h3 class="section-title"><span class="emoji">🎁</span> Beta Tester Perks</h3>
+            <ul class="benefit-list">
+                <li><span class="check">✓</span> <strong>20 free coins</strong> to spend on AI hints</li>
+                <li><span class="check">✓</span> Early access to new games & features</li>
+                <li><span class="check">✓</span> Direct line to the dev team</li>
+                <li><span class="check">✓</span> Exclusive beta tester badge</li>
+                <li><span class="check">✓</span> Shape the future of Game Shelf</li>
+            </ul>
+            <div class="coin-highlight">
+                <div class="coin-icon">🪙</div>
+                <div><div class="coin-amount">+20 Coins</div><div class="coin-desc">Yours when you join</div></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3 class="section-title"><span class="emoji">🤝</span> What We Ask</h3>
+            <ul class="benefit-list">
+                <li><span class="check">☐</span> Use Game Shelf for at least a week</li>
+                <li><span class="check">☐</span> Answer a few quick feedback questions</li>
+                <li><span class="check">☐</span> Report bugs when you find them</li>
+            </ul>
+        </div>
+        
+        <button id="complete-registration-btn" class="register-cta" onclick="completeRegistration()">
+            🚀 Complete Beta Registration
+        </button>
+        <p class="register-note">Your existing Game Shelf data will be preserved.</p>
+    </div>
+
     <!-- ==================== DASHBOARD VIEW ==================== -->
     <div id="dashboard-view" class="dashboard-view hidden">
         <header class="header">
@@ -1395,7 +1472,10 @@
             </div>
             <div class="user-info">
                 <span class="user-name" id="header-user-name">User</span>
-                <img class="user-avatar" id="header-avatar" src="" alt="">
+                <img class="user-avatar" id="header-avatar" src="" alt="" onerror="this.onerror=null;this.src=defaultAvatar(this.dataset.name||'?')">
+                <button class="logout-btn" onclick="signOut()" title="Sign out">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
             </div>
         </header>
         
@@ -1471,20 +1551,33 @@
         </div>
         
         <footer style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.85rem;">
-            <p><a href="mailto:hello@gameshelf.co" style="color: var(--accent-purple); text-decoration: none;">hello@gameshelf.co</a></p>
-            <p style="margin-top: 8px;">Beta Hub v2.1.0</p>
+            <p><a href="/cdn-cgi/l/email-protection#066e636a6a694661676b63756e636a60286569" style="color: var(--accent-purple); text-decoration: none;"><span class="__cf_email__" data-cfemail="432b262f2f2c0324222e26302b262f256d202c">[email&#160;protected]</span></a></p>
+            <p style="margin-top: 8px;">Beta Hub v2.1.3</p>
         </footer>
     </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // ============ FIREBASE ============
         const firebaseConfig = { apiKey: "AIzaSyBQVwn8vOrFTzLlm2MYIPBwgZV2xR9AuhM", authDomain: "word-boxing.firebaseapp.com", databaseURL: "https://word-boxing-default-rtdb.firebaseio.com", projectId: "word-boxing" };
         let auth, db;
-        try { firebase.initializeApp(firebaseConfig); auth = firebase.auth(); db = firebase.database(); } catch (e) { console.error('[Beta] Firebase init failed:', e); }
+        try { 
+            firebase.initializeApp(firebaseConfig); 
+            auth = firebase.auth(); 
+            db = firebase.database(); 
+        } catch (e) { 
+            console.error('[Beta] Firebase init failed:', e); 
+        }
         
         // ============ STATE ============
         let currentUser = null, userData = null, referralData = null, currentGameSurvey = null;
         const SIGNUP_BONUS = 20, REFERRAL_BONUS = 10;
+        
+        // User types
+        const USER_TYPES = {
+            PENDING: 'pending',   // Authenticated but hasn't completed beta registration
+            BETA: 'beta',         // Completed beta registration - goes to Beta Hub portal
+            STANDARD: 'standard'  // Regular user - goes to Game Shelf main app
+        };
         
         // ============ QUESTIONS ============
         const DAILY_QUESTIONS = [
@@ -1512,11 +1605,41 @@
         function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
         function showToast(msg, dur = 3000) { document.querySelectorAll('.toast').forEach(t => t.remove()); const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, dur); }
         function copyLink() { navigator.clipboard.writeText('https://gameshelf.co/beta/'); showToast('✓ Link copied!'); }
+        function defaultAvatar(name) { return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23667eea" width="100" height="100"/><text x="50" y="65" text-anchor="middle" fill="white" font-size="40">${encodeURIComponent(name[0]||'?')}</text></svg>`; }
+        async function signOut() { try { await auth.signOut(); showLanding(); showToast('Signed out'); } catch (e) { showToast('Sign out failed'); } }
+        
+        function showWelcomeModal(name, photoURL, callback) {
+            const avatar = photoURL || defaultAvatar(name);
+            const modal = document.createElement('div');
+            modal.className = 'welcome-modal';
+            modal.innerHTML = `
+                <div class="welcome-modal-content">
+                    <img class="welcome-avatar" src="${escapeHtml(avatar)}" alt="" onerror="this.onerror=null;this.src='${escapeHtml(defaultAvatar(name))}'">
+                    <div class="welcome-title">Welcome back, ${escapeHtml(name)}!</div>
+                    <div class="welcome-subtitle">Taking you to your Beta Hub...</div>
+                    <div class="welcome-loader">
+                        <span class="welcome-loader-dot"></span>
+                        <span class="welcome-loader-dot"></span>
+                        <span class="welcome-loader-dot"></span>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => {
+                modal.style.opacity = '0';
+                modal.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => {
+                    modal.remove();
+                    if (callback) callback();
+                }, 300);
+            }, 1500);
+        }
         
         // ============ VIEW SWITCHING ============
         function showLanding() {
             document.getElementById('landing-view').classList.remove('hidden');
             document.getElementById('signup-view').classList.add('hidden');
+            document.getElementById('register-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
             window.scrollTo(0, 0);
         }
@@ -1524,18 +1647,35 @@
         function showSignup() {
             document.getElementById('landing-view').classList.add('hidden');
             document.getElementById('signup-view').classList.remove('hidden');
+            document.getElementById('register-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
+        
+        function showRegister() {
+            document.getElementById('landing-view').classList.add('hidden');
+            document.getElementById('signup-view').classList.add('hidden');
+            document.getElementById('register-view').classList.remove('hidden');
+            document.getElementById('dashboard-view').classList.add('hidden');
+            const name = currentUser.displayName.split(' ')[0];
+            document.getElementById('register-name').textContent = name;
+            const avatarEl = document.getElementById('register-avatar');
+            avatarEl.dataset.name = name;
+            avatarEl.src = currentUser.photoURL || defaultAvatar(name);
             window.scrollTo(0, 0);
         }
         
         function showDashboard() {
             document.getElementById('landing-view').classList.add('hidden');
             document.getElementById('signup-view').classList.add('hidden');
+            document.getElementById('register-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.remove('hidden');
             const name = currentUser.displayName.split(' ')[0];
             document.getElementById('header-user-name').textContent = name;
             document.getElementById('welcome-name').textContent = name;
-            document.getElementById('header-avatar').src = currentUser.photoURL || `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23667eea" width="100" height="100"/><text x="50" y="65" text-anchor="middle" fill="white" font-size="40">${name[0]||'?'}</text></svg>`;
+            const avatarEl = document.getElementById('header-avatar');
+            avatarEl.dataset.name = name;
+            avatarEl.src = currentUser.photoURL || defaultAvatar(name);
             loadStats(); loadDailySurvey(); loadGameSurveys(); loadLeaderboard();
             window.scrollTo(0, 0);
         }
@@ -1569,39 +1709,94 @@
         auth?.onAuthStateChanged(async user => {
             if (user) {
                 currentUser = { odometerId: generateOdometerId(user.uid), displayName: user.displayName || 'Player', email: user.email, photoURL: user.photoURL };
-                await loadOrCreateUser();
-                showDashboard();
+                const userType = await loadOrCreateUser();
+                const firstName = currentUser.displayName.split(' ')[0];
+                
+                if (userType === USER_TYPES.BETA) {
+                    // Full beta user - show welcome and go to dashboard
+                    showWelcomeModal(firstName, currentUser.photoURL, () => {
+                        showDashboard();
+                    });
+                } else if (userType === USER_TYPES.STANDARD) {
+                    // Standard user - redirect to main Game Shelf
+                    window.location.href = 'https://gameshelf.co/';
+                } else {
+                    // Pending user - show registration completion
+                    showRegister();
+                }
             } else {
                 const hasReferral = await checkReferral();
                 if (hasReferral) showSignup();
-                else showLanding();
+                // else landing is already visible
             }
         });
         
         async function loadOrCreateUser() {
             const ref = db.ref(`users/${currentUser.odometerId}`);
             userData = (await ref.once('value')).val() || {};
+            const now = Date.now();
             
-            if (!userData.earlyAccess) {
-                const now = Date.now();
-                let bonus = SIGNUP_BONUS, msg = '🎉 Welcome! 20 coins added!';
-                const updates = { odometer_id: currentUser.odometerId, displayName: currentUser.displayName, email: currentUser.email, photoURL: currentUser.photoURL || '', createdAt: userData.createdAt || now, lastVisit: now, 'earlyAccess/joinedAt': now, 'earlyAccess/source': referralData ? 'referral' : 'beta-hub', 'earlyAccess/initialCoinsGranted': SIGNUP_BONUS };
+            // Update basic profile info (this is fine client-side)
+            await ref.update({
+                odometer_id: currentUser.odometerId,
+                displayName: currentUser.displayName,
+                email: currentUser.email,
+                photoURL: currentUser.photoURL || '',
+                createdAt: userData.createdAt || now,
+                lastVisit: now
+            });
+            
+            // Determine user type (read-only - never write userType from client)
+            let userType = userData.userType;
+            
+            if (!userType) {
+                // Infer type from existing data
+                if (userData.earlyAccess?.joinedAt) {
+                    // Legacy beta user - will be migrated by function on next action
+                    userType = USER_TYPES.BETA;
+                } else {
+                    // No beta registration yet
+                    userType = USER_TYPES.PENDING;
+                }
+            }
+            
+            // Refresh user data
+            userData = (await ref.once('value')).val();
+            return userType;
+        }
+        
+        // Complete beta registration via Cloud Function
+        async function completeRegistration() {
+            const btn = document.getElementById('complete-registration-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;margin:0 auto;border-width:2px;"></div>';
+            
+            try {
+                const completeBetaRegistration = firebase.functions().httpsCallable('completeBetaRegistration');
+                const result = await completeBetaRegistration({
+                    referredBy: referralData?.odometerId || null
+                });
                 
-                if (referralData) {
-                    bonus += REFERRAL_BONUS;
-                    updates['earlyAccess/referredBy'] = referralData.odometerId;
-                    updates[`tokenHistory/${now+1}`] = { type: 'referral_bonus', amount: REFERRAL_BONUS, currency: 'coins', timestamp: now+1, description: `Referral from ${referralData.displayName}` };
-                    msg = `🎉 Welcome! ${bonus} coins added!`;
-                    try {
-                        await db.ref(`users/${referralData.odometerId}/tokenHistory/${now}`).set({ type: 'referral_reward', amount: REFERRAL_BONUS, currency: 'coins', timestamp: now, description: `Invited ${currentUser.displayName}` });
-                    } catch (e) { console.error('[Beta] Referrer credit failed:', e); }
+                if (result.data.success) {
+                    // Refresh user data
+                    const ref = db.ref(`users/${currentUser.odometerId}`);
+                    userData = (await ref.once('value')).val();
+                    
+                    // Show welcome modal and go to dashboard
+                    const firstName = currentUser.displayName.split(' ')[0];
+                    showToast(result.data.message);
+                    showWelcomeModal(firstName, currentUser.photoURL, () => {
+                        showDashboard();
+                    });
+                } else {
+                    throw new Error(result.data.message || 'Registration failed');
                 }
                 
-                updates['shelf/wallet/coins'] = (userData.shelf?.wallet?.coins || 0) + bonus;
-                updates[`tokenHistory/${now}`] = { type: 'beta_signup_bonus', amount: SIGNUP_BONUS, currency: 'coins', timestamp: now, description: 'Early Access bonus' };
-                await ref.update(updates);
-                userData = (await ref.once('value')).val();
-                showToast(msg);
+            } catch (e) {
+                console.error('[Beta] Registration failed:', e);
+                btn.disabled = false;
+                btn.textContent = '🚀 Complete Beta Registration';
+                showToast(e.message || 'Registration failed. Please try again.');
             }
         }
         
@@ -1725,8 +1920,9 @@
                 if (!top.length) { container.innerHTML = '<p style="color:var(--text-muted)">No testers yet!</p>'; return; }
                 container.innerHTML = top.map((u,i) => {
                     const me = u.odometerId === currentUser.odometerId, rank = i<1?'gold':i<2?'silver':i<3?'bronze':'normal';
-                    const avatar = u.photoURL || `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23667eea" width="100" height="100"/><text x="50" y="65" text-anchor="middle" fill="white" font-size="40">${u.name[0]||'?'}</text></svg>`;
-                    return `<div class="leaderboard-item ${me?'highlight':''}"><div class="rank ${rank}">${i+1}</div><img class="leaderboard-avatar" src="${escapeHtml(avatar)}"><div class="leaderboard-name">${escapeHtml(u.name)}${me?' (you)':''}</div><div><div class="leaderboard-score">${u.score} pts</div><div class="leaderboard-metric">${u.played} games</div></div></div>`;
+                    const fallback = defaultAvatar(u.name);
+                    const avatar = u.photoURL || fallback;
+                    return `<div class="leaderboard-item ${me?'highlight':''}"><div class="rank ${rank}">${i+1}</div><img class="leaderboard-avatar" src="${escapeHtml(avatar)}" onerror="this.onerror=null;this.src='${escapeHtml(fallback)}'"><div class="leaderboard-name">${escapeHtml(u.name)}${me?' (you)':''}</div><div><div class="leaderboard-score">${u.score} pts</div><div class="leaderboard-metric">${u.played} games</div></div></div>`;
                 }).join('');
             } catch (e) { container.innerHTML = '<p style="color:var(--text-muted)">Could not load leaderboard</p>'; console.error('[Beta] Leaderboard error:', e); }
         }
@@ -1761,17 +1957,4 @@
                 </div>
             `;
             modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-            document.body.appendChild(modal);
-        }
-        
-        // ============ INIT ============
-        document.addEventListener('DOMContentLoaded', () => {
-            // Check if already logged in
-            if (!auth) {
-                showLanding();
-                console.error('[Beta] Firebase not initialized');
-            }
-        });
-    </script>
-</body>
-</html>
+            do
