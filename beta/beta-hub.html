@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="version" content="2.1.7.3">
+    <meta name="gs-app-id" content="beta">
+    
+    <title>Game Shelf Beta Hub</title>
+    <meta name="description" content="Join the Game Shelf beta program. Track 36+ daily puzzle games, build streaks, battle friends, and get AI-powered hints.">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gameshelf.co/beta/">
+    <meta property="og:title" content="Game Shelf - Track Every Daily Puzzle">
+    <meta property="og:description" content="Finally, one place for all your daily puzzles. Track streaks, battle friends, get AI hints when you're stuck.">
+    <meta property="og:image" content="https://gameshelf.co/landing/og-image.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Game Shelf - Track Every Daily Puzzle">
+    <meta name="twitter:image" content="https://gameshelf.co/landing/og-image.png">
+    
+    <!-- Theme -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606070;
+            --accent-purple: #667eea;
+            --accent-pink: #f093fb;
+            --accent-green: #48bb78;
+            --accent-orange: #ed8936;
+            --accent-gold: #ffd700;
+            --accent-gradient: linear-gradient(135deg, #667eea, #764ba2);
+            --glow: 0 0 60px rgba(102, 126, 234, 0.3);
+            --border: #2a2a3a;
+        }
+        
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .hidden { display: none !important; }
+        
+        /* ==================== FOUNDER'S NOTE BANNER ==================== */
+        .founder-banner {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.15));
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 18px 24px;
+            text-align: center;
+        }
+        
+        .founder-banner-content {
+            max-width: 650px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .founder-banner .wave { font-size: 1.4rem; }
+        
+        .founder-banner p {
+            color: var(--text-primary);
+            font-size: 1.05rem;
+            font-weight: 500;
+        }
+        
+        .founder-banner .signature {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+        
+        /* ==================== LANDING VIEW STYLES ==================== */
+        .landing-view {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero {
+            min-height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .hero-content { 
+            position: relative; 
+            z-index: 1; 
+            max-width: 1100px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            text-align: left;
+        }
+        
+        .hero-text { max-width: 500px; }
+        
+        .hero-phone { display: flex; justify-content: center; }
+        
+        .phone-frame {
+            width: 280px;
+            background: linear-gradient(145deg, #2a2a3a 0%, #1a1a25 100%);
+            border-radius: 40px;
+            padding: 10px;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.1);
+            animation: float 4s ease-in-out infinite;
+            position: relative;
+        }
+        
+        .phone-screenshot {
+            width: 100%;
+            border-radius: 32px;
+            display: block;
+        }
+        
+        .hint-phone-frame .phone-screenshot {
+            border-radius: 26px;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        
+        @media (max-width: 900px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 40px;
+            }
+            .hero-text { max-width: 100%; order: 1; }
+            .hero-phone { order: 0; }
+            .phone-frame { width: 220px; }
+        }
+        
+        .brand-title {
+            font-size: clamp(3rem, 10vw, 5rem);
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+        
+        .hero-headline {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        
+        .hero-headline span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .game-list {
+            font-size: 0.95rem;
+            color: var(--accent-purple);
+            margin-bottom: 32px;
+            font-weight: 500;
+        }
+        
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: var(--glow), 0 4px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--glow), 0 8px 30px rgba(102, 126, 234, 0.5);
+        }
+        
+        .cta-note {
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .scroll-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            background: var(--bg-secondary);
+            padding: 40px 24px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .landing-view .stats-grid {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            max-width: 800px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item { text-align: center; }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        /* AI Hints Section */
+        .ai-hints {
+            padding: 80px 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .ai-hints-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 24px;
+            padding: 48px 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ai-hints-content { 
+            position: relative; 
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        
+        .ai-hints-text { text-align: left; }
+        
+        @media (max-width: 900px) {
+            .ai-hints-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .ai-hints-text { text-align: center; }
+            .hint-levels { justify-content: center; }
+            .hint-phone { margin-top: 24px; }
+            .hint-phone-frame { width: 200px; }
+        }
+        
+        .hint-phone { display: flex; justify-content: center; }
+        
+        .hint-phone-frame {
+            width: 240px;
+            background: linear-gradient(145deg, #2a2a3a 0%, #1a1a25 100%);
+            border-radius: 32px;
+            padding: 8px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+        }
+        
+        .hint-phone-frame .phone-screenshot {
+            width: 100%;
+            border-radius: 26px;
+            display: block;
+        }
+        
+        .new-badge {
+            display: inline-block;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .ai-hints h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+        
+        .gradient {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .ai-hints p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin-bottom: 24px;
+        }
+        
+        .hint-levels {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .hint-level {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 12px 20px;
+            text-align: center;
+        }
+        
+        .hint-level.active {
+            background: var(--accent-gradient);
+            border-color: transparent;
+        }
+        
+        .hint-level-name { font-weight: 600; font-size: 0.95rem; }
+        .hint-level-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+        .hint-level.active .hint-level-desc { color: rgba(255,255,255,0.8); }
+        
+        /* Originals Section */
+        .originals {
+            padding: 80px 24px;
+            background: var(--bg-secondary);
+        }
+        
+        .originals-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .originals .section-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        
+        .originals-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+        
+        .originals-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .originals-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        
+        .original-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 28px 20px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            display: block;
+        }
+        
+        .original-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(102, 126, 234, 0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 30px rgba(102, 126, 234, 0.1);
+        }
+        
+        .original-icon {
+            font-size: 2.8rem;
+            margin-bottom: 14px;
+            display: block;
+        }
+        
+        .original-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .original-card p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        
+        /* Final CTA - Personal Version */
+        .final-cta {
+            padding: 80px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .final-cta::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 100%, rgba(102, 126, 234, 0.2) 0%, transparent 60%);
+        }
+        
+        .final-cta > * { position: relative; z-index: 1; }
+        
+        .final-cta h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        
+        .final-cta p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 32px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 48px 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        footer a { color: var(--accent-purple); text-decoration: none; transition: color 0.2s; }
+        footer a:hover { color: var(--accent-pink); }
+        
+        @keyframes aurora {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(5%, 5%) rotate(2deg); }
+            50% { transform: translate(-3%, 6%) rotate(-2deg); }
+            75% { transform: translate(6%, -4%) rotate(3deg); }
+        }
+        
+        /* ==================== SIGNUP VIEW STYLES ==================== */
+        .signup-view {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            min-height: 100vh;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+            cursor: pointer;
+        }
+        
+        .back-link:hover { color: var(--text-primary); }
+        
+        .signup-header { text-align: center; margin-bottom: 32px; }
+        .signup-logo { width: 80px; height: 80px; margin-bottom: 16px; }
+        
+        .beta-badge {
+            display: inline-block;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        
+        .signup-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .signup-subtitle { font-size: 1rem; color: var(--text-secondary); }
+        
+        .referral-banner {
+            background: linear-gradient(135deg, rgba(72, 187, 120, 0.15), rgba(102, 126, 234, 0.1));
+            border: 1px solid rgba(72, 187, 120, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .referral-icon { font-size: 2.5rem; margin-bottom: 8px; }
+        .referral-text { font-size: 1.1rem; font-weight: 600; }
+        .referral-subtext { font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px; }
+        .referral-bonus { display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 215, 0, 0.2); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; color: var(--accent-gold); margin-top: 12px; }
+        
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+        
+        .card-highlight {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.08));
+            border-color: rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+        }
+        
+        .card-highlight:hover {
+            border-color: rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title .emoji { 
+            font-size: 1.3rem; 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .benefit-list { list-style: none; }
+        .benefit-list li { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; color: var(--text-secondary); font-size: 0.95rem; }
+        .benefit-list .check { color: var(--accent-green); font-weight: bold; flex-shrink: 0; }
+        
+        .coin-highlight {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(237, 137, 54, 0.1));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .coin-icon { font-size: 2.5rem; }
+        .coin-amount { font-size: 1.3rem; font-weight: 700; color: var(--accent-gold); }
+        .coin-desc { font-size: 0.85rem; color: var(--text-secondary); }
+        
+        .warning-box {
+            background: rgba(237, 137, 54, 0.1);
+            border: 1px solid rgba(237, 137, 54, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .warning-box h4 { color: var(--accent-orange); font-size: 0.95rem; margin-bottom: 8px; }
+        .warning-box p { color: var(--text-secondary); font-size: 0.9rem; }
+        
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: white;
+            color: #333;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .google-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15); }
+        .google-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .google-btn svg { width: 20px; height: 20px; }
+        
+        /* ==================== DASHBOARD VIEW STYLES ==================== */
+        .dashboard-view {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-logo { width: 40px; height: 40px; filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.3)); }
+        .header-title { font-size: 1.25rem; font-weight: 700; }
+        .header-title span { background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-card); border: 2px solid rgba(102, 126, 234, 0.3); }
+        .user-name { font-size: 0.9rem; font-weight: 500; color: var(--text-secondary); }
+        
+        .dashboard-view .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(102, 126, 234, 0.3);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stat-card .stat-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+        
+        .stat-card .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        @media (max-width: 600px) { .dashboard-view .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        
+        .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .action-btn.primary { background: var(--accent-gradient); color: white; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
+        .action-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+        .action-btn.secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+        .action-btn.secondary:hover { border-color: var(--accent-purple); background: rgba(102, 126, 234, 0.1); }
+        
+        .gs-games-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        
+        .gs-game-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .gs-game-card:hover { transform: translateY(-4px); border-color: rgba(102, 126, 234, 0.4); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25); }
+        .gs-game-card .icon { font-size: 2rem; margin-bottom: 8px; display: block; }
+        .gs-game-card .name { font-size: 0.85rem; font-weight: 600; }
+        .gs-game-card .played { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+        
+        @media (max-width: 500px) { .gs-games-grid { grid-template-columns: repeat(2, 1fr); } }
+        
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .logout-btn:hover {
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+        
+        .text-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 12px;
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+        }
+        
+        .submit-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .journal-entry {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .journal-entry-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        
+        .journal-entry-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .journal-empty {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            z-index: 10000;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        
+        /* Survey Modal */
+        .survey-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        
+        .survey-modal-content {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .survey-modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .survey-modal-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        .survey-rating-scale {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .survey-rating-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .survey-rating-btn:hover {
+            border-color: var(--accent-purple);
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .survey-rating-btn.selected {
+            background: var(--accent-gradient);
+            border-color: transparent;
+        }
+        
+        .survey-rating-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        
+        .survey-skip {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 8px 16px;
+            font-family: inherit;
+        }
+        
+        .survey-skip:hover {
+            color: var(--text-secondary);
+        }
+        
+        /* Feedback Modal */
+        .feedback-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        
+        .feedback-modal-content {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .feedback-modal-rating {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+        
+        .feedback-modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .feedback-modal-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        
+        .feedback-modal-content textarea {
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 16px;
+        }
+        
+        .feedback-modal-content textarea:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+        }
+        
+        .feedback-modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .feedback-modal-skip {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .feedback-modal-submit {
+            flex: 2;
+            padding: 12px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        /* Welcome Modal */
+        .welcome-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 10, 15, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .welcome-modal-content {
+            text-align: center;
+        }
+        
+        .welcome-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            border: 3px solid var(--accent-purple);
+        }
+        
+        .welcome-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        .welcome-loader {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .welcome-loader-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--accent-purple);
+            border-radius: 50%;
+            animation: loaderPulse 1.4s infinite ease-in-out both;
+        }
+        
+        .welcome-loader-dot:nth-child(1) { animation-delay: -0.32s; }
+        .welcome-loader-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes loaderPulse {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        /* ==================== REGISTER/ONBOARDING VIEW ==================== */
+        .register-view {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            min-height: 100vh;
+        }
+        
+        .register-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .register-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 16px;
+            border: 3px solid var(--accent-purple);
+        }
+        
+        .register-greeting {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .register-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .register-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .onboarding-progress {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .onboarding-progress-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-card);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .onboarding-progress-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .onboarding-progress-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        
+        .onboarding-step {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .onboarding-nav {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .register-cta {
+            flex: 1;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .register-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .register-cta.secondary {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            box-shadow: none;
+        }
+        
+        .register-cta.secondary:hover {
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+        
+        .radio-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .radio-option:hover {
+            border-color: var(--accent-purple);
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .radio-option input {
+            display: none;
+        }
+        
+        .radio-option input:checked + .radio-circle {
+            border-color: var(--accent-purple);
+            background: var(--accent-gradient);
+        }
+        
+        .radio-option input:checked ~ span:last-child {
+            color: var(--text-primary);
+        }
+        
+        .radio-circle {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        @media (max-width: 500px) {
+            .checkbox-grid { grid-template-columns: 1fr; }
+        }
+        
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .checkbox-option:hover {
+            border-color: var(--accent-purple);
+        }
+        
+        .checkbox-option input {
+            display: none;
+        }
+        
+        .checkbox-option input:checked + .checkbox-box {
+            background: var(--accent-gradient);
+            border-color: transparent;
+        }
+        
+        .checkbox-option input:checked + .checkbox-box::after {
+            content: '✓';
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .checkbox-box {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .other-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        
+        .other-input:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Aurora -->
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; pointer-events: none;">
+        <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 20%, rgba(102, 126, 234, 0.66) 0%, transparent 40%), radial-gradient(ellipse at 80% 20%, rgba(240, 147, 251, 0.55) 0%, transparent 40%), radial-gradient(ellipse at 40% 80%, rgba(118, 75, 162, 0.66) 0%, transparent 40%), radial-gradient(ellipse at 80% 80%, rgba(102, 126, 234, 0.5) 0%, transparent 40%); animation: aurora 12s ease-in-out infinite;"></div>
+    </div>
+    
+    <!-- ==================== LANDING VIEW ==================== -->
+    <div id="landing-view" class="landing-view">
+        
+        <!-- Founder's Note Banner -->
+        <div class="founder-banner">
+            <div class="founder-banner-content">
+                <span class="wave">👋</span>
+                <p>You're part of a select group I'm sharing this with. Thanks for helping me build something real. <span class="signature">— Dave</span></p>
+            </div>
+        </div>
+        
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="brand-title">GAME SHELF</h1>
+                    <h2 class="hero-headline">Track Every Daily Puzzle <span>in One Place</span></h2>
+                    <p class="hero-subtitle">Finally, one app for all your daily puzzles.</p>
+                    <p class="game-list">Wordle • Quordle • Connections • Framed • Globle • 36+ games</p>
+                    
+                    <button class="cta-button" onclick="showSignup()">
+                        <svg viewBox="0 0 100 100" style="width: 2em; height: 2em; vertical-align: middle; margin-right: 0.3em;">
+                            <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/></g>
+                            <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.85)"/><circle cx="57" cy="46" r="6" fill="white"/></g>
+                        </svg>
+                        Get Started
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </button>
+                    <p class="cta-note">No download needed • Works on any device</p>
+                </div>
+                <div class="hero-phone">
+                    <div class="phone-frame">
+                        <img class="phone-screenshot" src="landing/app-screenshot.png" alt="Game Shelf App">
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-hint" onclick="document.querySelector('.stats-bar').scrollIntoView({behavior:'smooth'})">↓ See what's inside</div>
+        </section>
+        
+        <!-- Stats Bar -->
+        <section class="stats-bar">
+            <div class="stats-grid">
+                <div class="stat-item"><div class="stat-number">36+</div><div class="stat-label">Supported Games</div></div>
+                <div class="stat-item"><div class="stat-number">4</div><div class="stat-label">Original Games</div></div>
+                <div class="stat-item"><div class="stat-number">∞</div><div class="stat-label">Streaks to Build</div></div>
+                <div class="stat-item"><div class="stat-number">AI</div><div class="stat-label">Powered Hints</div></div>
+            </div>
+        </section>
+        
+        <!-- AI Hints Section -->
+        <section class="ai-hints">
+            <div class="ai-hints-card">
+                <div class="ai-hints-content">
+                    <div class="ai-hints-text">
+                        <span class="new-badge">🤖 Featured</span>
+                        <h2>Stuck? Get <span class="gradient">AI-Powered Hints</span></h2>
+                        <p>Powered by Claude AI, get intelligent hints that help without spoiling. Start with a gentle nudge, or ask for more help — you control how much assistance you get.</p>
+                        <div class="hint-levels">
+                            <div class="hint-level"><div class="hint-level-name">💡 Nudge</div><div class="hint-level-desc">A gentle push</div></div>
+                            <div class="hint-level active"><div class="hint-level-name">🔍 Hint</div><div class="hint-level-desc">More specific</div></div>
+                            <div class="hint-level"><div class="hint-level-name">🎯 Strong</div><div class="hint-level-desc">Almost there</div></div>
+                        </div>
+                    </div>
+                    <div class="hint-phone">
+                        <div class="hint-phone-frame">
+                            <img class="phone-screenshot" src="landing/hints-screenshot.png" alt="AI Hints">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Originals Section -->
+        <section class="originals">
+            <div class="originals-inner">
+                <h2 class="section-title">🎮 Game Shelf Originals</h2>
+                <p class="originals-subtitle">I also built some games — your feedback on these would be especially valuable.</p>
+                <div class="originals-grid">
+                    <a href="https://gameshelf.co/quotle/" class="original-card" target="_blank">
+                        <span class="original-icon">💬</span>
+                        <h3>Quotle</h3>
+                        <p>Guess the famous quote one word at a time</p>
+                    </a>
+                    <a href="https://gameshelf.co/slate/" class="original-card" target="_blank">
+                        <span class="original-icon">🪨</span>
+                        <h3>Slate</h3>
+                        <p>Find 8 hidden words in the chalkboard grid</p>
+                    </a>
+                    <a href="https://gameshelf.co/rungs/" class="original-card" target="_blank">
+                        <span class="original-icon">🪜</span>
+                        <h3>Rungs</h3>
+                        <p>Climb the word ladder one letter at a time</p>
+                    </a>
+                    <a href="https://gameshelf.co/wordboxing/" class="original-card" target="_blank">
+                        <span class="original-icon">🥊</span>
+                        <h3>Word Boxing</h3>
+                        <p>Real-time multiplayer word battles</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Final CTA - Personal Version -->
+        <section class="final-cta">
+            <h2>Ready to Jump In?</h2>
+            <p>I'll ask a few questions to help build this for people like you. Your feedback over the next few weeks will directly shape what this becomes.</p>
+            <button class="cta-button" onclick="showSignup()">
+                <svg viewBox="0 0 100 100" style="width: 2em; height: 2em; vertical-align: middle; margin-right: 0.3em;">
+                    <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/></g>
+                    <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.85)"/><circle cx="57" cy="46" r="6" fill="white"/></g>
+                </svg>
+                Let's Go
+            </button>
+        </section>
+        
+        <footer>
+            <p>Made with 🧩 for puzzle lovers everywhere</p>
+            <p style="margin-top: 8px;">Questions? <a href="mailto:support@gameshelf.co">support@gameshelf.co</a></p>
+            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.7.3</p>
+        </footer>
+    </div>
+
+    <!-- ==================== SIGNUP VIEW ==================== -->
+    <div id="signup-view" class="signup-view hidden">
+        <a class="back-link" onclick="showLanding()">← Back</a>
+        
+        <div id="referral-banner" class="referral-banner hidden">
+            <div class="referral-icon">🎉</div>
+            <div class="referral-text">Your friend <span id="referrer-name">Someone</span> invited you!</div>
+            <div class="referral-subtext">Join now and you'll both get bonus coins</div>
+            <div class="referral-bonus">🪙 +10 bonus coins for you both</div>
+        </div>
+        
+        <div class="signup-header">
+            <svg class="signup-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="gsBadgeGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs>
+                <rect x="5" y="5" width="90" height="90" rx="20" fill="url(#gsBadgeGrad)"/>
+                <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/><text x="29" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#667eea" text-anchor="middle">G</text></g>
+                <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.9)"/><circle cx="57" cy="46" r="6" fill="url(#gsBadgeGrad)"/><text x="71" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#764ba2" text-anchor="middle">S</text></g>
+            </svg>
+            <span class="beta-badge">🚀 Early Access</span>
+            <h1 class="signup-title">Join the Beta</h1>
+            <p class="signup-subtitle">Your feedback will directly shape what this becomes</p>
+        </div>
+        
+        <div class="card">
+            <h3 class="section-title"><span class="emoji">🎁</span> What You Get</h3>
+            <ul class="benefit-list">
+                <li><span class="check">✓</span> Full access to Game Shelf and all features</li>
+                <li><span class="check">✓</span> Track 36+ daily puzzle games in one place</li>
+                <li><span class="check">✓</span> AI-powered hints when you're stuck</li>
+                <li><span class="check">✓</span> Battle friends and compete on leaderboards</li>
+            </ul>
+            <div class="coin-highlight">
+                <span class="coin-icon">🪙</span>
+                <div><div class="coin-amount">20 Free Hint Coins</div><div class="coin-desc">Use them when you're stuck on any puzzle</div></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3 class="section-title"><span class="emoji">🤝</span> What I'm Asking</h3>
+            <ul class="benefit-list">
+                <li><span class="check">☐</span> Use Game Shelf for at least a week</li>
+                <li><span class="check">☐</span> Answer quick feedback questions as you go</li>
+                <li><span class="check">☐</span> Let me know when something breaks</li>
+            </ul>
+            <div class="warning-box">
+                <h4>⚠️ This is Beta Software</h4>
+                <p>You'll probably find bugs. The good news? I turn around fixes within hours.</p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; padding: 20px 0;">
+            <button id="google-signin-btn" class="google-btn" onclick="signInWithGoogle()">
+                <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                <span>Continue with Google</span>
+            </button>
+            <p style="margin-top: 12px; font-size: 0.8rem; color: var(--text-muted);">Google sign-in syncs your progress across devices.</p>
+        </div>
+    </div>
+
+    <!-- ==================== ONBOARDING VIEW ==================== -->
+    <div id="register-view" class="register-view hidden">
+        <div class="register-header">
+            <img class="register-avatar" id="register-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23667eea' width='100' height='100'/%3E%3Ctext x='50' y='65' text-anchor='middle' fill='white' font-size='40'%3E%3F%3C/text%3E%3C/svg%3E" alt="" onerror="this.onerror=null;if(typeof defaultAvatar==='function')this.src=defaultAvatar(this.dataset.name||'?')">
+            <p class="register-greeting">Hey <span id="register-name">there</span>! 👋</p>
+            <h1 class="register-title">Welcome to the Beta!</h1>
+            <p class="register-subtitle">Quick questions to help me build Game Shelf for people like you.</p>
+        </div>
+        
+        <div class="onboarding-progress">
+            <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" id="onboarding-progress-fill"></div></div>
+            <div class="onboarding-progress-text"><span id="onboarding-step">1</span> of 9</div>
+        </div>
+        
+        <!-- Step 1: How did you hear about us -->
+        <div class="onboarding-step" id="onboarding-step-1">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">📣</span> How did you hear about Game Shelf?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Helps me understand what's working</p>
+                <div class="radio-options" id="source-radios">
+                    <label class="radio-option"><input type="radio" name="source" value="friend"><span class="radio-circle"></span><span>Friend or family member</span></label>
+                    <label class="radio-option"><input type="radio" name="source" value="twitter"><span class="radio-circle"></span><span>Twitter / X</span></label>
+                    <label class="radio-option"><input type="radio" name="source" value="reddit"><span class="radio-circle"></span><span>Reddit</span></label>
+                    <label class="radio-option"><input type="radio" name="source" value="search"><span class="radio-circle"></span><span>Google search</span></label>
+                    <label class="radio-option"><input type="radio" name="source" value="dave"><span class="radio-circle"></span><span>Dave told me about it</span></label>
+                    <label class="radio-option"><input type="radio" name="source" value="other"><span class="radio-circle"></span><span>Other...</span></label>
+                </div>
+                <input type="text" class="other-input hidden" id="source-other-input" placeholder="Where did you hear about us?" style="margin-top: 12px;">
+            </div>
+            <button class="register-cta" onclick="nextOnboardingStep(1)">Continue →</button>
+        </div>
+        
+        <!-- Step 2: How long playing puzzles -->
+        <div class="onboarding-step hidden" id="onboarding-step-2">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">⏱️</span> How long have you been playing daily puzzles?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Helps me understand your experience level</p>
+                <div class="radio-options" id="experience-radios">
+                    <label class="radio-option"><input type="radio" name="experience" value="new"><span class="radio-circle"></span><span>Just started (less than 3 months)</span></label>
+                    <label class="radio-option"><input type="radio" name="experience" value="months"><span class="radio-circle"></span><span>Several months</span></label>
+                    <label class="radio-option"><input type="radio" name="experience" value="1-2years"><span class="radio-circle"></span><span>1-2 years</span></label>
+                    <label class="radio-option"><input type="radio" name="experience" value="3plus"><span class="radio-circle"></span><span>3+ years</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(2)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(2)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 3: What games they play -->
+        <div class="onboarding-step hidden" id="onboarding-step-3">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">🎮</span> What daily puzzles do you play?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Select all that apply</p>
+                <div class="checkbox-grid" id="games-checkboxes">
+                    <label class="checkbox-option"><input type="checkbox" value="wordle"><span class="checkbox-box"></span><span>🟩 Wordle</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="connections"><span class="checkbox-box"></span><span>🟪 Connections</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="strands"><span class="checkbox-box"></span><span>🧵 Strands</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="mini"><span class="checkbox-box"></span><span>📝 Mini Crossword</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="quordle"><span class="checkbox-box"></span><span>4️⃣ Quordle</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="spelling-bee"><span class="checkbox-box"></span><span>🐝 Spelling Bee</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="globle"><span class="checkbox-box"></span><span>🌎 Globle</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="framed"><span class="checkbox-box"></span><span>🎬 Framed</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="other" id="games-other-check"><span class="checkbox-box"></span><span>🎯 Other</span></label>
+                </div>
+                <input type="text" class="other-input hidden" id="games-other-input" placeholder="What other games do you play?" style="margin-top: 12px;">
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(3)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(3)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 4: How many per day -->
+        <div class="onboarding-step hidden" id="onboarding-step-4">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">📊</span> How many puzzles do you play per day?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">On a typical day</p>
+                <div class="radio-options" id="frequency-radios">
+                    <label class="radio-option"><input type="radio" name="frequency" value="1"><span class="radio-circle"></span><span>Just 1 (usually Wordle)</span></label>
+                    <label class="radio-option"><input type="radio" name="frequency" value="2-3"><span class="radio-circle"></span><span>2-3 games</span></label>
+                    <label class="radio-option"><input type="radio" name="frequency" value="4-5"><span class="radio-circle"></span><span>4-5 games</span></label>
+                    <label class="radio-option"><input type="radio" name="frequency" value="6plus"><span class="radio-circle"></span><span>6+ games</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(4)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(4)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 5: Primary device -->
+        <div class="onboarding-step hidden" id="onboarding-step-5">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">📱</span> What device do you mostly play on?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Where you typically solve puzzles</p>
+                <div class="radio-options" id="device-radios">
+                    <label class="radio-option"><input type="radio" name="device" value="iphone"><span class="radio-circle"></span><span>📱 iPhone</span></label>
+                    <label class="radio-option"><input type="radio" name="device" value="android"><span class="radio-circle"></span><span>📱 Android phone</span></label>
+                    <label class="radio-option"><input type="radio" name="device" value="ipad"><span class="radio-circle"></span><span>📲 iPad / Tablet</span></label>
+                    <label class="radio-option"><input type="radio" name="device" value="desktop"><span class="radio-circle"></span><span>💻 Computer / Laptop</span></label>
+                    <label class="radio-option"><input type="radio" name="device" value="mixed"><span class="radio-circle"></span><span>🔄 Mix of devices</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(5)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(5)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 6: Sharing -->
+        <div class="onboarding-step hidden" id="onboarding-step-6">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">📤</span> Do you share your results?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Those colored squares people post</p>
+                <div class="radio-options" id="sharing-radios">
+                    <label class="radio-option"><input type="radio" name="sharing" value="daily"><span class="radio-circle"></span><span>Yes, every day!</span></label>
+                    <label class="radio-option"><input type="radio" name="sharing" value="sometimes"><span class="radio-circle"></span><span>Sometimes, when I do well</span></label>
+                    <label class="radio-option"><input type="radio" name="sharing" value="rarely"><span class="radio-circle"></span><span>Rarely</span></label>
+                    <label class="radio-option"><input type="radio" name="sharing" value="never"><span class="radio-circle"></span><span>Never</span></label>
+                </div>
+            </div>
+            <div class="card" id="share-where-card">
+                <h3 class="section-title"><span class="emoji">💬</span> Where do you share?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Select all that apply</p>
+                <div class="checkbox-grid" id="share-where-checkboxes">
+                    <label class="checkbox-option"><input type="checkbox" value="imessage"><span class="checkbox-box"></span><span>💬 iMessage / Text</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="twitter"><span class="checkbox-box"></span><span>🐦 Twitter/X</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="facebook"><span class="checkbox-box"></span><span>📘 Facebook</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="discord"><span class="checkbox-box"></span><span>🎮 Discord</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="slack"><span class="checkbox-box"></span><span>💼 Slack</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="whatsapp"><span class="checkbox-box"></span><span>📞 WhatsApp</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="other" id="share-where-other-check"><span class="checkbox-box"></span><span>🔹 Other</span></label>
+                </div>
+                <input type="text" class="other-input hidden" id="share-where-other-input" placeholder="Where else do you share?" style="margin-top: 12px;">
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(6)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(6)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 7: Hints usage -->
+        <div class="onboarding-step hidden" id="onboarding-step-7">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">💡</span> Do you ever look up hints online?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Helps me understand hint feature demand</p>
+                <div class="radio-options" id="hints-radios">
+                    <label class="radio-option"><input type="radio" name="hints" value="never"><span class="radio-circle"></span><span>Never</span></label>
+                    <label class="radio-option"><input type="radio" name="hints" value="rarely"><span class="radio-circle"></span><span>Rarely, only when really stuck</span></label>
+                    <label class="radio-option"><input type="radio" name="hints" value="sometimes"><span class="radio-circle"></span><span>Sometimes, to keep my streak</span></label>
+                    <label class="radio-option"><input type="radio" name="hints" value="often"><span class="radio-circle"></span><span>Often, I just want to solve it</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(7)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(7)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 8: Competition -->
+        <div class="onboarding-step hidden" id="onboarding-step-8">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">🏆</span> Do you compete with others?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Friends, family, coworkers...</p>
+                <div class="radio-options" id="compete-radios">
+                    <label class="radio-option"><input type="radio" name="compete" value="yes-regular"><span class="radio-circle"></span><span>Yes, we have an ongoing rivalry!</span></label>
+                    <label class="radio-option"><input type="radio" name="compete" value="yes-casual"><span class="radio-circle"></span><span>Yes, casually with friends/family</span></label>
+                    <label class="radio-option"><input type="radio" name="compete" value="want-to"><span class="radio-circle"></span><span>No, but I'd like to!</span></label>
+                    <label class="radio-option"><input type="radio" name="compete" value="no"><span class="radio-circle"></span><span>No, I play solo</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(8)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(8)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 9: Frustration + Open-ended -->
+        <div class="onboarding-step hidden" id="onboarding-step-9">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">😤</span> Biggest puzzle tracking frustration?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">What problem should I solve first?</p>
+                <div class="radio-options" id="frustration-radios">
+                    <label class="radio-option"><input type="radio" name="frustration" value="no-tracking"><span class="radio-circle"></span><span>Can't track my stats across games</span></label>
+                    <label class="radio-option"><input type="radio" name="frustration" value="lost-streak"><span class="radio-circle"></span><span>Lost streaks / forgot to play</span></label>
+                    <label class="radio-option"><input type="radio" name="frustration" value="sharing-hard"><span class="radio-circle"></span><span>Hard to share/compare with friends</span></label>
+                    <label class="radio-option"><input type="radio" name="frustration" value="too-many-apps"><span class="radio-circle"></span><span>Too many apps to open each day</span></label>
+                    <label class="radio-option"><input type="radio" name="frustration" value="none"><span class="radio-circle"></span><span>No major frustrations</span></label>
+                    <label class="radio-option"><input type="radio" name="frustration" value="other"><span class="radio-circle"></span><span>Other...</span></label>
+                </div>
+                <input type="text" class="other-input hidden" id="frustration-other-input" placeholder="Tell me your frustration..." style="margin-top: 12px;">
+            </div>
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">💭</span> One more thing...</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">What would make you use Game Shelf every day?</p>
+                <textarea class="text-input" id="daily-use-input" placeholder="This is the most valuable thing you can tell me..." style="min-height: 100px;"></textarea>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(9)">← Back</button>
+                <button class="register-cta" onclick="completeOnboarding()" id="complete-onboarding-btn">🚀 Let's Go!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DASHBOARD VIEW ==================== -->
+    <div id="dashboard-view" class="dashboard-view hidden">
+        <header class="header">
+            <div class="header-left">
+                <svg class="header-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs><linearGradient id="gsBadgeGrad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs>
+                    <rect x="5" y="5" width="90" height="90" rx="20" fill="url(#gsBadgeGrad2)"/>
+                    <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/><text x="29" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#667eea" text-anchor="middle">G</text></g>
+                    <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.9)"/><circle cx="57" cy="46" r="6" fill="url(#gsBadgeGrad2)"/><text x="71" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#764ba2" text-anchor="middle">S</text></g>
+                </svg>
+                <div class="header-title"><span>Beta Hub</span></div>
+            </div>
+            <div class="user-info">
+                <span class="user-name" id="header-user-name">User</span>
+                <img class="user-avatar" id="header-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23667eea' width='100' height='100'/%3E%3Ctext x='50' y='65' text-anchor='middle' fill='white' font-size='40'%3E%3F%3C/text%3E%3C/svg%3E" alt="" onerror="this.onerror=null;if(typeof defaultAvatar==='function')this.src=defaultAvatar(this.dataset.name||'?')">
+                <button class="logout-btn" onclick="signOut()" title="Sign out">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+            </div>
+        </header>
+        
+        <div class="card card-highlight">
+            <h2 style="font-size: 1.3rem; margin-bottom: 4px;">👋 Welcome back, <span id="welcome-name">Friend</span>!</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Day <span id="beta-day-count">1</span> of your beta access</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-value" id="stat-games">0</div><div class="stat-label">Games Played</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-surveys">0</div><div class="stat-label">Feedback</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-streak">0</div><div class="stat-label">Day Streak</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-coins">0</div><div class="stat-label">Coins</div></div>
+        </div>
+        
+        <div class="quick-actions" style="grid-template-columns: 1fr;">
+            <a href="https://gameshelf.co/app/" class="action-btn primary" target="_blank">
+                <svg viewBox="0 0 100 100" style="width: 1.5em; height: 1.5em; vertical-align: middle; margin-right: 0.3em;">
+                    <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/></g>
+                    <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.85)"/><circle cx="57" cy="46" r="6" fill="white"/></g>
+                </svg>
+                Open Game Shelf
+            </a>
+        </div>
+        
+        <div class="card">
+            <h3 class="section-title"><span class="emoji">🎯</span> Game Shelf Originals</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">Play these and tell me what you think!</p>
+            <div class="gs-games-grid">
+                <a href="https://gameshelf.co/quotle/" class="gs-game-card" target="_blank"><div class="icon">💬</div><div class="name">Quotle</div><div class="played" id="quotle-played">Not played</div></a>
+                <a href="https://gameshelf.co/slate/" class="gs-game-card" target="_blank"><div class="icon">🪨</div><div class="name">Slate</div><div class="played" id="slate-played">Not played</div></a>
+                <a href="https://gameshelf.co/rungs/" class="gs-game-card" target="_blank"><div class="icon">🪜</div><div class="name">Rungs</div><div class="played" id="rungs-played">Not played</div></a>
+                <a href="https://gameshelf.co/wordboxing/" class="gs-game-card" target="_blank"><div class="icon">🥊</div><div class="name">Word Boxing</div><div class="played" id="wordboxing-played">Not played</div></a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3 class="section-title"><span class="emoji">📓</span> Your Journal</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px;">Bugs, ideas, frustrations — anything goes!</p>
+            <textarea class="text-input" id="journal-input" placeholder="What's on your mind today?"></textarea>
+            <button class="submit-btn" onclick="submitJournalEntry()" id="journal-btn">Add Entry</button>
+            <div id="journal-entries" style="margin-top: 16px;"></div>
+        </div>
+        
+        <footer style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.85rem;">
+            <p><a href="mailto:support@gameshelf.co" style="color: var(--accent-purple); text-decoration: none;">support@gameshelf.co</a></p>
+            <p style="margin-top: 8px;">Beta Hub v2.1.7.3</p>
+        </footer>
+    </div>
+
+    <script>
+        // ============ FIREBASE ============
+        const firebaseConfig = { apiKey: "AIzaSyBQVwn8vOrFTzLlm2MYIPBwgZV2xR9AuhM", authDomain: "word-boxing.firebaseapp.com", databaseURL: "https://word-boxing-default-rtdb.firebaseio.com", projectId: "word-boxing" };
+        
+        // ============ TEST MODE ============
+        const TEST_MODE = false;
+        let auth, db;
+        try { 
+            firebase.initializeApp(firebaseConfig); 
+            auth = firebase.auth(); 
+            db = firebase.database(); 
+        } catch (e) { 
+            console.error('[Beta] Firebase init failed:', e); 
+        }
+        
+        // ============ STATE ============
+        let currentUser = null, userData = null, referralData = null;
+        const SIGNUP_BONUS = 20, REFERRAL_BONUS = 10;
+        
+        const USER_TYPES = {
+            PENDING: 'pending',
+            BETA: 'beta',
+            STANDARD: 'standard'
+        };
+        
+        // ============ UTILITIES ============
+        function getTodayKey() { return new Date().toISOString().split('T')[0]; }
+        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+        function showToast(msg, dur = 3000) { document.querySelectorAll('.toast').forEach(t => t.remove()); const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, dur); }
+        function defaultAvatar(name) { return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23667eea" width="100" height="100"/><text x="50" y="65" text-anchor="middle" fill="white" font-size="40">${encodeURIComponent(name[0]||'?')}</text></svg>`; }
+        async function signOut() { try { await auth.signOut(); showLanding(); showToast('Signed out'); } catch (e) { showToast('Sign out failed'); } }
+        
+        function showWelcomeModal(name, photoURL, callback) {
+            const avatar = photoURL || defaultAvatar(name);
+            const modal = document.createElement('div');
+            modal.className = 'welcome-modal';
+            modal.innerHTML = `
+                <div class="welcome-modal-content">
+                    <img class="welcome-avatar" src="${escapeHtml(avatar)}" alt="" onerror="this.onerror=null;this.src='${escapeHtml(defaultAvatar(name))}'">
+                    <div class="welcome-title">Welcome back, ${escapeHtml(name)}!</div>
+                    <div class="welcome-subtitle">Taking you to your Beta Hub...</div>
+                    <div class="welcome-loader">
+                        <span class="welcome-loader-dot"></span>
+                        <span class="welcome-loader-dot"></span>
+                        <span class="welcome-loader-dot"></span>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => {
+                modal.style.opacity = '0';
+                modal.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => {
+                    modal.remove();
+                    if (callback) callback();
+                }, 300);
+            }, 1500);
+        }
+        
+        // ============ VIEW SWITCHING ============
+        function showLanding() {
+            document.getElementById('landing-view').classList.remove('hidden');
+            document.getElementById('signup-view').classList.add('hidden');
+            document.getElementById('register-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
+        
+        function showSignup() {
+            document.getElementById('landing-view').classList.add('hidden');
+            document.getElementById('signup-view').classList.remove('hidden');
+            document.getElementById('register-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
+        
+        function showRegister() {
+            document.getElementById('landing-view').classList.add('hidden');
+            document.getElementById('signup-view').classList.add('hidden');
+            document.getElementById('register-view').classList.remove('hidden');
+            document.getElementById('dashboard-view').classList.add('hidden');
+            const name = currentUser.displayName?.split(' ')[0] || 'there';
+            document.getElementById('register-name').textContent = name;
+            if (currentUser.photoURL) {
+                document.getElementById('register-avatar').src = currentUser.photoURL;
+            }
+            updateOnboardingProgress(1);
+            window.scrollTo(0, 0);
+        }
+        
+        function showDashboard() {
+            document.getElementById('landing-view').classList.add('hidden');
+            document.getElementById('signup-view').classList.add('hidden');
+            document.getElementById('register-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            
+            const name = currentUser.displayName?.split(' ')[0] || 'Friend';
+            document.getElementById('welcome-name').textContent = name;
+            document.getElementById('header-user-name').textContent = name;
+            if (currentUser.photoURL) {
+                document.getElementById('header-avatar').src = currentUser.photoURL;
+            }
+            
+            loadStats();
+            loadJournal();
+            loadBetaDayCount();
+            checkAndShowDailySurvey();
+            window.scrollTo(0, 0);
+        }
+        
+        // ============ ONBOARDING ============
+        let currentOnboardingStep = 1;
+        const TOTAL_STEPS = 9;
+        
+        function updateOnboardingProgress(step) {
+            currentOnboardingStep = step;
+            const progress = (step / TOTAL_STEPS) * 100;
+            document.getElementById('onboarding-progress-fill').style.width = progress + '%';
+            document.getElementById('onboarding-step').textContent = step;
+        }
+        
+        function nextOnboardingStep(currentStep) {
+            document.getElementById(`onboarding-step-${currentStep}`).classList.add('hidden');
+            document.getElementById(`onboarding-step-${currentStep + 1}`).classList.remove('hidden');
+            updateOnboardingProgress(currentStep + 1);
+            window.scrollTo(0, 0);
+        }
+        
+        function prevOnboardingStep(currentStep) {
+            document.getElementById(`onboarding-step-${currentStep}`).classList.add('hidden');
+            document.getElementById(`onboarding-step-${currentStep - 1}`).classList.remove('hidden');
+            updateOnboardingProgress(currentStep - 1);
+            window.scrollTo(0, 0);
+        }
+        
+        async function completeOnboarding() {
+            const btn = document.getElementById('complete-onboarding-btn');
+            btn.disabled = true;
+            btn.textContent = 'Setting up...';
+            
+            try {
+                // Gather all onboarding data
+                const onboardingData = {
+                    source: document.querySelector('input[name="source"]:checked')?.value || '',
+                    sourceOther: document.getElementById('source-other-input')?.value || '',
+                    experience: document.querySelector('input[name="experience"]:checked')?.value || '',
+                    games: Array.from(document.querySelectorAll('#games-checkboxes input:checked')).map(c => c.value),
+                    gamesOther: document.getElementById('games-other-input')?.value || '',
+                    frequency: document.querySelector('input[name="frequency"]:checked')?.value || '',
+                    device: document.querySelector('input[name="device"]:checked')?.value || '',
+                    sharing: document.querySelector('input[name="sharing"]:checked')?.value || '',
+                    shareWhere: Array.from(document.querySelectorAll('#share-where-checkboxes input:checked')).map(c => c.value),
+                    shareWhereOther: document.getElementById('share-where-other-input')?.value || '',
+                    hints: document.querySelector('input[name="hints"]:checked')?.value || '',
+                    compete: document.querySelector('input[name="compete"]:checked')?.value || '',
+                    frustration: document.querySelector('input[name="frustration"]:checked')?.value || '',
+                    frustrationOther: document.getElementById('frustration-other-input')?.value || '',
+                    dailyUse: document.getElementById('daily-use-input')?.value || '',
+                    completedAt: Date.now()
+                };
+                
+                // Save to Firebase
+                const now = Date.now();
+                await db.ref(`users/${currentUser.uid}`).update({
+                    userType: USER_TYPES.BETA,
+                    'earlyAccess/joinedAt': now,
+                    'earlyAccess/onboarding': onboardingData,
+                    coins: SIGNUP_BONUS
+                });
+                
+                userData = userData || {};
+                userData.userType = USER_TYPES.BETA;
+                userData.earlyAccess = userData.earlyAccess || {};
+                userData.earlyAccess.joinedAt = now;
+                userData.earlyAccess.onboarding = onboardingData;
+                userData.coins = SIGNUP_BONUS;
+                
+                showToast('🎉 Welcome to the beta!');
+                showDashboard();
+            } catch (e) {
+                console.error('[Beta] Onboarding failed:', e);
+                showToast('Something went wrong. Please try again.');
+                btn.disabled = false;
+                btn.textContent = '🚀 Let\'s Go!';
+            }
+        }
+        
+        // ============ AUTH ============
+        async function signInWithGoogle() {
+            const btn = document.getElementById('google-signin-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span>Signing in...</span>';
+            
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(provider);
+            } catch (e) {
+                console.error('[Beta] Sign in failed:', e);
+                showToast('Sign in failed. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = `<svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg><span>Continue with Google</span>`;
+            }
+        }
+        
+        // ============ AUTH STATE ============
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                
+                try {
+                    const snapshot = await db.ref(`users/${user.uid}`).once('value');
+                    userData = snapshot.val() || {};
+                    
+                    // Update basic user info
+                    await db.ref(`users/${user.uid}`).update({
+                        displayName: user.displayName,
+                        email: user.email,
+                        photoURL: user.photoURL || null,
+                        lastLogin: Date.now()
+                    });
+                    
+                    // TEST_MODE: Always go to onboarding for testing the flow
+                    if (TEST_MODE) {
+                        showRegister();
+                        return;
+                    }
+                    
+                    // Route based on user type
+                    if (userData.userType === USER_TYPES.BETA) {
+                        const name = user.displayName?.split(' ')[0] || 'Friend';
+                        showWelcomeModal(name, user.photoURL, () => {
+                            showDashboard();
+                        });
+                    } else {
+                        showRegister();
+                    }
+                } catch (e) {
+                    console.error('[Beta] Failed to load user data:', e);
+                    showRegister();
+                }
+            } else {
+                currentUser = null;
+                userData = null;
+            }
+        });
+        
+        // ============ STATS ============
+        function loadStats() {
+            const gamesPlayed = Object.keys(userData.games || {}).reduce((sum, game) => {
+                return sum + Object.keys(userData.games[game] || {}).length;
+            }, 0);
+            
+            const surveys = Object.keys(userData.earlyAccess?.dailyRatings || {}).length;
+            const coins = userData.coins || 0;
+            
+            // Calculate streak
+            let streak = 0;
+            const ratings = userData.earlyAccess?.dailyRatings || {};
+            const today = new Date();
+            for (let i = 0; i < 365; i++) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                const key = d.toISOString().split('T')[0];
+                if (ratings[key]) streak++;
+                else if (i > 0) break;
+            }
+            
+            document.getElementById('stat-games').textContent = gamesPlayed;
+            document.getElementById('stat-surveys').textContent = surveys;
+            document.getElementById('stat-streak').textContent = streak;
+            document.getElementById('stat-coins').textContent = coins;
+            
+            // Update game play status
+            ['quotle', 'slate', 'rungs', 'wordboxing'].forEach(game => {
+                const gameName = game === 'wordboxing' ? 'word-boxing' : game;
+                const plays = Object.keys(userData.games?.[gameName] || {}).length;
+                const el = document.getElementById(`${game}-played`);
+                if (el) {
+                    el.textContent = plays > 0 ? `${plays} plays` : 'Not played';
+                    if (plays > 0) el.style.color = 'var(--accent-green)';
+                }
+            });
+        }
+        
+        // ============ DAILY SURVEY ============
+        function checkAndShowDailySurvey() {
+            if (TEST_MODE) {
+                showDailySurveyModal();
+                return;
+            }
+            
+            const today = getTodayKey();
+            const todayRating = userData.earlyAccess?.dailyRatings?.[today];
+            if (todayRating) return;
+            
+            const joinedAt = userData.earlyAccess?.joinedAt || userData.createdAt;
+            const daysSinceJoin = Math.floor((Date.now() - joinedAt) / (1000 * 60 * 60 * 24));
+            if (daysSinceJoin < 1) return;
+            
+            const modalShownKey = `gs_survey_shown_${today}`;
+            if (sessionStorage.getItem(modalShownKey)) return;
+            
+            sessionStorage.setItem(modalShownKey, 'true');
+            showDailySurveyModal();
+        }
+        
+        function showDailySurveyModal() {
+            const modal = document.createElement('div');
+            modal.className = 'survey-modal';
+            modal.id = 'daily-survey-modal';
+            modal.innerHTML = `
+                <div class="survey-modal-content">
+                    <div class="survey-modal-title">📋 Quick Check-in</div>
+                    <div class="survey-modal-subtitle">How's Game Shelf working for you?</div>
+                    <div class="survey-rating-scale">
+                        <button class="survey-rating-btn" onclick="selectSurveyRating(1, this)">1</button>
+                        <button class="survey-rating-btn" onclick="selectSurveyRating(2, this)">2</button>
+                        <button class="survey-rating-btn" onclick="selectSurveyRating(3, this)">3</button>
+                        <button class="survey-rating-btn" onclick="selectSurveyRating(4, this)">4</button>
+                        <button class="survey-rating-btn" onclick="selectSurveyRating(5, this)">5</button>
+                    </div>
+                    <div class="survey-rating-labels"><span>Needs work</span><span>Love it!</span></div>
+                    <button class="survey-skip" onclick="closeSurveyModal()">Maybe later</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function closeSurveyModal() {
+            document.getElementById('daily-survey-modal')?.remove();
+        }
+        
+        function selectSurveyRating(rating, btn) {
+            document.querySelectorAll('.survey-rating-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            
+            setTimeout(() => {
+                closeSurveyModal();
+                showFeedbackModal(rating);
+            }, 300);
+        }
+        
+        function showFeedbackModal(rating) {
+            let prompt, emoji;
+            if (rating <= 2) {
+                prompt = "What could I improve?";
+                emoji = "🤔";
+            } else if (rating === 3) {
+                prompt = "How do I make it better?";
+                emoji = "💭";
+            } else {
+                prompt = "What do you like most?";
+                emoji = "🎉";
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'feedback-modal';
+            modal.innerHTML = `
+                <div class="feedback-modal-content">
+                    <div class="feedback-modal-rating">${emoji}</div>
+                    <div class="feedback-modal-title">You rated ${rating}/5</div>
+                    <div class="feedback-modal-subtitle">${prompt}</div>
+                    <textarea id="feedback-modal-text" placeholder="Your thoughts (optional)..."></textarea>
+                    <div class="feedback-modal-buttons">
+                        <button class="feedback-modal-skip" onclick="submitDailyRating(${rating}, '')">Skip</button>
+                        <button class="feedback-modal-submit" onclick="submitDailyRating(${rating}, document.getElementById('feedback-modal-text').value)">Submit</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('feedback-modal-text').focus();
+        }
+        
+        async function submitDailyRating(rating, feedback) {
+            const today = getTodayKey(), now = Date.now();
+            const ratingData = { rating, feedback: feedback.trim(), timestamp: now };
+            
+            try {
+                await db.ref(`users/${currentUser.uid}/earlyAccess/dailyRatings/${today}`).set(ratingData);
+                
+                if (!userData.earlyAccess) userData.earlyAccess = {};
+                if (!userData.earlyAccess.dailyRatings) userData.earlyAccess.dailyRatings = {};
+                userData.earlyAccess.dailyRatings[today] = ratingData;
+                
+                document.querySelector('.feedback-modal')?.remove();
+                showToast('✓ Thanks for your feedback!');
+                loadStats();
+            } catch (e) {
+                console.error('[Beta] Failed to save rating:', e);
+                showToast('Failed to save. Please try again.');
+            }
+        }
+        
+        // ============ JOURNAL ============
+        function loadJournal() {
+            const container = document.getElementById('journal-entries');
+            const entries = userData.earlyAccess?.journal || {};
+            const entryKeys = Object.keys(entries);
+            
+            if (!entryKeys.length) {
+                container.innerHTML = '<div class="journal-empty">Your journal is empty. Add your first entry above!</div>';
+                return;
+            }
+            
+            const sortedEntries = entryKeys
+                .map(key => ({ key, ...entries[key] }))
+                .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            
+            container.innerHTML = sortedEntries.map(entry => {
+                const dateObj = new Date(entry.timestamp || Date.now());
+                const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                return `<div class="journal-entry"><div class="journal-entry-date">${dateStr}</div><div class="journal-entry-text">${escapeHtml(entry.text)}</div></div>`;
+            }).join('');
+        }
+        
+        async function submitJournalEntry() {
+            const textarea = document.getElementById('journal-input');
+            const btn = document.getElementById('journal-btn');
+            const text = textarea.value.trim();
+            
+            if (!text) return showToast('Please write something');
+            
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            
+            const now = Date.now();
+            const entryId = `entry_${now}`;
+            const entryData = { text, timestamp: now };
+            
+            try {
+                await db.ref(`users/${currentUser.uid}/earlyAccess/journal/${entryId}`).set(entryData);
+                
+                if (!userData.earlyAccess) userData.earlyAccess = {};
+                if (!userData.earlyAccess.journal) userData.earlyAccess.journal = {};
+                userData.earlyAccess.journal[entryId] = entryData;
+                
+                textarea.value = '';
+                showToast('✓ Entry saved!');
+                loadJournal();
+            } catch (e) {
+                console.error('[Beta] Failed to save journal:', e);
+                showToast('Failed to save. Please try again.');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Add Entry';
+        }
+        
+        // ============ BETA DAY COUNT ============
+        function loadBetaDayCount() {
+            const joinedAt = userData.earlyAccess?.joinedAt || userData.createdAt || Date.now();
+            const daysSinceJoin = Math.floor((Date.now() - joinedAt) / (1000 * 60 * 60 * 24)) + 1;
+            document.getElementById('beta-day-count').textContent = daysSinceJoin;
+        }
+        
+        // ============ OTHER INPUT TOGGLES ============
+        document.addEventListener('DOMContentLoaded', () => {
+            // Source other
+            document.querySelectorAll('input[name="source"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const otherInput = document.getElementById('source-other-input');
+                    otherInput.classList.toggle('hidden', radio.value !== 'other');
+                });
+            });
+            
+            // Games other
+            const gamesOtherCheck = document.getElementById('games-other-check');
+            if (gamesOtherCheck) {
+                gamesOtherCheck.addEventListener('change', () => {
+                    document.getElementById('games-other-input').classList.toggle('hidden', !gamesOtherCheck.checked);
+                });
+            }
+            
+            // Share where other
+            const shareWhereOtherCheck = document.getElementById('share-where-other-check');
+            if (shareWhereOtherCheck) {
+                shareWhereOtherCheck.addEventListener('change', () => {
+                    document.getElementById('share-where-other-input').classList.toggle('hidden', !shareWhereOtherCheck.checked);
+                });
+            }
+            
+            // Frustration other
+            document.querySelectorAll('input[name="frustration"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const otherInput = document.getElementById('frustration-other-input');
+                    otherInput.classList.toggle('hidden', radio.value !== 'other');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
