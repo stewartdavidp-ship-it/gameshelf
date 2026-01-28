@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.1.5.5">
+    <meta name="version" content="2.1.6.0">
     <meta name="gs-app-id" content="beta">
     
     <title>Game Shelf Beta Hub</title>
@@ -1064,20 +1064,6 @@
         .game-survey-btn { padding: 10px 20px; background: linear-gradient(135deg, var(--accent-orange), #e07020); color: white; border: none; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.25s ease; box-shadow: 0 4px 12px rgba(237, 137, 54, 0.25); }
         .game-survey-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(237, 137, 54, 0.35); }
         
-        .leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
-        .leaderboard-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 10px; transition: all 0.2s ease; border: 1px solid transparent; }
-        .leaderboard-item:hover { background: rgba(102, 126, 234, 0.08); border-color: rgba(102, 126, 234, 0.2); }
-        .leaderboard-item.highlight { background: rgba(102, 126, 234, 0.15); border: 1px solid rgba(102, 126, 234, 0.3); }
-        .rank { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 700; font-size: 0.85rem; }
-        .rank.gold { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #333; box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3); }
-        .rank.silver { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); color: #333; }
-        .rank.bronze { background: linear-gradient(135deg, #cd7f32, #b87333); color: white; }
-        .rank.normal { background: var(--bg-card); color: var(--text-secondary); }
-        .leaderboard-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-card); }
-        .leaderboard-name { flex: 1; font-weight: 500; }
-        .leaderboard-score { font-weight: 700; color: var(--accent-purple); }
-        .leaderboard-metric { font-size: 0.75rem; color: var(--text-muted); }
-        
         .contest-card { background: linear-gradient(135deg, rgba(240, 147, 251, 0.1), rgba(102, 126, 234, 0.1)); border: 1px solid rgba(240, 147, 251, 0.3); border-radius: 16px; padding: 24px; margin-bottom: 12px; transition: all 0.3s ease; }
         .contest-card:hover { border-color: rgba(240, 147, 251, 0.5); box-shadow: 0 8px 24px rgba(240, 147, 251, 0.15); }
         .contest-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
@@ -1128,6 +1114,38 @@
         .register-cta { display: block; width: 100%; padding: 18px; background: var(--accent-gradient); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; font-family: inherit; box-shadow: var(--glow), 0 4px 20px rgba(102, 126, 234, 0.4); transition: all 0.3s ease; margin-top: 24px; }
         .register-cta:hover { transform: translateY(-2px); box-shadow: var(--glow), 0 8px 30px rgba(102, 126, 234, 0.5); }
         .register-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .register-cta.secondary { background: var(--bg-card); border: 1px solid var(--border); box-shadow: none; }
+        .register-cta.secondary:hover { border-color: var(--accent-purple); background: rgba(102, 126, 234, 0.1); transform: translateY(-2px); }
+        
+        .onboarding-progress { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+        .onboarding-progress-bar { flex: 1; height: 8px; background: var(--bg-card); border-radius: 4px; overflow: hidden; }
+        .onboarding-progress-fill { height: 100%; background: var(--accent-gradient); border-radius: 4px; transition: width 0.3s ease; }
+        .onboarding-progress-text { font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; }
+        
+        .onboarding-step { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        @media (max-width: 500px) { .checkbox-grid { grid-template-columns: 1fr; } }
+        .checkbox-option { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; }
+        .checkbox-option:hover { border-color: rgba(102, 126, 234, 0.4); background: rgba(102, 126, 234, 0.05); }
+        .checkbox-option input { display: none; }
+        .checkbox-box { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; }
+        .checkbox-option input:checked + .checkbox-box { background: var(--accent-gradient); border-color: var(--accent-purple); }
+        .checkbox-option input:checked + .checkbox-box::after { content: '✓'; color: white; font-size: 14px; font-weight: bold; }
+        .checkbox-option input:checked ~ span:last-child { color: var(--accent-purple); font-weight: 500; }
+        
+        .radio-options { display: flex; flex-direction: column; gap: 10px; }
+        .radio-option { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; }
+        .radio-option:hover { border-color: rgba(102, 126, 234, 0.4); background: rgba(102, 126, 234, 0.05); }
+        .radio-option input { display: none; }
+        .radio-circle { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; }
+        .radio-option input:checked + .radio-circle { border-color: var(--accent-purple); }
+        .radio-option input:checked + .radio-circle::after { content: ''; width: 12px; height: 12px; background: var(--accent-gradient); border-radius: 50%; }
+        .radio-option input:checked ~ span:last-child { color: var(--accent-purple); font-weight: 500; }
+        
+        .onboarding-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+        .onboarding-nav .register-cta { margin-top: 0; }
         .register-note { text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-muted); }
         
         /* Mobile improvements */
@@ -1379,7 +1397,7 @@
         <footer>
             <p>Made with 🧩 for puzzle lovers everywhere</p>
             <p style="margin-top: 8px;">Questions? <a href="mailto:hello@gameshelf.co">hello@gameshelf.co</a></p>
-            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.5.5</p>
+            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.6.0</p>
         </footer>
     </div>
 
@@ -1443,43 +1461,191 @@
         </div>
     </div>
 
-    <!-- ==================== REGISTER VIEW (for pending users) ==================== -->
+    <!-- ==================== ONBOARDING VIEW ==================== -->
     <div id="register-view" class="register-view hidden">
         <div class="register-header">
             <img class="register-avatar" id="register-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23667eea' width='100' height='100'/%3E%3Ctext x='50' y='65' text-anchor='middle' fill='white' font-size='40'%3E%3F%3C/text%3E%3C/svg%3E" alt="" onerror="this.onerror=null;if(typeof defaultAvatar==='function')this.src=defaultAvatar(this.dataset.name||'?')">
             <p class="register-greeting">Hey <span id="register-name">there</span>! 👋</p>
-            <h1 class="register-title">Join the Beta Program</h1>
-            <p class="register-subtitle">You're already a Game Shelf user. Complete your beta registration to unlock exclusive features.</p>
+            <h1 class="register-title">Welcome to the Beta!</h1>
+            <p class="register-subtitle">Quick questions to help us build Game Shelf for you.</p>
         </div>
         
-        <div class="card card-highlight">
-            <h3 class="section-title"><span class="emoji">🎁</span> Beta Tester Perks</h3>
-            <ul class="benefit-list">
-                <li><span class="check">✓</span> <strong>20 free coins</strong> to spend on AI hints</li>
-                <li><span class="check">✓</span> Early access to new games & features</li>
-                <li><span class="check">✓</span> Direct line to the dev team</li>
-                <li><span class="check">✓</span> Exclusive beta tester badge</li>
-                <li><span class="check">✓</span> Shape the future of Game Shelf</li>
-            </ul>
-            <div class="coin-highlight">
-                <div class="coin-icon">🪙</div>
-                <div><div class="coin-amount">+20 Coins</div><div class="coin-desc">Yours when you join</div></div>
+        <div class="onboarding-progress">
+            <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" id="onboarding-progress-fill"></div></div>
+            <div class="onboarding-progress-text"><span id="onboarding-step">1</span> of 8</div>
+        </div>
+        
+        <!-- Step 1: How did you hear about us -->
+        <div class="onboarding-step" id="onboarding-step-1">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">📣</span> How did you hear about Game Shelf?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Helps us know what's working</p>
+                <div class="radio-options" id="source-radios">
+                    <label class="radio-option"><input type="radio" name="source" value="friend"><span class="radio-circle"></span><span>Friend or family member</span></label>
+                    <label class="radio-option"><input type="radio" name="source" value="twitter"><span class="radio-circle"></span><span>Twitter / X</span></label>
+                    <label class="radio-option"><input type="radio" name="source" value="reddit"><span class="radio-circle"></span><span>Reddit</span></label>
+                    <label class="radio-option"><input type="radio" name="source" value="search"><span class="radio-circle"></span><span>Google search</span></label>
+                    <label class="radio-option"><input type="radio" name="source" value="appstore"><span class="radio-circle"></span><span>App Store / Play Store</span></label>
+                    <label class="radio-option"><input type="radio" name="source" value="other"><span class="radio-circle"></span><span>Other</span></label>
+                </div>
+            </div>
+            <button class="register-cta" onclick="nextOnboardingStep(1)">Continue →</button>
+        </div>
+        
+        <!-- Step 2: How long playing puzzles -->
+        <div class="onboarding-step hidden" id="onboarding-step-2">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">⏱️</span> How long have you been playing daily puzzles?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Since the Wordle craze or before?</p>
+                <div class="radio-options" id="experience-radios">
+                    <label class="radio-option"><input type="radio" name="experience" value="new"><span class="radio-circle"></span><span>Just started (< 3 months)</span></label>
+                    <label class="radio-option"><input type="radio" name="experience" value="months"><span class="radio-circle"></span><span>Several months</span></label>
+                    <label class="radio-option"><input type="radio" name="experience" value="1-2years"><span class="radio-circle"></span><span>1-2 years</span></label>
+                    <label class="radio-option"><input type="radio" name="experience" value="3plus"><span class="radio-circle"></span><span>3+ years (OG puzzler!)</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(2)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(2)">Continue →</button>
             </div>
         </div>
         
-        <div class="card">
-            <h3 class="section-title"><span class="emoji">🤝</span> What We Ask</h3>
-            <ul class="benefit-list">
-                <li><span class="check">☐</span> Use Game Shelf for at least a week</li>
-                <li><span class="check">☐</span> Answer a few quick feedback questions</li>
-                <li><span class="check">☐</span> Report bugs when you find them</li>
-            </ul>
+        <!-- Step 3: What games they play -->
+        <div class="onboarding-step hidden" id="onboarding-step-3">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">🎮</span> What daily puzzles do you play?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Select all that apply</p>
+                <div class="checkbox-grid" id="games-checkboxes">
+                    <label class="checkbox-option"><input type="checkbox" value="wordle"><span class="checkbox-box"></span><span>🟩 Wordle</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="connections"><span class="checkbox-box"></span><span>🟪 Connections</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="strands"><span class="checkbox-box"></span><span>🧵 Strands</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="mini"><span class="checkbox-box"></span><span>📝 Mini Crossword</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="quordle"><span class="checkbox-box"></span><span>4️⃣ Quordle</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="spelling-bee"><span class="checkbox-box"></span><span>🐝 Spelling Bee</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="globle"><span class="checkbox-box"></span><span>🌎 Globle</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="framed"><span class="checkbox-box"></span><span>🎬 Framed</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="other"><span class="checkbox-box"></span><span>🎯 Other</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(3)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(3)">Continue →</button>
+            </div>
         </div>
         
-        <button id="complete-registration-btn" class="register-cta" onclick="completeRegistration()">
-            🚀 Complete Beta Registration
-        </button>
-        <p class="register-note">Your existing Game Shelf data will be preserved.</p>
+        <!-- Step 4: How many per day -->
+        <div class="onboarding-step hidden" id="onboarding-step-4">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">📊</span> How many puzzles do you play per day?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">On a typical day</p>
+                <div class="radio-options" id="frequency-radios">
+                    <label class="radio-option"><input type="radio" name="frequency" value="1"><span class="radio-circle"></span><span>Just 1 (usually Wordle)</span></label>
+                    <label class="radio-option"><input type="radio" name="frequency" value="2-3"><span class="radio-circle"></span><span>2-3 games</span></label>
+                    <label class="radio-option"><input type="radio" name="frequency" value="4-5"><span class="radio-circle"></span><span>4-5 games</span></label>
+                    <label class="radio-option"><input type="radio" name="frequency" value="6plus"><span class="radio-circle"></span><span>6+ games (puzzle addict!)</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(4)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(4)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 5: Primary device -->
+        <div class="onboarding-step hidden" id="onboarding-step-5">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">📱</span> What device do you mostly play on?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Where you typically solve puzzles</p>
+                <div class="radio-options" id="device-radios">
+                    <label class="radio-option"><input type="radio" name="device" value="iphone"><span class="radio-circle"></span><span>📱 iPhone</span></label>
+                    <label class="radio-option"><input type="radio" name="device" value="android"><span class="radio-circle"></span><span>📱 Android phone</span></label>
+                    <label class="radio-option"><input type="radio" name="device" value="ipad"><span class="radio-circle"></span><span>📲 iPad / Tablet</span></label>
+                    <label class="radio-option"><input type="radio" name="device" value="desktop"><span class="radio-circle"></span><span>💻 Computer / Laptop</span></label>
+                    <label class="radio-option"><input type="radio" name="device" value="mixed"><span class="radio-circle"></span><span>🔄 Mix of devices</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(5)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(5)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 6: Sharing (combined) -->
+        <div class="onboarding-step hidden" id="onboarding-step-6">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">📤</span> Do you share your results?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Those green/yellow squares everyone posts</p>
+                <div class="radio-options" id="sharing-radios">
+                    <label class="radio-option"><input type="radio" name="sharing" value="daily"><span class="radio-circle"></span><span>Yes, every day!</span></label>
+                    <label class="radio-option"><input type="radio" name="sharing" value="sometimes"><span class="radio-circle"></span><span>Sometimes, when I do well</span></label>
+                    <label class="radio-option"><input type="radio" name="sharing" value="rarely"><span class="radio-circle"></span><span>Rarely</span></label>
+                    <label class="radio-option"><input type="radio" name="sharing" value="never"><span class="radio-circle"></span><span>Never</span></label>
+                </div>
+            </div>
+            <div class="card" id="share-where-card">
+                <h3 class="section-title"><span class="emoji">💬</span> Where do you share?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Select all that apply</p>
+                <div class="checkbox-grid" id="share-where-checkboxes">
+                    <label class="checkbox-option"><input type="checkbox" value="imessage"><span class="checkbox-box"></span><span>💬 iMessage / Text</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="twitter"><span class="checkbox-box"></span><span>🐦 Twitter/X</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="facebook"><span class="checkbox-box"></span><span>📘 Facebook</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="discord"><span class="checkbox-box"></span><span>🎮 Discord</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="slack"><span class="checkbox-box"></span><span>💼 Slack</span></label>
+                    <label class="checkbox-option"><input type="checkbox" value="whatsapp"><span class="checkbox-box"></span><span>📞 WhatsApp</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(6)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(6)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 7: Hints usage -->
+        <div class="onboarding-step hidden" id="onboarding-step-7">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">💡</span> Do you ever look up hints online?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">No judgment - we're curious!</p>
+                <div class="radio-options" id="hints-radios">
+                    <label class="radio-option"><input type="radio" name="hints" value="never"><span class="radio-circle"></span><span>Never, that's cheating!</span></label>
+                    <label class="radio-option"><input type="radio" name="hints" value="rarely"><span class="radio-circle"></span><span>Rarely, only when really stuck</span></label>
+                    <label class="radio-option"><input type="radio" name="hints" value="sometimes"><span class="radio-circle"></span><span>Sometimes, to keep my streak</span></label>
+                    <label class="radio-option"><input type="radio" name="hints" value="often"><span class="radio-circle"></span><span>Often, I just want to solve it</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(7)">← Back</button>
+                <button class="register-cta" onclick="nextOnboardingStep(7)">Continue →</button>
+            </div>
+        </div>
+        
+        <!-- Step 8: Competition + Pain point -->
+        <div class="onboarding-step hidden" id="onboarding-step-8">
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">🏆</span> Do you compete with others?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Friends, family, coworkers...</p>
+                <div class="radio-options" id="compete-radios">
+                    <label class="radio-option"><input type="radio" name="compete" value="yes-regular"><span class="radio-circle"></span><span>Yes, we have an ongoing rivalry!</span></label>
+                    <label class="radio-option"><input type="radio" name="compete" value="yes-casual"><span class="radio-circle"></span><span>Yes, casually with friends/family</span></label>
+                    <label class="radio-option"><input type="radio" name="compete" value="want-to"><span class="radio-circle"></span><span>No, but I'd like to!</span></label>
+                    <label class="radio-option"><input type="radio" name="compete" value="no"><span class="radio-circle"></span><span>No, I play solo</span></label>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="section-title"><span class="emoji">😤</span> Biggest puzzle tracking frustration?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">What problem should we solve first?</p>
+                <div class="radio-options" id="frustration-radios">
+                    <label class="radio-option"><input type="radio" name="frustration" value="no-tracking"><span class="radio-circle"></span><span>Can't track my stats across games</span></label>
+                    <label class="radio-option"><input type="radio" name="frustration" value="lost-streak"><span class="radio-circle"></span><span>Lost streaks / forgot to play</span></label>
+                    <label class="radio-option"><input type="radio" name="frustration" value="sharing-hard"><span class="radio-circle"></span><span>Hard to share/compare with friends</span></label>
+                    <label class="radio-option"><input type="radio" name="frustration" value="too-many-apps"><span class="radio-circle"></span><span>Too many apps to open each day</span></label>
+                    <label class="radio-option"><input type="radio" name="frustration" value="none"><span class="radio-circle"></span><span>No major frustrations</span></label>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <button class="register-cta secondary" onclick="prevOnboardingStep(8)">← Back</button>
+                <button class="register-cta" onclick="completeOnboarding()" id="complete-onboarding-btn">🚀 Join the Beta!</button>
+            </div>
+        </div>
     </div>
 
     <!-- ==================== DASHBOARD VIEW ==================== -->
@@ -1503,7 +1669,12 @@
             </div>
         </header>
         
-        <div class="card card-highlight" id="daily-rating-section">
+        <div class="card card-highlight">
+            <h2 style="font-size: 1.3rem; margin-bottom: 4px;">👋 Welcome back, <span id="welcome-name">Friend</span>!</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">This is day <span id="beta-day-count">1</span> of you being in the beta.</p>
+        </div>
+        
+        <div class="card" id="daily-rating-section">
             <h3 class="section-title"><span class="emoji">📋</span> How's Game Shelf Today?</h3>
             <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Tap a number to rate your experience</p>
             <div id="daily-rating-container">
@@ -1520,11 +1691,6 @@
                 <div style="font-size: 2rem; margin-bottom: 8px;">✓</div>
                 <p style="color: var(--accent-green); font-weight: 600;">Thanks for today's feedback!</p>
             </div>
-        </div>
-        
-        <div class="card card-highlight">
-            <h2 style="font-size: 1.3rem; margin-bottom: 4px;">👋 Welcome back, <span id="welcome-name">Friend</span>!</h2>
-            <p style="color: var(--text-secondary); font-size: 0.9rem;">Your feedback is shaping Game Shelf.</p>
         </div>
         
         <div class="stats-grid">
@@ -1563,14 +1729,9 @@
             <div id="journal-entries" style="margin-top: 16px;"></div>
         </div>
         
-        <div class="card">
-            <h3 class="section-title"><span class="emoji">🏆</span> Beta Leaderboard</h3>
-            <div class="leaderboard-list" id="leaderboard-list"><div class="loading-spinner"></div></div>
-        </div>
-        
         <footer style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.85rem;">
             <p><a href="mailto:hello@gameshelf.co" style="color: var(--accent-purple); text-decoration: none;">hello@gameshelf.co</a></p>
-            <p style="margin-top: 8px;">Beta Hub v2.1.5.5</p>
+            <p style="margin-top: 8px;">Beta Hub v2.1.6.0</p>
         </footer>
     </div>
 
@@ -1680,6 +1841,15 @@
             const avatarEl = document.getElementById('register-avatar');
             avatarEl.dataset.name = name;
             avatarEl.src = currentUser.photoURL || defaultAvatar(name);
+            
+            // Reset onboarding state
+            onboardingStep = 1;
+            for (let i = 1; i <= TOTAL_STEPS; i++) {
+                const step = document.getElementById(`onboarding-step-${i}`);
+                if (step) step.classList.toggle('hidden', i !== 1);
+            }
+            updateOnboardingProgress();
+            
             window.scrollTo(0, 0);
         }
         
@@ -1694,7 +1864,7 @@
             const avatarEl = document.getElementById('header-avatar');
             avatarEl.dataset.name = name;
             avatarEl.src = currentUser.photoURL || defaultAvatar(name);
-            loadStats(); loadDailyRating(); loadJournal(); loadLeaderboard();
+            loadStats(); loadDailyRating(); loadJournal(); loadBetaDayCount();
             window.scrollTo(0, 0);
         }
         
@@ -1783,38 +1953,152 @@
             return userType;
         }
         
-        // Complete beta registration via Cloud Function
-        async function completeRegistration() {
-            const btn = document.getElementById('complete-registration-btn');
+        // ============ ONBOARDING ============
+        let onboardingStep = 1;
+        const TOTAL_STEPS = 8;
+        const onboardingData = { 
+            source: null,      // Step 1: How they found us
+            experience: null,  // Step 2: How long playing
+            games: [],         // Step 3: Which games
+            frequency: null,   // Step 4: Puzzles per day
+            device: null,      // Step 5: Primary device
+            sharing: null,     // Step 6: Do they share
+            shareWhere: [],    // Step 6: Where they share
+            hints: null,       // Step 7: Hint usage
+            compete: null,     // Step 8: Competition
+            frustration: ''    // Step 8: Pain point (free text)
+        };
+        
+        function updateOnboardingProgress() {
+            document.getElementById('onboarding-progress-fill').style.width = `${(onboardingStep / TOTAL_STEPS) * 100}%`;
+            document.getElementById('onboarding-step').textContent = onboardingStep;
+        }
+        
+        // Show/hide shareWhere based on sharing answer
+        function setupSharingToggle() {
+            const sharingRadios = document.querySelectorAll('#sharing-radios input');
+            const shareWhereSection = document.getElementById('share-where-section');
+            sharingRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    shareWhereSection.classList.toggle('hidden', radio.value === 'never');
+                });
+            });
+        }
+        
+        function nextOnboardingStep(fromStep) {
+            // Collect data from current step
+            if (fromStep === 1) {
+                const selected = document.querySelector('#source-radios input:checked');
+                if (!selected) return showToast('Please select an option');
+                onboardingData.source = selected.value;
+                console.log('[Beta] Step 1 - Source:', onboardingData.source);
+            } else if (fromStep === 2) {
+                const selected = document.querySelector('#experience-radios input:checked');
+                if (!selected) return showToast('Please select an option');
+                onboardingData.experience = selected.value;
+                console.log('[Beta] Step 2 - Experience:', onboardingData.experience);
+            } else if (fromStep === 3) {
+                const checked = document.querySelectorAll('#games-checkboxes input:checked');
+                onboardingData.games = Array.from(checked).map(c => c.value);
+                if (onboardingData.games.length === 0) return showToast('Please select at least one game');
+                console.log('[Beta] Step 3 - Games:', onboardingData.games);
+            } else if (fromStep === 4) {
+                const selected = document.querySelector('#frequency-radios input:checked');
+                if (!selected) return showToast('Please select an option');
+                onboardingData.frequency = selected.value;
+                console.log('[Beta] Step 4 - Frequency:', onboardingData.frequency);
+            } else if (fromStep === 5) {
+                const selected = document.querySelector('#device-radios input:checked');
+                if (!selected) return showToast('Please select an option');
+                onboardingData.device = selected.value;
+                console.log('[Beta] Step 5 - Device:', onboardingData.device);
+                // Setup sharing toggle for next step
+                setTimeout(setupSharingToggle, 100);
+            } else if (fromStep === 6) {
+                const selected = document.querySelector('#sharing-radios input:checked');
+                if (!selected) return showToast('Please select an option');
+                onboardingData.sharing = selected.value;
+                const checked = document.querySelectorAll('#share-where-checkboxes input:checked');
+                onboardingData.shareWhere = Array.from(checked).map(c => c.value);
+                console.log('[Beta] Step 6 - Sharing:', onboardingData.sharing, 'Where:', onboardingData.shareWhere);
+            } else if (fromStep === 7) {
+                const selected = document.querySelector('#hints-radios input:checked');
+                if (!selected) return showToast('Please select an option');
+                onboardingData.hints = selected.value;
+                console.log('[Beta] Step 7 - Hints:', onboardingData.hints);
+            }
+            
+            // Hide current, show next
+            document.getElementById(`onboarding-step-${fromStep}`).classList.add('hidden');
+            onboardingStep = fromStep + 1;
+            document.getElementById(`onboarding-step-${onboardingStep}`).classList.remove('hidden');
+            updateOnboardingProgress();
+            window.scrollTo(0, 0);
+        }
+        
+        function prevOnboardingStep(fromStep) {
+            document.getElementById(`onboarding-step-${fromStep}`).classList.add('hidden');
+            onboardingStep = fromStep - 1;
+            document.getElementById(`onboarding-step-${onboardingStep}`).classList.remove('hidden');
+            updateOnboardingProgress();
+            window.scrollTo(0, 0);
+        }
+        
+        async function completeOnboarding() {
+            // Collect final step data (step 8)
+            const competeSelected = document.querySelector('#compete-radios input:checked');
+            if (!competeSelected) return showToast('Please select a competition option');
+            onboardingData.compete = competeSelected.value;
+            onboardingData.frustration = document.getElementById('frustration-input')?.value.trim() || '';
+            console.log('[Beta] Step 8 - Compete:', onboardingData.compete, 'Frustration:', onboardingData.frustration);
+            
+            const btn = document.getElementById('complete-onboarding-btn');
             btn.disabled = true;
             btn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;margin:0 auto;border-width:2px;"></div>';
             
             try {
-                const completeBetaRegistration = firebase.functions().httpsCallable('completeBetaRegistration');
-                const result = await completeBetaRegistration({
+                const now = Date.now();
+                const ref = db.ref(`users/${currentUser.uid}/earlyAccess`);
+                
+                const dataToSave = {
+                    joinedAt: now,
+                    onboarding: {
+                        source: onboardingData.source,
+                        experience: onboardingData.experience,
+                        games: onboardingData.games,
+                        frequency: onboardingData.frequency,
+                        device: onboardingData.device,
+                        sharing: onboardingData.sharing,
+                        shareWhere: onboardingData.shareWhere,
+                        hints: onboardingData.hints,
+                        compete: onboardingData.compete,
+                        frustration: onboardingData.frustration,
+                        completedAt: now
+                    },
                     referredBy: referralData?.uid || null
+                };
+                
+                console.log('[Beta] Saving onboarding data:', dataToSave);
+                await ref.update(dataToSave);
+                console.log('[Beta] Onboarding data saved successfully');
+                
+                // Update local userData
+                if (!userData.earlyAccess) userData.earlyAccess = {};
+                userData.earlyAccess.joinedAt = now;
+                userData.earlyAccess.onboarding = dataToSave.onboarding;
+                
+                // Show welcome modal and go to dashboard
+                const firstName = currentUser.displayName.split(' ')[0];
+                showToast('🎉 Welcome to the beta!');
+                showWelcomeModal(firstName, currentUser.photoURL, () => {
+                    showDashboard();
                 });
                 
-                if (result.data.success) {
-                    // Refresh user data
-                    const ref = db.ref(`users/${currentUser.uid}`);
-                    userData = (await ref.once('value')).val();
-                    
-                    // Show welcome modal and go to dashboard
-                    const firstName = currentUser.displayName.split(' ')[0];
-                    showToast(result.data.message);
-                    showWelcomeModal(firstName, currentUser.photoURL, () => {
-                        showDashboard();
-                    });
-                } else {
-                    throw new Error(result.data.message || 'Registration failed');
-                }
-                
             } catch (e) {
-                console.error('[Beta] Registration failed:', e);
+                console.error('[Beta] Onboarding failed:', e);
                 btn.disabled = false;
-                btn.textContent = '🚀 Complete Beta Registration';
-                showToast(e.message || 'Registration failed. Please try again.');
+                btn.textContent = '🚀 Join the Beta!';
+                showToast('Something went wrong. Please try again.');
             }
         }
         
@@ -1959,28 +2243,11 @@
             loadJournal();
         }
         
-        // ============ LEADERBOARD ============
-        async function loadLeaderboard() {
-            const container = document.getElementById('leaderboard-list');
-            try {
-                const snap = await db.ref('users').orderByChild('earlyAccess/joinedAt').limitToLast(50).once('value');
-                const users = snap.val() || {}, scores = [];
-                for (const uid in users) {
-                    const u = users[uid]; if (!u.earlyAccess) continue;
-                    let played = 0; for (const g in (u.games||{})) if (u.games[g].history) played += u.games[g].history.length;
-                    const surveys = Object.keys(u.earlyAccess.surveyResponses||{}).length, streak = u.earlyAccess.surveyStreak||0;
-                    scores.push({ uid: uid, name: u.displayName||'Player', photoURL: u.photoURL, score: played + surveys*2 + streak*5, played });
-                }
-                scores.sort((a,b) => b.score - a.score);
-                const top = scores.slice(0,10);
-                if (!top.length) { container.innerHTML = '<p style="color:var(--text-muted)">No testers yet!</p>'; return; }
-                container.innerHTML = top.map((u,i) => {
-                    const me = u.uid === currentUser.uid, rank = i<1?'gold':i<2?'silver':i<3?'bronze':'normal';
-                    const fallback = defaultAvatar(u.name);
-                    const avatar = u.photoURL || fallback;
-                    return `<div class="leaderboard-item ${me?'highlight':''}"><div class="rank ${rank}">${i+1}</div><img class="leaderboard-avatar" src="${escapeHtml(avatar)}" onerror="this.onerror=null;this.src='${escapeHtml(fallback)}'"><div class="leaderboard-name">${escapeHtml(u.name)}${me?' (you)':''}</div><div><div class="leaderboard-score">${u.score} pts</div><div class="leaderboard-metric">${u.played} games</div></div></div>`;
-                }).join('');
-            } catch (e) { container.innerHTML = '<p style="color:var(--text-muted)">Could not load leaderboard</p>'; console.error('[Beta] Leaderboard error:', e); }
+        // ============ BETA DAY COUNT ============
+        function loadBetaDayCount() {
+            const joinedAt = userData.earlyAccess?.joinedAt || userData.createdAt || Date.now();
+            const daysSinceJoin = Math.floor((Date.now() - joinedAt) / (1000 * 60 * 60 * 24)) + 1;
+            document.getElementById('beta-day-count').textContent = daysSinceJoin;
         }
         
         // ============ SHARE & INVITE ============
