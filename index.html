@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.1.3">
+    <meta name="version" content="2.1.4">
+    <!-- 
+    RELEASE NOTES
+    v2.1.4 - 2026-01-28: Fixed "Join the Beta" button - added missing Firebase Functions SDK
+    v2.1.3 - 2026-01-28: Server-side user type management, version label consistency
+    -->
     <meta name="gs-app-id" content="beta">
     
     <title>Game Shelf Beta Hub</title>
@@ -34,6 +39,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1355,7 +1361,7 @@
         <footer>
             <p>Made with 🧩 for puzzle lovers everywhere</p>
             <p style="margin-top: 8px;">Questions? <a href="/cdn-cgi/l/email-protection#553d3039393a1532343830263d3039337b363a"><span class="__cf_email__" data-cfemail="345c5158585b7453555951475c5158521a575b">[email&#160;protected]</span></a></p>
-            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.3</p>
+            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.4</p>
         </footer>
     </div>
 
@@ -1552,7 +1558,7 @@
         
         <footer style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.85rem;">
             <p><a href="/cdn-cgi/l/email-protection#066e636a6a694661676b63756e636a60286569" style="color: var(--accent-purple); text-decoration: none;"><span class="__cf_email__" data-cfemail="432b262f2f2c0324222e26302b262f256d202c">[email&#160;protected]</span></a></p>
-            <p style="margin-top: 8px;">Beta Hub v2.1.3</p>
+            <p style="margin-top: 8px;">Beta Hub v2.1.4</p>
         </footer>
     </div>
 
