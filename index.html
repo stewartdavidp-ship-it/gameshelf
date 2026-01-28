@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.1.5.3">
+    <meta name="version" content="2.1.5.5">
     <meta name="gs-app-id" content="beta">
     
     <title>Game Shelf Beta Hub</title>
@@ -1023,6 +1023,29 @@
         .rating-btn.selected { background: var(--accent-gradient); border-color: transparent; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transform: translateY(-2px); }
         .rating-labels { display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
         
+        .rating-scale-large { gap: 12px; }
+        .rating-btn-large { padding: 20px 12px; font-size: 1.4rem; border-radius: 16px; }
+        .rating-btn-large:hover { transform: translateY(-4px); }
+        
+        .journal-entry { background: var(--bg-secondary); border-radius: 12px; padding: 16px; margin-bottom: 12px; border-left: 3px solid var(--accent-purple); }
+        .journal-entry-date { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; }
+        .journal-entry-text { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; }
+        .journal-empty { text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.9rem; }
+        
+        .feedback-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .feedback-modal-content { background: var(--bg-card); border-radius: 20px; padding: 32px; max-width: 450px; width: 100%; border: 1px solid rgba(102,126,234,0.3); }
+        .feedback-modal-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; text-align: center; }
+        .feedback-modal-subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; text-align: center; }
+        .feedback-modal-rating { font-size: 3rem; text-align: center; margin-bottom: 16px; }
+        .feedback-modal textarea { width: 100%; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-family: inherit; font-size: 0.95rem; resize: vertical; min-height: 120px; margin-bottom: 16px; }
+        .feedback-modal textarea:focus { outline: none; border-color: var(--accent-purple); }
+        .feedback-modal-buttons { display: flex; gap: 12px; }
+        .feedback-modal-buttons button { flex: 1; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 0.95rem; transition: all 0.2s; }
+        .feedback-modal-skip { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-secondary); }
+        .feedback-modal-skip:hover { border-color: var(--accent-purple); color: var(--text-primary); }
+        .feedback-modal-submit { background: var(--accent-gradient); border: none; color: white; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
+        .feedback-modal-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
+        
         .text-input { width: 100%; padding: 16px 18px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-family: inherit; font-size: 0.95rem; resize: vertical; min-height: 100px; transition: all 0.25s ease; }
         .text-input:hover { border-color: rgba(102, 126, 234, 0.3); }
         .text-input:focus { outline: none; border-color: var(--accent-purple); box-shadow: 0 0 20px rgba(102, 126, 234, 0.15); }
@@ -1355,8 +1378,8 @@
         
         <footer>
             <p>Made with 🧩 for puzzle lovers everywhere</p>
-            <p style="margin-top: 8px;">Questions? <a href="/cdn-cgi/l/email-protection#e28a878e8e8da285838f87918a878e84cc818d"><span class="__cf_email__" data-cfemail="c3aba6afafac83a4a2aea6b0aba6afa5eda0ac">[email&#160;protected]</span></a></p>
-            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.5.3</p>
+            <p style="margin-top: 8px;">Questions? <a href="mailto:hello@gameshelf.co">hello@gameshelf.co</a></p>
+            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.5.5</p>
         </footer>
     </div>
 
@@ -1480,6 +1503,25 @@
             </div>
         </header>
         
+        <div class="card card-highlight" id="daily-rating-section">
+            <h3 class="section-title"><span class="emoji">📋</span> How's Game Shelf Today?</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Tap a number to rate your experience</p>
+            <div id="daily-rating-container">
+                <div class="rating-scale rating-scale-large">
+                    <button class="rating-btn rating-btn-large" onclick="selectDailyRating(1, this)">1</button>
+                    <button class="rating-btn rating-btn-large" onclick="selectDailyRating(2, this)">2</button>
+                    <button class="rating-btn rating-btn-large" onclick="selectDailyRating(3, this)">3</button>
+                    <button class="rating-btn rating-btn-large" onclick="selectDailyRating(4, this)">4</button>
+                    <button class="rating-btn rating-btn-large" onclick="selectDailyRating(5, this)">5</button>
+                </div>
+                <div class="rating-labels"><span>Needs work</span><span>Love it!</span></div>
+            </div>
+            <div id="daily-rating-complete" class="hidden" style="text-align: center; padding: 16px 0;">
+                <div style="font-size: 2rem; margin-bottom: 8px;">✓</div>
+                <p style="color: var(--accent-green); font-weight: 600;">Thanks for today's feedback!</p>
+            </div>
+        </div>
+        
         <div class="card card-highlight">
             <h2 style="font-size: 1.3rem; margin-bottom: 4px;">👋 Welcome back, <span id="welcome-name">Friend</span>!</h2>
             <p style="color: var(--text-secondary); font-size: 0.9rem;">Your feedback is shaping Game Shelf.</p>
@@ -1487,7 +1529,7 @@
         
         <div class="stats-grid">
             <div class="stat-card"><div class="stat-value" id="stat-games">0</div><div class="stat-label">Games Played</div></div>
-            <div class="stat-card"><div class="stat-value" id="stat-surveys">0</div><div class="stat-label">Surveys Done</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-surveys">0</div><div class="stat-label">Feedback</div></div>
             <div class="stat-card"><div class="stat-value" id="stat-streak">0</div><div class="stat-label">Day Streak</div></div>
             <div class="stat-card"><div class="stat-value" id="stat-coins">0</div><div class="stat-label">Coins</div></div>
         </div>
@@ -1513,28 +1555,12 @@
             </div>
         </div>
         
-        <div class="card" id="survey-section">
-            <h3 class="section-title" id="survey-title"><span class="emoji">📋</span> Daily Feedback</h3>
-            <div class="survey-progress">
-                <div class="progress-bar"><div class="progress-fill" id="survey-progress-fill" style="width: 0%"></div></div>
-                <span class="progress-text" id="survey-progress-text">0/5 today</span>
-            </div>
-            <div id="survey-questions"></div>
-            <div id="survey-complete" class="survey-complete hidden">
-                <div class="complete-icon">🎉</div><h3>All done for today!</h3><p>Come back tomorrow for new questions.</p>
-            </div>
-        </div>
-        
-        <div class="card" id="game-surveys-section">
-            <h3 class="section-title"><span class="emoji">🎮</span> Game Feedback</h3>
-            <div id="game-survey-triggers"><p style="color: var(--text-muted); font-size: 0.9rem;">Play some games and we'll ask about them!</p></div>
-        </div>
-        
         <div class="card">
-            <h3 class="section-title"><span class="emoji">💭</span> What's On Your Mind?</h3>
+            <h3 class="section-title"><span class="emoji">📓</span> Your Journal</h3>
             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px;">Bugs, ideas, frustrations - anything goes!</p>
-            <textarea class="text-input" id="open-feedback" placeholder="Type your thoughts..."></textarea>
-            <button class="submit-btn" onclick="submitOpenFeedback()" id="open-feedback-btn">Send Feedback</button>
+            <textarea class="text-input" id="journal-input" placeholder="What's on your mind today?"></textarea>
+            <button class="submit-btn" onclick="submitJournalEntry()" id="journal-btn">Add Entry</button>
+            <div id="journal-entries" style="margin-top: 16px;"></div>
         </div>
         
         <div class="card">
@@ -1542,27 +1568,13 @@
             <div class="leaderboard-list" id="leaderboard-list"><div class="loading-spinner"></div></div>
         </div>
         
-        <div class="card">
-            <h3 class="section-title"><span class="emoji">🎪</span> Contests</h3>
-            <div class="contest-card">
-                <div class="contest-header"><div class="contest-title">⚔️ Battle Royale</div><div class="contest-prize">🪙 100</div></div>
-                <p class="contest-desc">Most battles this week wins!</p>
-                <div class="contest-meta"><span class="contest-time">Ends in 5 days</span><button class="contest-join-btn" onclick="showBattleInfo()">Battle</button></div>
-            </div>
-            <div class="contest-card">
-                <div class="contest-header"><div class="contest-title">📝 7-Day Streak</div><div class="contest-prize">🪙 50</div></div>
-                <p class="contest-desc">Complete daily surveys for 7 days straight.</p>
-                <div class="contest-meta"><span class="contest-time">Ongoing</span><span style="color: var(--accent-green); font-weight: 600;" id="feedback-streak-display">0/7</span></div>
-            </div>
-        </div>
-        
         <footer style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.85rem;">
-            <p><a href="/cdn-cgi/l/email-protection#3a525f5656557a5d5b575f49525f565c145955" style="color: var(--accent-purple); text-decoration: none;"><span class="__cf_email__" data-cfemail="c7afa2ababa887a0a6aaa2b4afa2aba1e9a4a8">[email&#160;protected]</span></a></p>
-            <p style="margin-top: 8px;">Beta Hub v2.1.5.3</p>
+            <p><a href="mailto:hello@gameshelf.co" style="color: var(--accent-purple); text-decoration: none;">hello@gameshelf.co</a></p>
+            <p style="margin-top: 8px;">Beta Hub v2.1.5.5</p>
         </footer>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script>
         // ============ FIREBASE ============
         const firebaseConfig = { apiKey: "AIzaSyBQVwn8vOrFTzLlm2MYIPBwgZV2xR9AuhM", authDomain: "word-boxing.firebaseapp.com", databaseURL: "https://word-boxing-default-rtdb.firebaseio.com", projectId: "word-boxing" };
         let auth, db;
@@ -1682,7 +1694,7 @@
             const avatarEl = document.getElementById('header-avatar');
             avatarEl.dataset.name = name;
             avatarEl.src = currentUser.photoURL || defaultAvatar(name);
-            loadStats(); loadDailySurvey(); loadGameSurveys(); loadLeaderboard();
+            loadStats(); loadDailyRating(); loadJournal(); loadLeaderboard();
             window.scrollTo(0, 0);
         }
         
@@ -1811,15 +1823,16 @@
             const games = userData.games || {};
             let played = 0;
             for (const g in games) if (games[g].history?.length) played += games[g].history.length;
-            const surveys = Object.keys(userData.earlyAccess?.surveyResponses || {}).length;
+            const ratings = Object.keys(userData.earlyAccess?.dailyRatings || {}).length;
+            const journalEntries = Object.keys(userData.earlyAccess?.journal || {}).length;
+            const feedbackCount = ratings + journalEntries;
             const streak = userData.earlyAccess?.surveyStreak || 0;
             const coins = userData.shelf?.wallet?.coins || 0;
             
             document.getElementById('stat-games').textContent = played;
-            document.getElementById('stat-surveys').textContent = surveys;
+            document.getElementById('stat-surveys').textContent = feedbackCount;
             document.getElementById('stat-streak').textContent = streak;
             document.getElementById('stat-coins').textContent = coins;
-            document.getElementById('feedback-streak-display').textContent = `${Math.min(streak,7)}/7`;
             
             ['quotle','slate','rungs','wordboxing'].forEach(id => {
                 const el = document.getElementById(`${id}-played`);
@@ -1827,86 +1840,123 @@
             });
         }
         
-        // ============ SURVEY ============
-        function loadDailySurvey() {
-            currentGameSurvey = null;
-            document.getElementById('survey-title').innerHTML = '<span class="emoji">📋</span> Daily Feedback';
-            const today = getTodayKey(), responses = userData.earlyAccess?.surveyResponses || {};
-            const answered = Object.keys(responses).filter(q => responses[q].date === today);
-            const seed = parseInt(today.replace(/-/g, ''));
-            const shuffled = [...DAILY_QUESTIONS].sort((a, b) => ((a.id.charCodeAt(0) * seed) % 100) - ((b.id.charCodeAt(0) * seed) % 100));
-            const todayQs = shuffled.slice(0, 5), remaining = todayQs.filter(q => !answered.includes(q.id));
+        // ============ DAILY RATING ============
+        function loadDailyRating() {
+            const today = getTodayKey();
+            const todayRating = userData.earlyAccess?.dailyRatings?.[today];
             
-            document.getElementById('survey-progress-fill').style.width = `${((5-remaining.length)/5)*100}%`;
-            document.getElementById('survey-progress-text').textContent = `${5-remaining.length}/5 today`;
-            
-            const container = document.getElementById('survey-questions'), complete = document.getElementById('survey-complete');
-            if (!remaining.length) { container.classList.add('hidden'); complete.classList.remove('hidden'); }
-            else { container.classList.remove('hidden'); complete.classList.add('hidden'); renderQuestion(remaining[0], container); }
-        }
-        
-        function renderQuestion(q, container) {
-            let html = '';
-            if (q.type === 'rating') {
-                const btns = []; for (let i = q.min||1; i <= (q.max||5); i++) btns.push(`<button class="rating-btn" onclick="selectRating('${q.id}',${i},this)">${i}</button>`);
-                html = `<div class="rating-scale">${btns.join('')}</div><div class="rating-labels"><span>${q.labels?.[0]||''}</span><span>${q.labels?.[1]||''}</span></div>`;
-            } else if (q.type === 'choice') {
-                html = `<div class="answer-options">${q.options.map(o => `<label class="answer-option" onclick="selectChoice('${q.id}','${escapeHtml(o)}',this)"><input type="radio" name="${q.id}"><span class="answer-radio"></span><span>${escapeHtml(o)}</span></label>`).join('')}</div>`;
-            } else if (q.type === 'text') {
-                html = `<textarea class="text-input" id="text-${q.id}" placeholder="Type here..."></textarea><button class="submit-btn" onclick="submitTextAnswer('${q.id}')">Submit</button>`;
+            if (todayRating) {
+                document.getElementById('daily-rating-container').classList.add('hidden');
+                document.getElementById('daily-rating-complete').classList.remove('hidden');
+            } else {
+                document.getElementById('daily-rating-container').classList.remove('hidden');
+                document.getElementById('daily-rating-complete').classList.add('hidden');
             }
-            container.innerHTML = `<div class="survey-question"><div class="question-category">${q.category||'Feedback'}</div><div class="question-text">${escapeHtml(q.text)}</div>${html}</div>`;
         }
         
-        function selectRating(qId, val, btn) { document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); submitAnswer(qId, val); }
-        function selectChoice(qId, val, label) { document.querySelectorAll('.answer-option').forEach(o => o.classList.remove('selected')); label.classList.add('selected'); setTimeout(() => submitAnswer(qId, val), 300); }
-        function submitTextAnswer(qId) { const v = document.getElementById(`text-${qId}`).value.trim(); if (!v) return showToast('Please enter a response'); submitAnswer(qId, v); }
+        function selectDailyRating(rating, btn) {
+            document.querySelectorAll('.rating-btn-large').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            
+            setTimeout(() => showFeedbackModal(rating), 300);
+        }
         
-        async function submitAnswer(qId, val) {
+        function showFeedbackModal(rating) {
+            let prompt, emoji;
+            if (rating <= 2) {
+                prompt = "What about your experience could we improve?";
+                emoji = "🤔";
+            } else if (rating === 3) {
+                prompt = "How do we make it better?";
+                emoji = "💭";
+            } else {
+                prompt = "Can you tell us what you most liked?";
+                emoji = "🎉";
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'feedback-modal';
+            modal.innerHTML = `
+                <div class="feedback-modal-content">
+                    <div class="feedback-modal-rating">${emoji}</div>
+                    <div class="feedback-modal-title">You rated ${rating}/5</div>
+                    <div class="feedback-modal-subtitle">${prompt}</div>
+                    <textarea id="feedback-modal-text" placeholder="Your thoughts (optional)..."></textarea>
+                    <div class="feedback-modal-buttons">
+                        <button class="feedback-modal-skip" onclick="submitDailyRating(${rating}, '')">Skip</button>
+                        <button class="feedback-modal-submit" onclick="submitDailyRating(${rating}, document.getElementById('feedback-modal-text').value)">Submit</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('feedback-modal-text').focus();
+        }
+        
+        async function submitDailyRating(rating, feedback) {
             const today = getTodayKey(), now = Date.now();
-            await db.ref(`users/${currentUser.uid}/earlyAccess/surveyResponses/${qId}`).set({ answer: val, date: today, timestamp: now });
+            const ratingData = { rating, feedback: feedback.trim(), timestamp: now };
+            
+            await db.ref(`users/${currentUser.uid}/earlyAccess/dailyRatings/${today}`).set(ratingData);
+            
             if (!userData.earlyAccess) userData.earlyAccess = {};
-            if (!userData.earlyAccess.surveyResponses) userData.earlyAccess.surveyResponses = {};
-            userData.earlyAccess.surveyResponses[qId] = { answer: val, date: today, timestamp: now };
-            showToast('✓ Recorded!');
+            if (!userData.earlyAccess.dailyRatings) userData.earlyAccess.dailyRatings = {};
+            userData.earlyAccess.dailyRatings[today] = ratingData;
             
-            if (currentGameSurvey) {
-                const qs = GAME_QUESTIONS[currentGameSurvey.id], idx = qs.findIndex(q => q.id === qId);
-                if (idx < qs.length - 1) setTimeout(() => renderQuestion({ ...qs[idx+1], category: currentGameSurvey.name }, document.getElementById('survey-questions')), 500);
-                else { currentGameSurvey = null; setTimeout(() => { loadDailySurvey(); loadGameSurveys(); }, 500); }
-            } else setTimeout(() => loadDailySurvey(), 500);
-        }
-        
-        // ============ GAME SURVEYS ============
-        function loadGameSurveys() {
-            const container = document.getElementById('game-survey-triggers'), games = userData.games || {}, responses = userData.earlyAccess?.surveyResponses || {};
-            const gsGames = [{id:'quotle',name:'Quotle',icon:'💬'},{id:'slate',name:'Slate',icon:'🪨'},{id:'rungs',name:'Rungs',icon:'🪜'},{id:'wordboxing',name:'Word Boxing',icon:'🥊'}];
-            const triggers = gsGames.filter(g => games[g.id]?.history?.length && !responses[`${g.id==='wordboxing'?'wb':g.id}_fun`]);
+            // Remove modal
+            document.querySelector('.feedback-modal')?.remove();
             
-            if (!triggers.length) { container.innerHTML = `<p style="color:var(--text-muted);font-size:0.9rem;">${Object.keys(games).length ? '✓ All games reviewed!' : 'Play games to unlock surveys'}</p>`; return; }
-            container.innerHTML = triggers.map(g => `<div class="game-survey-trigger"><span class="game-icon">${g.icon}</span><div class="game-survey-text"><h4>${g.name}</h4><p>Quick feedback</p></div><button class="game-survey-btn" onclick="showGameSurvey('${g.id}','${g.name}')">Answer</button></div>`).join('');
+            // Update UI
+            document.getElementById('daily-rating-container').classList.add('hidden');
+            document.getElementById('daily-rating-complete').classList.remove('hidden');
+            
+            showToast('✓ Thanks for your feedback!');
+            loadStats();
         }
         
-        function showGameSurvey(id, name) {
-            const qs = GAME_QUESTIONS[id]; if (!qs) return;
-            currentGameSurvey = { id, name };
-            document.getElementById('survey-title').innerHTML = `<span class="emoji">🎮</span> ${name}`;
-            document.getElementById('survey-progress-fill').style.width = '0%';
-            document.getElementById('survey-progress-text').textContent = `0/${qs.length}`;
-            document.getElementById('survey-complete').classList.add('hidden');
-            document.getElementById('survey-questions').classList.remove('hidden');
-            renderQuestion({ ...qs[0], category: name }, document.getElementById('survey-questions'));
-            document.getElementById('survey-section').scrollIntoView({ behavior: 'smooth' });
+        // ============ JOURNAL ============
+        function loadJournal() {
+            const container = document.getElementById('journal-entries');
+            const entries = userData.earlyAccess?.journal || {};
+            const sortedDates = Object.keys(entries).sort().reverse().slice(0, 10);
+            
+            if (!sortedDates.length) {
+                container.innerHTML = '<div class="journal-empty">Your journal is empty. Add your first entry above!</div>';
+                return;
+            }
+            
+            container.innerHTML = sortedDates.map(date => {
+                const entry = entries[date];
+                const dateObj = new Date(date + 'T12:00:00');
+                const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                return `<div class="journal-entry"><div class="journal-entry-date">${dateStr}</div><div class="journal-entry-text">${escapeHtml(entry.text)}</div></div>`;
+            }).join('');
         }
         
-        // ============ OPEN FEEDBACK ============
-        async function submitOpenFeedback() {
-            const textarea = document.getElementById('open-feedback'), btn = document.getElementById('open-feedback-btn'), feedback = textarea.value.trim();
-            if (!feedback) return showToast('Please enter feedback');
-            btn.disabled = true; btn.textContent = 'Sending...';
-            await db.ref(`beta/feedback/${Date.now()}`).set({ userId: currentUser.odometerId, displayName: currentUser.displayName, feedback, timestamp: Date.now(), date: getTodayKey() });
-            textarea.value = ''; btn.disabled = false; btn.textContent = 'Send Feedback';
-            showToast('🙏 Thanks!');
+        async function submitJournalEntry() {
+            const textarea = document.getElementById('journal-input');
+            const btn = document.getElementById('journal-btn');
+            const text = textarea.value.trim();
+            
+            if (!text) return showToast('Please write something');
+            
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            
+            const today = getTodayKey(), now = Date.now();
+            const entryData = { text, timestamp: now };
+            
+            await db.ref(`users/${currentUser.uid}/earlyAccess/journal/${today}`).set(entryData);
+            
+            if (!userData.earlyAccess) userData.earlyAccess = {};
+            if (!userData.earlyAccess.journal) userData.earlyAccess.journal = {};
+            userData.earlyAccess.journal[today] = entryData;
+            
+            textarea.value = '';
+            btn.disabled = false;
+            btn.textContent = 'Add Entry';
+            
+            showToast('✓ Entry saved!');
+            loadJournal();
         }
         
         // ============ LEADERBOARD ============
@@ -1947,16 +1997,6 @@
                 showToast('✓ Invite link copied!');
             }
         }
-        
-        // ============ BATTLE INFO ============
-        function showBattleInfo() {
-            const modal = document.createElement('div');
-            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;';
-            modal.innerHTML = `
-                <div style="background:var(--bg-card);border-radius:20px;padding:32px;max-width:400px;width:100%;text-align:center;border:1px solid rgba(102,126,234,0.3);">
-                    <div style="font-size:3rem;margin-bottom:16px;">⚔️</div>
-                    <h2 style="font-size:1.5rem;margin-bottom:12px;">Start a Battle</h2>
-                    <p style="color:var(--text-secondary);margin-bottom:24px;">Battles are started from the main Game Shelf app. Challenge friends to weekly puzzle competitions!</p>
-                    <a href="https://gameshelf.co/" target="_blank" style="display:inline-block;background:var(--accent-gradient);color:white;padding:14px 32px;border-radius:12px;text-decoration:none;font-weight:600;margin-bottom:12px;">Open Game Shelf</a>
-                    <br>
-                    <button onclick="
+    </script>
+</body>
+</html>
