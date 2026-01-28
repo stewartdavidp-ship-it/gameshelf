@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.1.6.3">
+    <meta name="version" content="2.1.6.5">
     <meta name="gs-app-id" content="beta">
     
     <title>Game Shelf Beta Hub</title>
@@ -1409,7 +1409,7 @@
         <footer>
             <p>Made with 🧩 for puzzle lovers everywhere</p>
             <p style="margin-top: 8px;">Questions? <a href="mailto:hello@gameshelf.co">hello@gameshelf.co</a></p>
-            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.6.3</p>
+            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.6.5</p>
         </footer>
     </div>
 
@@ -1738,7 +1738,7 @@
         
         <footer style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.85rem;">
             <p><a href="mailto:hello@gameshelf.co" style="color: var(--accent-purple); text-decoration: none;">hello@gameshelf.co</a></p>
-            <p style="margin-top: 8px;">Beta Hub v2.1.6.3</p>
+            <p style="margin-top: 8px;">Beta Hub v2.1.6.5</p>
         </footer>
     </div>
 
@@ -1920,10 +1920,8 @@
                     console.log('[Beta] TEST_MODE enabled - showing onboarding');
                     showRegister();
                 } else if (userType === USER_TYPES.BETA) {
-                    // Full beta user - show welcome and go to dashboard
-                    showWelcomeModal(firstName, currentUser.photoURL, () => {
-                        showDashboard();
-                    });
+                    // Full beta user - go straight to dashboard
+                    showDashboard();
                 } else if (userType === USER_TYPES.STANDARD) {
                     // Standard user - redirect to main Game Shelf
                     window.location.href = 'https://gameshelf.co/';
@@ -2168,12 +2166,9 @@
                 userData.earlyAccess.joinedAt = now;
                 userData.earlyAccess.onboarding = dataToSave.onboarding;
                 
-                // Show welcome modal and go to dashboard
-                const firstName = currentUser.displayName.split(' ')[0];
+                // Go to dashboard
                 showToast('🎉 Welcome to the beta!');
-                showWelcomeModal(firstName, currentUser.photoURL, () => {
-                    showDashboard();
-                });
+                showDashboard();
                 
             } catch (e) {
                 console.error('[Beta] Onboarding failed:', e);
@@ -2207,6 +2202,13 @@
         
         // ============ DAILY SURVEY MODAL ============
         function checkAndShowDailySurvey() {
+            // TEST_MODE: Always show survey for testing
+            if (TEST_MODE) {
+                console.log('[Beta] TEST_MODE enabled - showing survey');
+                showDailySurveyModal();
+                return;
+            }
+            
             const today = getTodayKey();
             
             // Check 1: Already rated today?
