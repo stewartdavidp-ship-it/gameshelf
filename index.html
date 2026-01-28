@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.1.5.2">
+    <meta name="version" content="2.1.5.3">
     <meta name="gs-app-id" content="beta">
     
     <title>Game Shelf Beta Hub</title>
@@ -1355,8 +1355,8 @@
         
         <footer>
             <p>Made with 🧩 for puzzle lovers everywhere</p>
-            <p style="margin-top: 8px;">Questions? <a href="mailto:hello@gameshelf.co">hello@gameshelf.co</a></p>
-            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.5.2</p>
+            <p style="margin-top: 8px;">Questions? <a href="/cdn-cgi/l/email-protection#e28a878e8e8da285838f87918a878e84cc818d"><span class="__cf_email__" data-cfemail="c3aba6afafac83a4a2aea6b0aba6afa5eda0ac">[email&#160;protected]</span></a></p>
+            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.5.3</p>
         </footer>
     </div>
 
@@ -1492,9 +1492,14 @@
             <div class="stat-card"><div class="stat-value" id="stat-coins">0</div><div class="stat-label">Coins</div></div>
         </div>
         
-        <div class="quick-actions">
-            <a href="https://gameshelf.co/" class="action-btn primary" target="_blank">🎮 Open Game Shelf</a>
-            <button class="action-btn secondary" onclick="showBattleInfo()">⚔️ Start a Battle</button>
+        <div class="quick-actions" style="grid-template-columns: 1fr;">
+            <a href="https://gameshelf.co/app/" class="action-btn primary" target="_blank">
+                <svg viewBox="0 0 100 100" style="width: 1.5em; height: 1.5em; vertical-align: middle; margin-right: 0.3em;">
+                    <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/></g>
+                    <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.85)"/><circle cx="57" cy="46" r="6" fill="white"/></g>
+                </svg>
+                Open Game Shelf
+            </a>
         </div>
         
         <div class="card">
@@ -1552,12 +1557,12 @@
         </div>
         
         <footer style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.85rem;">
-            <p><a href="mailto:hello@gameshelf.co" style="color: var(--accent-purple); text-decoration: none;">hello@gameshelf.co</a></p>
-            <p style="margin-top: 8px;">Beta Hub v2.1.5.2</p>
+            <p><a href="/cdn-cgi/l/email-protection#3a525f5656557a5d5b575f49525f565c145955" style="color: var(--accent-purple); text-decoration: none;"><span class="__cf_email__" data-cfemail="c7afa2ababa887a0a6aaa2b4afa2aba1e9a4a8">[email&#160;protected]</span></a></p>
+            <p style="margin-top: 8px;">Beta Hub v2.1.5.3</p>
         </footer>
     </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // ============ FIREBASE ============
         const firebaseConfig = { apiKey: "AIzaSyBQVwn8vOrFTzLlm2MYIPBwgZV2xR9AuhM", authDomain: "word-boxing.firebaseapp.com", databaseURL: "https://word-boxing-default-rtdb.firebaseio.com", projectId: "word-boxing" };
         let auth, db;
@@ -1954,12 +1959,4 @@
                     <p style="color:var(--text-secondary);margin-bottom:24px;">Battles are started from the main Game Shelf app. Challenge friends to weekly puzzle competitions!</p>
                     <a href="https://gameshelf.co/" target="_blank" style="display:inline-block;background:var(--accent-gradient);color:white;padding:14px 32px;border-radius:12px;text-decoration:none;font-weight:600;margin-bottom:12px;">Open Game Shelf</a>
                     <br>
-                    <button onclick="this.closest('div').parentElement.remove()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;margin-top:12px;font-family:inherit;">Close</button>
-                </div>
-            `;
-            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-            document.body.appendChild(modal);
-        }
-    </script>
-</body>
-</html>
+                    <button onclick="
