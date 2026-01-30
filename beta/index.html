@@ -917,6 +917,98 @@
         .warning-box h4 { color: var(--accent-orange); font-size: 0.95rem; margin-bottom: 8px; }
         .warning-box p { color: var(--text-secondary); font-size: 0.9rem; }
         
+        /* What's Next View */
+        .whats-next-view {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        
+        .whats-next-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .whats-next-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+        
+        .whats-next-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .whats-next-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .whats-next-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .whats-next-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        
+        .whats-next-step .step-icon {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+        }
+        
+        .whats-next-step .step-content h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+        
+        .whats-next-step .step-content p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        
+        .whats-next-step .step-content a {
+            color: var(--accent-purple);
+            text-decoration: none;
+        }
+        
+        .whats-next-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .whats-next-actions .register-cta {
+            text-align: center;
+            text-decoration: none;
+        }
+        
         .google-btn {
             display: flex;
             align-items: center;
@@ -2119,6 +2211,76 @@
         </div>
     </div>
 
+    <!-- ==================== WHAT'S NEXT VIEW ==================== -->
+    <div id="whats-next-view" class="whats-next-view hidden">
+        <div class="whats-next-header">
+            <div class="whats-next-icon">🎉</div>
+            <h1 class="whats-next-title">You're All Set!</h1>
+            <p class="whats-next-subtitle">Here's how to get the most out of Game Shelf</p>
+        </div>
+        
+        <div class="whats-next-steps">
+            <div class="whats-next-step">
+                <div class="step-icon">☀️</div>
+                <div class="step-content">
+                    <h3>Start your day with Game Shelf</h3>
+                    <p>Launch all your daily puzzles from one place</p>
+                </div>
+            </div>
+            
+            <div class="whats-next-step">
+                <div class="step-icon">🔙</div>
+                <div class="step-content">
+                    <h3>Come back to Beta Portal</h3>
+                    <p>There's a link in Game Shelf to return here and log your results</p>
+                </div>
+            </div>
+            
+            <div class="whats-next-step">
+                <div class="step-icon">❓</div>
+                <div class="step-content">
+                    <h3>Found a bug or have an idea?</h3>
+                    <p>Tap the floating ? in Game Shelf to report issues or requests</p>
+                </div>
+            </div>
+            
+            <div class="whats-next-step">
+                <div class="step-icon">🪙</div>
+                <div class="step-content">
+                    <h3>You've got 20 coins</h3>
+                    <p>Use them for AI hints when you're stuck on any puzzle</p>
+                </div>
+            </div>
+            
+            <div class="whats-next-step">
+                <div class="step-icon">📱</div>
+                <div class="step-content">
+                    <h3>Add to Home Screen</h3>
+                    <p>For the best experience, add Game Shelf to your home screen — it works like an app!</p>
+                </div>
+            </div>
+            
+            <div class="whats-next-step">
+                <div class="step-icon">💬</div>
+                <div class="step-content">
+                    <h3>Questions?</h3>
+                    <p>Email <a href="mailto:support@gameshelf.co">support@gameshelf.co</a> anytime</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="whats-next-actions">
+            <a href="https://gameshelf.co/app/" class="register-cta primary" target="_blank">
+                <svg viewBox="0 0 100 100" style="width: 1.5em; height: 1.5em; vertical-align: middle; margin-right: 0.3em;">
+                    <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/></g>
+                    <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.85)"/><circle cx="57" cy="46" r="6" fill="white"/></g>
+                </svg>
+                Open Game Shelf
+            </a>
+            <button class="register-cta secondary" onclick="showDashboard()">Go to Beta Portal →</button>
+        </div>
+    </div>
+
     <!-- ==================== DASHBOARD VIEW ==================== -->
     <div id="dashboard-view" class="dashboard-view hidden">
         <header class="header">
@@ -2251,6 +2413,7 @@
             document.getElementById('landing-view').classList.remove('hidden');
             document.getElementById('signup-view').classList.add('hidden');
             document.getElementById('register-view').classList.add('hidden');
+            document.getElementById('whats-next-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
             window.scrollTo(0, 0);
         }
@@ -2259,6 +2422,7 @@
             document.getElementById('landing-view').classList.add('hidden');
             document.getElementById('signup-view').classList.remove('hidden');
             document.getElementById('register-view').classList.add('hidden');
+            document.getElementById('whats-next-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
             window.scrollTo(0, 0);
         }
@@ -2267,6 +2431,7 @@
             document.getElementById('landing-view').classList.add('hidden');
             document.getElementById('signup-view').classList.add('hidden');
             document.getElementById('register-view').classList.remove('hidden');
+            document.getElementById('whats-next-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
             const name = currentUser.displayName?.split(' ')[0] || 'there';
             document.getElementById('register-name').textContent = name;
@@ -2277,10 +2442,20 @@
             window.scrollTo(0, 0);
         }
         
+        function showWhatsNext() {
+            document.getElementById('landing-view').classList.add('hidden');
+            document.getElementById('signup-view').classList.add('hidden');
+            document.getElementById('register-view').classList.add('hidden');
+            document.getElementById('whats-next-view').classList.remove('hidden');
+            document.getElementById('dashboard-view').classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
+        
         function showDashboard() {
             document.getElementById('landing-view').classList.add('hidden');
             document.getElementById('signup-view').classList.add('hidden');
             document.getElementById('register-view').classList.add('hidden');
+            document.getElementById('whats-next-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.remove('hidden');
             
             const name = currentUser.displayName?.split(' ')[0] || 'Friend';
@@ -2365,7 +2540,7 @@
                 userData.coins = SIGNUP_BONUS;
                 
                 showToast('🎉 Welcome to the beta!');
-                showDashboard();
+                showWhatsNext();
             } catch (e) {
                 console.error('[Beta] Onboarding failed:', e);
                 showToast('Something went wrong. Please try again.');
