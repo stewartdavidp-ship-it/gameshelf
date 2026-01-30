@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.1.7.3">
+    <meta name="version" content="2.2.0">
     <meta name="gs-app-id" content="beta">
     
     <title>Game Shelf Beta Hub</title>
@@ -109,13 +109,12 @@
         }
         
         .hero {
-            min-height: calc(100vh - 60px);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             text-align: center;
-            padding: 40px 24px;
+            padding: 60px 24px 40px;
             position: relative;
             overflow: hidden;
         }
@@ -188,14 +187,38 @@
         }
         
         .brand-title {
-            font-size: clamp(3rem, 10vw, 5rem);
+            font-size: clamp(3.5rem, 12vw, 6rem);
             font-weight: 900;
             letter-spacing: 0.02em;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 16px;
+        }
+        
+        .hero-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .brand-logo {
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 600px) {
+            .brand-logo {
+                width: 70px;
+                height: 70px;
+            }
+            .hero-brand {
+                gap: 16px;
+                margin-bottom: 24px;
+            }
         }
         
         .hero-headline {
@@ -271,6 +294,151 @@
             50% { transform: translateX(-50%) translateY(10px); }
         }
         
+        /* Game Logos Strip */
+        .game-logos {
+            padding: 40px 24px;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .game-logos-label {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .game-logos-strip {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .game-logo-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.8;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        
+        .game-logo-item:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+        }
+        
+        .game-logo-item span {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        .game-logo-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+        
+        .game-logo-icon.wordle {
+            background: linear-gradient(135deg, #6aaa64, #538d4e);
+            color: white;
+        }
+        
+        .game-logo-icon.connections {
+            background: linear-gradient(135deg, #b59410, #9a7b0a);
+            padding: 8px;
+        }
+        
+        .connections-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3px;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .connections-grid span {
+            background: white;
+            border-radius: 2px;
+        }
+        
+        .game-logo-icon.strands {
+            background: linear-gradient(135deg, #4a90d9, #2e6bb3);
+        }
+        
+        .game-logo-icon.mini {
+            background: linear-gradient(135deg, #1a1a1a, #333);
+            border: 1px solid #444;
+        }
+        
+        .game-logo-icon.spelling-bee {
+            background: linear-gradient(135deg, #f7da21, #e6c800);
+        }
+        
+        .game-logo-icon.pinpoint {
+            background: linear-gradient(135deg, #0a66c2, #004182);
+        }
+        
+        .game-logo-icon.queens {
+            background: linear-gradient(135deg, #0a66c2, #004182);
+        }
+        
+        .game-logo-icon.crossclimb {
+            background: linear-gradient(135deg, #0a66c2, #004182);
+        }
+        
+        .game-logo-icon.quordle {
+            background: linear-gradient(135deg, #e63946, #c1121f);
+            color: white;
+        }
+        
+        .game-logo-icon.framed {
+            background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+            border: 1px solid #444;
+        }
+        
+        .game-logo-icon.globle {
+            background: linear-gradient(135deg, #228b22, #156315);
+        }
+        
+        .game-logo-icon.more-icon {
+            background: var(--bg-card);
+            border: 1px dashed var(--border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .game-logo-item.more {
+            opacity: 0.6;
+        }
+        
+        @media (max-width: 600px) {
+            .game-logos-strip {
+                gap: 16px;
+            }
+            .game-logo-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 1.1rem;
+            }
+            .game-logo-item span {
+                font-size: 0.6rem;
+            }
+        }
+        
         /* Stats Bar */
         .stats-bar {
             background: var(--bg-secondary);
@@ -304,60 +472,124 @@
             margin-top: 4px;
         }
         
-        /* AI Hints Section */
-        .ai-hints {
+        /* AI Experience Section */
+        .ai-experience {
             padding: 80px 24px;
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
+            text-align: center;
         }
         
-        .ai-hints-card {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.1) 100%);
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            border-radius: 24px;
-            padding: 48px 32px;
-            position: relative;
-            overflow: hidden;
+        .ai-experience-header {
+            margin-bottom: 48px;
         }
         
-        .ai-hints-content { 
-            position: relative; 
-            z-index: 1;
+        .ai-experience-header h2 {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+        }
+        
+        .ai-experience-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+        }
+        
+        .ai-loop {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            align-items: center;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
         }
         
-        .ai-hints-text { text-align: left; }
+        @media (max-width: 700px) {
+            .ai-loop {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+        
+        .ai-loop-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .ai-loop-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+        
+        .ai-loop-card.featured {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+        
+        .ai-loop-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+        
+        .ai-loop-phase {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-purple);
+            margin-bottom: 8px;
+        }
+        
+        .ai-loop-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .ai-loop-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+        
+        .ai-loop-example {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+        
+        .ai-example-quote {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            line-height: 1.4;
+        }
+        
+        .ai-loop-card .hint-levels {
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .ai-loop-card .hint-level {
+            padding: 8px 14px;
+        }
+        
+        .ai-experience-phone {
+            display: flex;
+            justify-content: center;
+        }
         
         @media (max-width: 900px) {
-            .ai-hints-content {
-                grid-template-columns: 1fr;
-                text-align: center;
+            .ai-experience-phone {
+                display: none;
             }
-            .ai-hints-text { text-align: center; }
-            .hint-levels { justify-content: center; }
-            .hint-phone { margin-top: 24px; }
-            .hint-phone-frame { width: 200px; }
         }
         
-        .hint-phone { display: flex; justify-content: center; }
-        
-        .hint-phone-frame {
-            width: 240px;
-            background: linear-gradient(145deg, #2a2a3a 0%, #1a1a25 100%);
-            border-radius: 32px;
-            padding: 8px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
-        }
-        
-        .hint-phone-frame .phone-screenshot {
-            width: 100%;
-            border-radius: 26px;
-            display: block;
-        }
-        
+        /* Shared Components */
         .new-badge {
             display: inline-block;
             background: var(--accent-gradient);
@@ -369,11 +601,6 @@
             margin-bottom: 16px;
         }
         
-        .ai-hints h2 {
-            font-size: 2rem;
-            margin-bottom: 16px;
-        }
-        
         .gradient {
             background: var(--accent-gradient);
             -webkit-background-clip: text;
@@ -381,24 +608,17 @@
             background-clip: text;
         }
         
-        .ai-hints p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            max-width: 500px;
-            margin-bottom: 24px;
-        }
-        
         .hint-levels {
             display: flex;
-            gap: 16px;
+            gap: 12px;
             flex-wrap: wrap;
         }
         
         .hint-level {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 12px 20px;
+            border-radius: 10px;
+            padding: 10px 16px;
             text-align: center;
         }
         
@@ -407,9 +627,21 @@
             border-color: transparent;
         }
         
-        .hint-level-name { font-weight: 600; font-size: 0.95rem; }
-        .hint-level-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
-        .hint-level.active .hint-level-desc { color: rgba(255,255,255,0.8); }
+        .hint-level-name { font-weight: 600; font-size: 0.85rem; }
+        
+        .hint-phone-frame {
+            width: 220px;
+            background: linear-gradient(145deg, #2a2a3a 0%, #1a1a25 100%);
+            border-radius: 32px;
+            padding: 8px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+        }
+        
+        .hint-phone-frame .phone-screenshot {
+            width: 100%;
+            border-radius: 26px;
+            display: block;
+        }
         
         /* Originals Section */
         .originals {
@@ -427,6 +659,16 @@
             font-size: 2rem;
             font-weight: 800;
             margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .gs-title-logo {
+            width: 1.4em;
+            height: 1.4em;
+            vertical-align: middle;
         }
         
         .originals-subtitle {
@@ -558,18 +800,24 @@
         .back-link:hover { color: var(--text-primary); }
         
         .signup-header { text-align: center; margin-bottom: 32px; }
-        .signup-logo { width: 80px; height: 80px; margin-bottom: 16px; }
         
-        .beta-badge {
-            display: inline-block;
+        .signup-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .signup-logo { width: 56px; height: 56px; }
+        
+        .signup-brand-name {
+            font-size: 2rem;
+            font-weight: 800;
             background: var(--accent-gradient);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 12px;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .signup-title {
@@ -1391,9 +1639,12 @@
         
         <!-- Hero -->
         <section class="hero">
+            <div class="hero-brand">
+                <svg class="brand-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gsHeroGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs><rect x="5" y="5" width="90" height="90" rx="20" fill="url(#gsHeroGrad)"/><g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/><text x="29" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#667eea" text-anchor="middle">G</text></g><g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.9)"/><circle cx="57" cy="46" r="6" fill="url(#gsHeroGrad)"/><text x="71" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#764ba2" text-anchor="middle">S</text></g></svg>
+                <h1 class="brand-title">GAME SHELF</h1>
+            </div>
             <div class="hero-content">
                 <div class="hero-text">
-                    <h1 class="brand-title">GAME SHELF</h1>
                     <h2 class="hero-headline">Track Every Daily Puzzle <span>in One Place</span></h2>
                     <p class="hero-subtitle">Finally, one app for all your daily puzzles.</p>
                     <p class="game-list">Wordle • Quordle • Connections • Framed • Globle • 36+ games</p>
@@ -1414,38 +1665,137 @@
                     </div>
                 </div>
             </div>
-            <div class="scroll-hint" onclick="document.querySelector('.stats-bar').scrollIntoView({behavior:'smooth'})">↓ See what's inside</div>
+            <div class="scroll-hint" onclick="document.querySelector('.game-logos').scrollIntoView({behavior:'smooth'})">↓ See what's inside</div>
+        </section>
+        
+        <!-- Supported Games Logos -->
+        <section class="game-logos">
+            <p class="game-logos-label">Works with games you already love</p>
+            <div class="game-logos-strip">
+                <div class="game-logo-item">
+                    <div class="game-logo-icon wordle">W</div>
+                    <span>Wordle</span>
+                </div>
+                <div class="game-logo-item">
+                    <div class="game-logo-icon connections">
+                        <div class="connections-grid">
+                            <span></span><span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <span>Connections</span>
+                </div>
+                <div class="game-logo-item">
+                    <div class="game-logo-icon strands">🧵</div>
+                    <span>Strands</span>
+                </div>
+                <div class="game-logo-item">
+                    <div class="game-logo-icon mini">✏️</div>
+                    <span>Mini</span>
+                </div>
+                <div class="game-logo-item">
+                    <div class="game-logo-icon spelling-bee">🐝</div>
+                    <span>Spelling Bee</span>
+                </div>
+                <div class="game-logo-item">
+                    <div class="game-logo-icon pinpoint">🎯</div>
+                    <span>Pinpoint</span>
+                </div>
+                <div class="game-logo-item">
+                    <div class="game-logo-icon queens">👑</div>
+                    <span>Queens</span>
+                </div>
+                <div class="game-logo-item">
+                    <div class="game-logo-icon crossclimb">🧗</div>
+                    <span>Crossclimb</span>
+                </div>
+                <div class="game-logo-item">
+                    <div class="game-logo-icon quordle">Q</div>
+                    <span>Quordle</span>
+                </div>
+                <div class="game-logo-item">
+                    <div class="game-logo-icon framed">🎬</div>
+                    <span>Framed</span>
+                </div>
+                <div class="game-logo-item">
+                    <div class="game-logo-icon globle">🌍</div>
+                    <span>Globle</span>
+                </div>
+                <div class="game-logo-item more">
+                    <div class="game-logo-icon more-icon">+25</div>
+                    <span>more</span>
+                </div>
+            </div>
         </section>
         
         <!-- Stats Bar -->
         <section class="stats-bar">
             <div class="stats-grid">
                 <div class="stat-item"><div class="stat-number">36+</div><div class="stat-label">Supported Games</div></div>
-                <div class="stat-item"><div class="stat-number">4</div><div class="stat-label">Original Games</div></div>
+                <div class="stat-item"><div class="stat-number">4</div><div class="stat-label">AI Features</div></div>
                 <div class="stat-item"><div class="stat-number">∞</div><div class="stat-label">Streaks to Build</div></div>
-                <div class="stat-item"><div class="stat-number">AI</div><div class="stat-label">Powered Hints</div></div>
+                <div class="stat-item"><div class="stat-number">4</div><div class="stat-label">Original Games</div></div>
             </div>
         </section>
         
-        <!-- AI Hints Section -->
-        <section class="ai-hints">
-            <div class="ai-hints-card">
-                <div class="ai-hints-content">
-                    <div class="ai-hints-text">
-                        <span class="new-badge">🤖 Featured</span>
-                        <h2>Stuck? Get <span class="gradient">AI-Powered Hints</span></h2>
-                        <p>Powered by Claude AI, get intelligent hints that help without spoiling. Start with a gentle nudge, or ask for more help — you control how much assistance you get.</p>
-                        <div class="hint-levels">
-                            <div class="hint-level"><div class="hint-level-name">💡 Nudge</div><div class="hint-level-desc">A gentle push</div></div>
-                            <div class="hint-level active"><div class="hint-level-name">🔍 Hint</div><div class="hint-level-desc">More specific</div></div>
-                            <div class="hint-level"><div class="hint-level-name">🎯 Strong</div><div class="hint-level-desc">Almost there</div></div>
-                        </div>
+        <!-- AI Experience Section - Full Loop -->
+        <section class="ai-experience">
+            <div class="ai-experience-header">
+                <span class="new-badge">🤖 Powered by Claude AI</span>
+                <h2>Your Daily Puzzle <span class="gradient">Companion</span></h2>
+                <p class="ai-experience-subtitle">AI that helps before, during, and after every puzzle</p>
+            </div>
+            
+            <div class="ai-loop">
+                <!-- Morning Review -->
+                <div class="ai-loop-card">
+                    <div class="ai-loop-icon">🌅</div>
+                    <div class="ai-loop-phase">Before You Play</div>
+                    <h3>Morning Review</h3>
+                    <p>Start your day with a personalized briefing. See what's on deck, get a feel for today's difficulty, and a motivational nudge based on your streaks.</p>
+                    <div class="ai-loop-example">
+                        <div class="ai-example-quote">"47-day Wordle streak and counting. Today's Connections looks tricky — bring your A-game."</div>
                     </div>
-                    <div class="hint-phone">
-                        <div class="hint-phone-frame">
-                            <img class="phone-screenshot" src="landing/hints-screenshot.png" alt="AI Hints">
-                        </div>
+                </div>
+                
+                <!-- Hints -->
+                <div class="ai-loop-card">
+                    <div class="ai-loop-icon">💡</div>
+                    <div class="ai-loop-phase">While You Play</div>
+                    <h3>Smart Hints</h3>
+                    <p>Stuck? Get intelligent hints that help without spoiling. You control how much assistance — from a gentle nudge to a strong push.</p>
+                    <div class="hint-levels">
+                        <div class="hint-level"><div class="hint-level-name">💡 Nudge</div></div>
+                        <div class="hint-level active"><div class="hint-level-name">🔍 Hint</div></div>
+                        <div class="hint-level"><div class="hint-level-name">🎯 Strong</div></div>
                     </div>
+                </div>
+                
+                <!-- AI Help -->
+                <div class="ai-loop-card">
+                    <div class="ai-loop-icon">🆘</div>
+                    <div class="ai-loop-phase">When You Need It</div>
+                    <h3>AI Help</h3>
+                    <p>Sometimes you just need the answer. AI Help gives it to you fast — no judgment, no searching, just the solution when you're ready to move on.</p>
+                    <div class="ai-loop-example">
+                        <div class="ai-example-quote">"The answer is CRANE. It's both a bird and construction equipment."</div>
+                    </div>
+                </div>
+                
+                <!-- Game Insights -->
+                <div class="ai-loop-card">
+                    <div class="ai-loop-icon">📊</div>
+                    <div class="ai-loop-phase">After You Play</div>
+                    <h3>Game Insights</h3>
+                    <p>Learn something new every day. Get fascinating context about the answers — word origins, movie trivia, geography facts — without having to search.</p>
+                    <div class="ai-loop-example">
+                        <div class="ai-example-quote">"EPOCH comes from Greek 'epokhē' meaning a pause or fixed point in time..."</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ai-experience-phone">
+                <div class="hint-phone-frame">
+                    <img class="phone-screenshot" src="landing/hints-screenshot.png" alt="AI-Powered Features">
                 </div>
             </div>
         </section>
@@ -1453,7 +1803,7 @@
         <!-- Originals Section -->
         <section class="originals">
             <div class="originals-inner">
-                <h2 class="section-title">🎮 Game Shelf Originals</h2>
+                <h2 class="section-title"><svg class="gs-title-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gsOrigGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs><rect x="5" y="5" width="90" height="90" rx="20" fill="url(#gsOrigGrad)"/><g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/><text x="29" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#667eea" text-anchor="middle">G</text></g><g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.9)"/><circle cx="57" cy="46" r="6" fill="url(#gsOrigGrad)"/><text x="71" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#764ba2" text-anchor="middle">S</text></g></svg> Game Shelf Originals</h2>
                 <p class="originals-subtitle">I also built some games — your feedback on these would be especially valuable.</p>
                 <div class="originals-grid">
                     <a href="https://gameshelf.co/quotle/" class="original-card" target="_blank">
@@ -1496,7 +1846,7 @@
         <footer>
             <p>Made with 🧩 for puzzle lovers everywhere</p>
             <p style="margin-top: 8px;">Questions? <a href="mailto:support@gameshelf.co">support@gameshelf.co</a></p>
-            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.1.7.3</p>
+            <p style="margin-top: 12px; font-size: 0.8rem;">© 2026 Game Shelf • Beta Hub v2.2.0</p>
         </footer>
     </div>
 
@@ -1512,13 +1862,15 @@
         </div>
         
         <div class="signup-header">
-            <svg class="signup-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs><linearGradient id="gsBadgeGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs>
-                <rect x="5" y="5" width="90" height="90" rx="20" fill="url(#gsBadgeGrad)"/>
-                <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/><text x="29" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#667eea" text-anchor="middle">G</text></g>
-                <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.9)"/><circle cx="57" cy="46" r="6" fill="url(#gsBadgeGrad)"/><text x="71" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#764ba2" text-anchor="middle">S</text></g>
-            </svg>
-            <span class="beta-badge">🚀 Early Access</span>
+            <div class="signup-brand">
+                <svg class="signup-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs><linearGradient id="gsBadgeGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs>
+                    <rect x="5" y="5" width="90" height="90" rx="20" fill="url(#gsBadgeGrad)"/>
+                    <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/><text x="29" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#667eea" text-anchor="middle">G</text></g>
+                    <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.9)"/><circle cx="57" cy="46" r="6" fill="url(#gsBadgeGrad)"/><text x="71" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#764ba2" text-anchor="middle">S</text></g>
+                </svg>
+                <span class="signup-brand-name">Game Shelf</span>
+            </div>
             <h1 class="signup-title">Join the Beta</h1>
             <p class="signup-subtitle">Your feedback will directly shape what this becomes</p>
         </div>
@@ -1526,14 +1878,16 @@
         <div class="card">
             <h3 class="section-title"><span class="emoji">🎁</span> What You Get</h3>
             <ul class="benefit-list">
-                <li><span class="check">✓</span> Full access to Game Shelf and all features</li>
                 <li><span class="check">✓</span> Track 36+ daily puzzle games in one place</li>
-                <li><span class="check">✓</span> AI-powered hints when you're stuck</li>
+                <li><span class="check">✓</span> Morning Review — personalized daily briefing</li>
+                <li><span class="check">✓</span> Smart Hints — help without spoiling</li>
+                <li><span class="check">✓</span> AI Help — get the answer fast when you need it</li>
+                <li><span class="check">✓</span> Game Insights — learn about the answers</li>
                 <li><span class="check">✓</span> Battle friends and compete on leaderboards</li>
             </ul>
             <div class="coin-highlight">
                 <span class="coin-icon">🪙</span>
-                <div><div class="coin-amount">20 Free Hint Coins</div><div class="coin-desc">Use them when you're stuck on any puzzle</div></div>
+                <div><div class="coin-amount">20 Free Hint Coins</div><div class="coin-desc">Use them for hints and help when you need it</div></div>
             </div>
         </div>
         
@@ -1546,7 +1900,7 @@
             </ul>
             <div class="warning-box">
                 <h4>⚠️ This is Beta Software</h4>
-                <p>You'll probably find bugs. The good news? I turn around fixes within hours.</p>
+                <p>You'll probably find bugs. The good news? I turn around fixes quickly.</p>
             </div>
         </div>
         
@@ -1809,7 +2163,7 @@
         </div>
         
         <div class="card">
-            <h3 class="section-title"><span class="emoji">🎯</span> Game Shelf Originals</h3>
+            <h3 class="section-title"><svg style="width: 1.2em; height: 1.2em; vertical-align: middle; margin-right: 4px;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gsDashGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs><rect x="5" y="5" width="90" height="90" rx="20" fill="url(#gsDashGrad)"/><g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/><text x="29" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#667eea" text-anchor="middle">G</text></g><g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.9)"/><circle cx="57" cy="46" r="6" fill="url(#gsDashGrad)"/><text x="71" y="54" font-family="Arial" font-size="20" font-weight="bold" fill="#764ba2" text-anchor="middle">S</text></g></svg> Game Shelf Originals</h3>
             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">Play these and tell me what you think!</p>
             <div class="gs-games-grid">
                 <a href="https://gameshelf.co/quotle/" class="gs-game-card" target="_blank"><div class="icon">💬</div><div class="name">Quotle</div><div class="played" id="quotle-played">Not played</div></a>
@@ -1829,7 +2183,7 @@
         
         <footer style="text-align: center; padding: 40px 0 20px; color: var(--text-muted); font-size: 0.85rem;">
             <p><a href="mailto:support@gameshelf.co" style="color: var(--accent-purple); text-decoration: none;">support@gameshelf.co</a></p>
-            <p style="margin-top: 8px;">Beta Hub v2.1.7.3</p>
+            <p style="margin-top: 8px;">Beta Hub v2.2.0</p>
         </footer>
     </div>
 
