@@ -1009,6 +1009,167 @@
             text-decoration: none;
         }
         
+        .whats-next-step.clickable {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .whats-next-step.clickable:hover {
+            border-color: var(--accent-purple);
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .whats-next-step .step-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: var(--accent-purple);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        /* How to Record View */
+        .how-to-record-view {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        
+        .how-to-record-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .how-to-record-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+        
+        .how-to-record-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .how-to-record-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        .how-to-record-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .how-to-record-section h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-number {
+            width: 28px;
+            height: 28px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .section-intro {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+        
+        .how-to-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .how-to-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        
+        .how-to-step .step-number {
+            width: 24px;
+            height: 24px;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-purple);
+            flex-shrink: 0;
+        }
+        
+        .how-to-step .step-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        
+        .how-to-step .step-text strong {
+            color: var(--text-primary);
+        }
+        
+        .pro-tip {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .pro-tip-badge {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        
+        .pro-tip p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        
+        .how-to-record-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .how-to-record-actions .register-cta {
+            text-align: center;
+            text-decoration: none;
+        }
+        
         .google-btn {
             display: flex;
             align-items: center;
@@ -2220,11 +2381,12 @@
         </div>
         
         <div class="whats-next-steps">
-            <div class="whats-next-step">
-                <div class="step-icon">☀️</div>
+            <div class="whats-next-step clickable" onclick="showHowToRecord()">
+                <div class="step-icon">🎮</div>
                 <div class="step-content">
-                    <h3>Start your day with Game Shelf</h3>
-                    <p>Launch all your daily puzzles from one place</p>
+                    <h3>Play, Record, Track Your Streaks</h3>
+                    <p>Play your games, record results in Game Shelf, and capture all your streaks</p>
+                    <span class="step-link">Learn how →</span>
                 </div>
             </div>
             
@@ -2232,7 +2394,7 @@
                 <div class="step-icon">🔙</div>
                 <div class="step-content">
                     <h3>Come back to Beta Portal</h3>
-                    <p>There's a link in Game Shelf to return here and log your results</p>
+                    <p>There's a link in Game Shelf to return here and log your feedback</p>
                 </div>
             </div>
             
@@ -2270,7 +2432,7 @@
         </div>
         
         <div class="whats-next-actions">
-            <a href="https://gameshelf.co/app/" class="register-cta primary" target="_blank">
+            <a href="https://gameshelf.co/" class="register-cta primary" target="_blank">
                 <svg viewBox="0 0 100 100" style="width: 1.5em; height: 1.5em; vertical-align: middle; margin-right: 0.3em;">
                     <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/></g>
                     <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.85)"/><circle cx="57" cy="46" r="6" fill="white"/></g>
@@ -2278,6 +2440,106 @@
                 Open Game Shelf
             </a>
             <button class="register-cta secondary" onclick="showDashboard()">Go to Beta Portal →</button>
+        </div>
+    </div>
+
+    <!-- ==================== HOW TO RECORD VIEW ==================== -->
+    <div id="how-to-record-view" class="how-to-record-view hidden">
+        <a class="back-link" onclick="showWhatsNext()">← Back</a>
+        
+        <div class="how-to-record-header">
+            <div class="how-to-record-icon">📝</div>
+            <h1 class="how-to-record-title">How to Record Your Games</h1>
+            <p class="how-to-record-subtitle">Keep your streaks alive and track your progress</p>
+        </div>
+        
+        <div class="how-to-record-section">
+            <h2><span class="section-number">1</span> Recording Daily Results</h2>
+            <p class="section-intro">After you finish a puzzle, here's how to log it in Game Shelf:</p>
+            
+            <div class="how-to-steps">
+                <div class="how-to-step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">In your puzzle game, tap <strong>Share</strong> when you finish</div>
+                </div>
+                <div class="how-to-step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Select <strong>Copy to Clipboard</strong></div>
+                </div>
+                <div class="how-to-step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Go back to <strong>Game Shelf</strong></div>
+                </div>
+                <div class="how-to-step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">Tap <strong>Record Activity</strong> — Game Shelf will automatically detect your result!</div>
+                </div>
+            </div>
+            
+            <div class="pro-tip">
+                <span class="pro-tip-badge">💡 Pro Tip</span>
+                <p>Game Shelf can read most share formats automatically. Just copy and paste!</p>
+            </div>
+        </div>
+        
+        <div class="how-to-record-section">
+            <h2><span class="section-number">2</span> Importing Your Stats & Streaks</h2>
+            <p class="section-intro">Already have existing streaks? Here's how to import them:</p>
+            
+            <div class="how-to-steps">
+                <div class="how-to-step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">In your puzzle game, find the <strong>Stats</strong> or <strong>Statistics</strong> page</div>
+                </div>
+                <div class="how-to-step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Take a <strong>screenshot</strong> of your stats</div>
+                </div>
+                <div class="how-to-step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Go to <strong>Game Shelf</strong> and tap <strong>Record Activity</strong></div>
+                </div>
+                <div class="how-to-step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">Select <strong>Import from Screenshot</strong> and choose your image</div>
+                </div>
+            </div>
+            
+            <div class="pro-tip">
+                <span class="pro-tip-badge">🔥 Don't Lose Streaks</span>
+                <p>Import your stats early so Game Shelf knows your current streaks!</p>
+            </div>
+        </div>
+        
+        <div class="how-to-record-section">
+            <h2><span class="section-number">3</span> Manual Entry</h2>
+            <p class="section-intro">You can always enter results manually:</p>
+            
+            <div class="how-to-steps">
+                <div class="how-to-step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Tap <strong>Record Activity</strong> in Game Shelf</div>
+                </div>
+                <div class="how-to-step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Select <strong>Manual Entry</strong></div>
+                </div>
+                <div class="how-to-step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Choose the game and enter your score</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="how-to-record-actions">
+            <a href="https://gameshelf.co/" class="register-cta primary" target="_blank">
+                <svg viewBox="0 0 100 100" style="width: 1.5em; height: 1.5em; vertical-align: middle; margin-right: 0.3em;">
+                    <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/></g>
+                    <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.85)"/><circle cx="57" cy="46" r="6" fill="white"/></g>
+                </svg>
+                Open Game Shelf
+            </a>
+            <button class="register-cta secondary" onclick="showWhatsNext()">← Back to What's Next</button>
         </div>
     </div>
 
@@ -2315,7 +2577,7 @@
         </div>
         
         <div class="quick-actions" style="grid-template-columns: 1fr;">
-            <a href="https://gameshelf.co/app/" class="action-btn primary" target="_blank">
+            <a href="https://gameshelf.co/" class="action-btn primary" target="_blank">
                 <svg viewBox="0 0 100 100" style="width: 1.5em; height: 1.5em; vertical-align: middle; margin-right: 0.3em;">
                     <g transform="rotate(-12, 35, 50)"><rect x="15" y="28" width="28" height="36" rx="4" fill="white"/><circle cx="43" cy="46" r="6" fill="white"/></g>
                     <g transform="rotate(12, 65, 50)"><rect x="57" y="28" width="28" height="36" rx="4" fill="rgba(255,255,255,0.85)"/><circle cx="57" cy="46" r="6" fill="white"/></g>
@@ -2414,6 +2676,7 @@
             document.getElementById('signup-view').classList.add('hidden');
             document.getElementById('register-view').classList.add('hidden');
             document.getElementById('whats-next-view').classList.add('hidden');
+            document.getElementById('how-to-record-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
             window.scrollTo(0, 0);
         }
@@ -2423,6 +2686,7 @@
             document.getElementById('signup-view').classList.remove('hidden');
             document.getElementById('register-view').classList.add('hidden');
             document.getElementById('whats-next-view').classList.add('hidden');
+            document.getElementById('how-to-record-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
             window.scrollTo(0, 0);
         }
@@ -2432,6 +2696,7 @@
             document.getElementById('signup-view').classList.add('hidden');
             document.getElementById('register-view').classList.remove('hidden');
             document.getElementById('whats-next-view').classList.add('hidden');
+            document.getElementById('how-to-record-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
             const name = currentUser.displayName?.split(' ')[0] || 'there';
             document.getElementById('register-name').textContent = name;
@@ -2447,6 +2712,17 @@
             document.getElementById('signup-view').classList.add('hidden');
             document.getElementById('register-view').classList.add('hidden');
             document.getElementById('whats-next-view').classList.remove('hidden');
+            document.getElementById('how-to-record-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
+        
+        function showHowToRecord() {
+            document.getElementById('landing-view').classList.add('hidden');
+            document.getElementById('signup-view').classList.add('hidden');
+            document.getElementById('register-view').classList.add('hidden');
+            document.getElementById('whats-next-view').classList.add('hidden');
+            document.getElementById('how-to-record-view').classList.remove('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
             window.scrollTo(0, 0);
         }
@@ -2456,6 +2732,7 @@
             document.getElementById('signup-view').classList.add('hidden');
             document.getElementById('register-view').classList.add('hidden');
             document.getElementById('whats-next-view').classList.add('hidden');
+            document.getElementById('how-to-record-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.remove('hidden');
             
             const name = currentUser.displayName?.split(' ')[0] || 'Friend';
