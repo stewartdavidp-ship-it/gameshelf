@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="version" content="2.0.0">
+    <meta name="gs-app-id" content="rungs-builder">
+    <title>Rungs Puzzle Builder v2</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f0f23;
+            --bg-card: #1e1e3f;
+            --text-primary: #e8e6e3;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666;
+            --accent: #f97316;
+            --accent-light: #fb923c;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #2a2a4a;
+            --purple: #8b5cf6;
+            --blue: #3b82f6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+        .app { display: flex; flex-direction: column; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary)); padding: 16px 20px; border-bottom: 2px solid var(--accent); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .header h1 { font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .header h1 span { color: var(--accent); }
+        .header .version { font-size: 0.7rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 2px 8px; border-radius: 10px; }
+        .main { flex: 1; display: flex; }
+        .sidebar { width: 220px; background: var(--bg-secondary); border-right: 1px solid var(--border); padding: 16px 0; flex-shrink: 0; }
+        .sidebar-section { margin-bottom: 20px; }
+        .sidebar-title { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 20px; margin-bottom: 8px; }
+        .sidebar-item { padding: 12px 20px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; color: var(--text-secondary); font-size: 0.9rem; }
+        .sidebar-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .sidebar-item.active { background: var(--accent); color: white; font-weight: 600; }
+        .sidebar-item .badge { margin-left: auto; background: var(--bg-tertiary); padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
+        .sidebar-item.active .badge { background: rgba(255,255,255,0.2); }
+        .content { flex: 1; padding: 24px; overflow-y: auto; max-height: calc(100vh - 70px); }
+        .card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .card-title { font-size: 1.1rem; font-weight: 600; }
+        .card-subtitle { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: var(--accent-light); transform: translateY(-1px); }
+        .btn-secondary { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        .btn-secondary:hover { background: var(--accent); color: white; }
+        .btn-ghost { background: transparent; color: var(--text-secondary); }
+        .btn-ghost:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); }
+        .form-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        .form-input, .form-textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.95rem; font-family: inherit; }
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+        .form-textarea { min-height: 80px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { font-weight: 600; color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; }
+        tr:hover { background: var(--bg-tertiary); }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; margin: 2px; }
+        .badge-orange { background: rgba(249, 115, 22, 0.2); color: var(--accent); }
+        .badge-green { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-blue { background: rgba(59, 130, 246, 0.2); color: var(--blue); }
+        .badge-yellow { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .badge-red { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .rung-slot { background: var(--bg-secondary); border-radius: 12px; padding: 16px; border: 2px dashed var(--border); margin-bottom: 12px; transition: all 0.2s; }
+        .rung-slot.filled { border-style: solid; border-color: var(--accent); }
+        .rung-slot.complete { border-color: var(--success); background: rgba(34, 197, 94, 0.05); }
+        .rung-slot.has-ambiguous { border-color: var(--warning); }
+        .rung-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .rung-label { font-size: 0.8rem; color: var(--text-muted); }
+        .rung-value { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+        .rep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding: 8px; }
+        .rep-chip { padding: 12px 14px; background: var(--bg-tertiary); border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+        .rep-chip:hover { border-color: var(--accent); background: var(--bg-card); }
+        .rep-chip.selected { border-color: var(--success); background: rgba(34, 197, 94, 0.15); }
+        .rep-chip.used { opacity: 0.35; cursor: not-allowed; }
+        .rep-chip.ambiguous { border-color: var(--warning); }
+        .rep-chip-display { font-weight: 600; margin-bottom: 4px; }
+        .rep-chip-rationale { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; }
+        .rep-chip-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .rep-chip-warning { font-size: 0.7rem; color: var(--warning); margin-top: 6px; padding: 4px 8px; background: rgba(245, 158, 11, 0.1); border-radius: 4px; }
+        .sequence-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+        .sequence-card { background: var(--bg-tertiary); padding: 16px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+        .sequence-card:hover { border-color: var(--accent); }
+        .sequence-card.selected { border-color: var(--success); background: rgba(34, 197, 94, 0.1); }
+        .sequence-name { font-weight: 600; margin-bottom: 6px; }
+        .sequence-values { color: var(--accent); font-family: monospace; font-size: 1.1rem; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--bg-tertiary); padding: 4px; border-radius: 10px; flex-wrap: wrap; }
+        .tab { padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s; color: var(--text-secondary); }
+        .tab:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .tab.active { background: var(--accent); color: white; }
+        .tab.disabled { opacity: 0.4; cursor: not-allowed; }
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: var(--bg-card); padding: 16px; border-radius: 10px; text-align: center; border: 1px solid var(--border); }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+        .stat-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+        .preview-rung { display: flex; justify-content: center; align-items: center; gap: 16px; padding: 14px 20px; margin: 8px 0; background: var(--bg-secondary); border-radius: 10px; border-left: 4px solid var(--accent); }
+        .preview-rung-number { font-size: 1.2rem; font-weight: 700; color: var(--accent); min-width: 30px; }
+        .preview-item { padding: 8px 14px; background: var(--accent); color: white; border-radius: 6px; font-weight: 600; }
+        .rationale-section { background: var(--bg-tertiary); border-radius: 10px; padding: 16px; margin-top: 16px; border-left: 4px solid var(--purple); }
+        .rationale-title { font-weight: 600; color: var(--purple); margin-bottom: 12px; }
+        .rationale-item { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .rationale-item:last-child { border-bottom: none; }
+        .rationale-value { color: var(--accent); font-weight: 600; }
+        .warning-box { background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); border-radius: 10px; padding: 14px 16px; margin: 16px 0; display: flex; gap: 12px; align-items: flex-start; }
+        .warning-box-icon { font-size: 1.2rem; }
+        .warning-box-text { font-size: 0.85rem; color: var(--text-secondary); }
+        .difficulty-indicator { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 10px; margin: 16px 0; }
+        .difficulty-meter { flex: 1; height: 8px; background: var(--bg-primary); border-radius: 4px; overflow: hidden; }
+        .difficulty-fill { height: 100%; border-radius: 4px; transition: all 0.3s; }
+        .difficulty-fill.easy { width: 25%; background: var(--success); }
+        .difficulty-fill.medium { width: 50%; background: var(--warning); }
+        .difficulty-fill.hard { width: 75%; background: var(--accent); }
+        .difficulty-fill.expert { width: 100%; background: var(--danger); }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal { background: var(--bg-secondary); border-radius: 16px; padding: 24px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 1.2rem; font-weight: 700; }
+        .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
+        .export-preview { background: var(--bg-primary); border-radius: 8px; padding: 16px; font-family: monospace; font-size: 0.8rem; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.5; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--bg-card); color: var(--text-primary); padding: 12px 24px; border-radius: 10px; border: 1px solid var(--border); z-index: 2000; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateX(-50%) translateY(20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
+        .coverage-bar { height: 4px; background: var(--bg-tertiary); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        .coverage-fill { height: 100%; background: var(--success); transition: width 0.3s; }
+        .coverage-fill.partial { background: var(--warning); }
+        @media (max-width: 768px) { .sidebar { display: none; } .main { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+        
+        // ============ REPRESENTATIONS DATABASE WITH RATIONALES ============
+        const INITIAL_REPRESENTATIONS = [
+            // NUMBER 1
+            { id: 'r1', display: 'Partridge', values: [1], category: '12-days', rationales: { 1: 'First day: "A partridge in a pear tree"' } },
+            { id: 'r2', display: 'Ace', values: [1, 11], category: 'cards', rationales: { 1: 'Lowest card value', 11: 'High value in Blackjack' } },
+            { id: 'r3', display: 'Solo', values: [1], category: 'music', rationales: { 1: 'One performer playing alone' } },
+            { id: 'r4', display: 'I (Roman)', values: [1], category: 'roman', rationales: { 1: 'Roman numeral for 1' } },
+            { id: 'r5', display: 'Unicycle Wheels', values: [1], category: 'objects', rationales: { 1: 'A unicycle has one wheel' } },
+            // NUMBER 2
+            { id: 'r6', display: 'Turtle Doves', values: [2], category: '12-days', rationales: { 2: 'Second day: "Two turtle doves"' } },
+            { id: 'r7', display: 'Binary Digits', values: [2], category: 'tech', rationales: { 2: 'Binary uses 0 and 1 (two digits)' } },
+            { id: 'r8', display: 'Bicycle Wheels', values: [2], category: 'objects', rationales: { 2: 'A bicycle has two wheels' } },
+            { id: 'r9', display: 'II (Roman)', values: [2], category: 'roman', rationales: { 2: 'Roman numeral for 2' } },
+            { id: 'r10', display: 'Duo', values: [2], category: 'music', rationales: { 2: 'Two performers' } },
+            { id: 'r11', display: 'Twins', values: [2], category: 'family', rationales: { 2: 'Two siblings born together' } },
+            // NUMBER 3
+            { id: 'r12', display: 'French Hens', values: [3], category: '12-days', rationales: { 3: 'Third day: "Three French hens"' } },
+            { id: 'r13', display: 'Blind Mice', values: [3], category: 'nursery', rationales: { 3: '"Three Blind Mice" nursery rhyme' } },
+            { id: 'r14', display: 'Stooges', values: [3], category: 'comedy', rationales: { 3: 'The Three Stooges' } },
+            { id: 'r15', display: 'Musketeers', values: [3], category: 'literature', rationales: { 3: 'The Three Musketeers' } },
+            { id: 'r16', display: 'III (Roman)', values: [3], category: 'roman', rationales: { 3: 'Roman numeral for 3' } },
+            { id: 'r17', display: 'Trio', values: [3], category: 'music', rationales: { 3: 'Three performers' } },
+            { id: 'r18', display: 'Strikes (Out)', values: [3], category: 'sports', rationales: { 3: 'Three strikes in baseball' } },
+            { id: 'r19', display: 'Primary Colors', values: [3], category: 'art', rationales: { 3: 'Red, Yellow, Blue' } },
+            { id: 'r20', display: 'Rings (Circus)', values: [3], category: 'entertainment', rationales: { 3: 'A three-ring circus' } },
+            // NUMBER 4
+            { id: 'r21', display: 'Calling Birds', values: [4], category: '12-days', rationales: { 4: 'Fourth day: "Four calling birds"' } },
+            { id: 'r22', display: 'Seasons', values: [4], category: 'nature', rationales: { 4: 'Spring, Summer, Fall, Winter' } },
+            { id: 'r23', display: 'Card Suits', values: [4], category: 'cards', rationales: { 4: '♠♥♦♣ four suits' } },
+            { id: 'r24', display: 'Beatles', values: [4], category: 'music', rationales: { 4: 'The Fab Four' } },
+            { id: 'r25', display: 'IV (Roman)', values: [4], category: 'roman', rationales: { 4: 'Roman numeral for 4' } },
+            { id: 'r26', display: 'Quartet', values: [4], category: 'music', rationales: { 4: 'Four performers' } },
+            { id: 'r27', display: 'Cardinal Directions', values: [4], category: 'geography', rationales: { 4: 'N, S, E, W' } },
+            { id: 'r28', display: 'Ninja Turtles', values: [4], category: 'pop-culture', rationales: { 4: 'Leonardo, Donatello, Michelangelo, Raphael' } },
+            // NUMBER 5
+            { id: 'r29', display: 'Golden Rings', values: [5], category: '12-days', rationales: { 5: 'Fifth day: "Five golden rings"' } },
+            { id: 'r30', display: 'Olympic Rings', values: [5], category: 'sports', rationales: { 5: 'Five interlocking Olympic rings' } },
+            { id: 'r31', display: 'Senses', values: [5], category: 'biology', rationales: { 5: 'Sight, hearing, taste, touch, smell' } },
+            { id: 'r32', display: 'V (Roman)', values: [5], category: 'roman', rationales: { 5: 'Roman numeral for 5' } },
+            { id: 'r33', display: 'Quintet', values: [5], category: 'music', rationales: { 5: 'Five performers' } },
+            { id: 'r34', display: 'Great Lakes', values: [5], category: 'geography', rationales: { 5: 'HOMES: Huron, Ontario, Michigan, Erie, Superior' } },
+            { id: 'r35', display: 'Vowels', values: [5], category: 'grammar', rationales: { 5: 'A, E, I, O, U' } },
+            // NUMBER 6
+            { id: 'r36', display: 'Geese a-Laying', values: [6], category: '12-days', rationales: { 6: 'Sixth day' } },
+            { id: 'r37', display: 'Half Dozen', values: [6], category: 'math', rationales: { 6: 'Half of 12' } },
+            { id: 'r38', display: 'Guitar Strings', values: [6], category: 'music', rationales: { 6: 'Standard guitar has 6 strings' } },
+            { id: 'r39', display: 'VI (Roman)', values: [6], category: 'roman', rationales: { 6: 'Roman numeral for 6' } },
+            { id: 'r40', display: 'Cube Faces', values: [6], category: 'math', rationales: { 6: 'A cube has 6 faces' } },
+            { id: 'r41', display: 'Insect Legs', values: [6], category: 'biology', rationales: { 6: 'All insects have 6 legs' } },
+            // NUMBER 7
+            { id: 'r42', display: 'Swans a-Swimming', values: [7], category: '12-days', rationales: { 7: 'Seventh day' } },
+            { id: 'r43', display: 'Deadly Sins', values: [7], category: 'religion', rationales: { 7: 'Pride, greed, wrath, envy, lust, gluttony, sloth' } },
+            { id: 'r44', display: 'Dwarfs', values: [7], category: 'fairy-tale', rationales: { 7: 'Snow White and the Seven Dwarfs' } },
+            { id: 'r45', display: 'Days of Week', values: [7], category: 'time', rationales: { 7: 'Sunday through Saturday' } },
+            { id: 'r46', display: 'VII (Roman)', values: [7], category: 'roman', rationales: { 7: 'Roman numeral for 7' } },
+            { id: 'r47', display: 'Rainbow Colors', values: [7], category: 'nature', rationales: { 7: 'ROYGBIV' } },
+            { id: 'r48', display: 'Continents', values: [7], category: 'geography', rationales: { 7: 'Seven continents' } },
+            // NUMBER 8
+            { id: 'r49', display: 'Maids a-Milking', values: [8], category: '12-days', rationales: { 8: 'Eighth day' } },
+            { id: 'r50', display: 'Bits in Byte', values: [8], category: 'tech', rationales: { 8: '8 bits = 1 byte' } },
+            { id: 'r51', display: 'Spider Legs', values: [8], category: 'biology', rationales: { 8: 'Spiders have 8 legs' } },
+            { id: 'r52', display: 'VIII (Roman)', values: [8], category: 'roman', rationales: { 8: 'Roman numeral for 8' } },
+            { id: 'r53', display: 'Octopus Arms', values: [8], category: 'biology', rationales: { 8: 'Octopus has 8 arms' } },
+            { id: 'r54', display: 'Planets', values: [8], category: 'science', rationales: { 8: '8 planets (post-Pluto)' } },
+            // NUMBER 9
+            { id: 'r55', display: 'Ladies Dancing', values: [9], category: '12-days', rationales: { 9: 'Ninth day' } },
+            { id: 'r56', display: 'Cat Lives', values: [9], category: 'idiom', rationales: { 9: '"Cats have nine lives"' } },
+            { id: 'r57', display: 'Baseball Innings', values: [9], category: 'sports', rationales: { 9: 'Standard game has 9 innings' } },
+            { id: 'r58', display: 'IX (Roman)', values: [9], category: 'roman', rationales: { 9: 'Roman numeral for 9' } },
+            { id: 'r59', display: 'Muses', values: [9], category: 'mythology', rationales: { 9: 'Nine Muses in Greek mythology' } },
+            // NUMBER 10
+            { id: 'r60', display: 'Lords a-Leaping', values: [10], category: '12-days', rationales: { 10: 'Tenth day' } },
+            { id: 'r61', display: 'Commandments', values: [10], category: 'religion', rationales: { 10: 'Ten Commandments' } },
+            { id: 'r62', display: 'Bowling Pins', values: [10], category: 'sports', rationales: { 10: 'Standard bowling has 10 pins' } },
+            { id: 'r63', display: 'X (Roman)', values: [10], category: 'roman', rationales: { 10: 'Roman numeral for 10' } },
+            { id: 'r64', display: 'Dime (cents)', values: [10], category: 'money', rationales: { 10: 'A dime is 10 cents' } },
+            // NUMBER 11
+            { id: 'r65', display: 'Pipers Piping', values: [11], category: '12-days', rationales: { 11: 'Eleventh day' } },
+            { id: 'r66', display: 'Soccer Team', values: [11], category: 'sports', rationales: { 11: '11 players on field' } },
+            { id: 'r67', display: 'XI (Roman)', values: [11], category: 'roman', rationales: { 11: 'Roman numeral for 11' } },
+            { id: 'r68', display: 'Apollo (Moon)', values: [11], category: 'history', rationales: { 11: 'Apollo 11 moon landing' } },
+            // NUMBER 12
+            { id: 'r69', display: 'Drummers Drumming', values: [12], category: '12-days', rationales: { 12: 'Twelfth day' } },
+            { id: 'r70', display: 'Dozen', values: [12], category: 'math', rationales: { 12: 'A dozen = 12' } },
+            { id: 'r71', display: 'Months', values: [12], category: 'time', rationales: { 12: '12 months in a year' } },
+            { id: 'r72', display: 'XII (Roman)', values: [12], category: 'roman', rationales: { 12: 'Roman numeral for 12' } },
+            { id: 'r73', display: 'Zodiac Signs', values: [12], category: 'astrology', rationales: { 12: '12 zodiac signs' } },
+            { id: 'r74', display: 'Jury Members', values: [12], category: 'law', rationales: { 12: 'Standard jury has 12 members' } },
+            // AMBIGUOUS ITEMS
+            { id: 'r75', display: 'Rings', values: [3, 5], category: 'ambiguous', rationales: { 3: 'Three-ring circus', 5: 'Five Olympic rings' } },
+            { id: 'r76', display: 'Planets', values: [8, 9], category: 'ambiguous', rationales: { 8: 'Current (excludes Pluto)', 9: 'Old count (includes Pluto)' } },
+            { id: 'r77', display: 'Reindeer', values: [8, 9], category: 'ambiguous', rationales: { 8: 'Original eight', 9: 'With Rudolph' } },
+            // HIGHER NUMBERS
+            { id: 'r78', display: 'Baker\'s Dozen', values: [13], category: 'math', rationales: { 13: 'Baker\'s dozen = 13' } },
+            { id: 'r79', display: 'Blackjack', values: [21], category: 'cards', rationales: { 21: 'Winning hand = 21' } },
+            { id: 'r80', display: 'Alphabet Letters', values: [26], category: 'grammar', rationales: { 26: 'English has 26 letters' } },
+            { id: 'r81', display: 'Piano Keys', values: [88], category: 'music', rationales: { 88: 'Standard piano has 88 keys' } },
+            { id: 'r82', display: 'Century', values: [100], category: 'time', rationales: { 100: '100 years' } },
+            { id: 'r83', display: 'Dalmatians', values: [101], category: 'film', rationales: { 101: '101 Dalmatians movie' } },
+        ];
+        
+        // ============ SEQUENCES DATABASE ============
+        const INITIAL_SEQUENCES = [
+            { id: 's1', name: 'First Four (1-4)', values: [1, 2, 3, 4], category: 'counting', description: 'Simple consecutive' },
+            { id: 's2', name: 'Low Count (2-5)', values: [2, 3, 4, 5], category: 'counting', description: 'Consecutive 2-5' },
+            { id: 's3', name: 'Mid Count (3-6)', values: [3, 4, 5, 6], category: 'counting', description: 'Consecutive 3-6' },
+            { id: 's4', name: 'Mid Count (5-8)', values: [5, 6, 7, 8], category: 'counting', description: 'Consecutive 5-8' },
+            { id: 's5', name: 'High Count (6-9)', values: [6, 7, 8, 9], category: 'counting', description: 'Consecutive 6-9' },
+            { id: 's6', name: 'Double Digits (9-12)', values: [9, 10, 11, 12], category: 'counting', description: 'Crossing into double digits' },
+            { id: 's7', name: 'Even (2-8)', values: [2, 4, 6, 8], category: 'math', description: 'Even numbers' },
+            { id: 's8', name: 'Odd (1-7)', values: [1, 3, 5, 7], category: 'math', description: 'Odd numbers' },
+            { id: 's9', name: 'Odd (3-9)', values: [3, 5, 7, 9], category: 'math', description: 'Odd numbers' },
+            { id: 's10', name: 'First Primes', values: [2, 3, 5, 7], category: 'math', description: 'First four prime numbers' },
+            { id: 's11', name: 'Fibonacci (1-5)', values: [1, 2, 3, 5], category: 'math', description: 'Fibonacci sequence' },
+            { id: 's12', name: 'Fibonacci (2-8)', values: [2, 3, 5, 8], category: 'math', description: 'Fibonacci sequence' },
+            { id: 's13', name: 'Powers of 2', values: [1, 2, 4, 8], category: 'math', description: '2⁰, 2¹, 2², 2³' },
+            { id: 's14', name: 'Squares', values: [1, 4, 9, 16], category: 'math', description: '1², 2², 3², 4²' },
+            { id: 's15', name: 'Multiples of 3', values: [3, 6, 9, 12], category: 'math', description: '3, 6, 9, 12' },
+            { id: 's16', name: '12 Days (1-4)', values: [1, 2, 3, 4], category: '12-days', description: 'Partridge through Calling Birds' },
+            { id: 's17', name: '12 Days (5-8)', values: [5, 6, 7, 8], category: '12-days', description: 'Golden Rings through Maids' },
+            { id: 's18', name: '12 Days (9-12)', values: [9, 10, 11, 12], category: '12-days', description: 'Ladies through Drummers' },
+            { id: 's19', name: 'Sports Teams', values: [5, 6, 9, 11], category: 'sports', description: 'Basketball, volleyball, baseball, football' },
+            { id: 's20', name: 'Music Groups', values: [1, 2, 3, 4], category: 'music', description: 'Solo, duo, trio, quartet' },
+        ];
+        
+        // ============ MAIN APP ============
+        function App() {
+            const [view, setView] = useState('builder');
+            const [representations, setRepresentations] = useState([]);
+            const [sequences, setSequences] = useState([]);
+            const [savedPuzzles, setSavedPuzzles] = useState([]);
+            const [toast, setToast] = useState(null);
+            
+            useEffect(() => {
+                const storedReps = localStorage.getItem('rungs_builder_reps_v3');
+                const storedSeqs = localStorage.getItem('rungs_builder_seqs_v3');
+                const storedPuzzles = localStorage.getItem('rungs_builder_puzzles_v3');
+                setRepresentations(storedReps ? JSON.parse(storedReps) : INITIAL_REPRESENTATIONS);
+                setSequences(storedSeqs ? JSON.parse(storedSeqs) : INITIAL_SEQUENCES);
+                setSavedPuzzles(storedPuzzles ? JSON.parse(storedPuzzles) : []);
+            }, []);
+            
+            useEffect(() => { if (representations.length > 0) localStorage.setItem('rungs_builder_reps_v3', JSON.stringify(representations)); }, [representations]);
+            useEffect(() => { if (sequences.length > 0) localStorage.setItem('rungs_builder_seqs_v3', JSON.stringify(sequences)); }, [sequences]);
+            useEffect(() => { localStorage.setItem('rungs_builder_puzzles_v3', JSON.stringify(savedPuzzles)); }, [savedPuzzles]);
+            
+            const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
+            
+            const addRepresentation = (rep) => { setRepresentations([...representations, { ...rep, id: `r${Date.now()}` }]); showToast('✓ Added'); };
+            const deleteRepresentation = (id) => { setRepresentations(representations.filter(r => r.id !== id)); showToast('✓ Deleted'); };
+            const addSequence = (seq) => { setSequences([...sequences, { ...seq, id: `s${Date.now()}` }]); showToast('✓ Added'); };
+            const deleteSequence = (id) => { setSequences(sequences.filter(s => s.id !== id)); showToast('✓ Deleted'); };
+            const savePuzzle = (puzzle) => { setSavedPuzzles([{ ...puzzle, id: `p${Date.now()}`, createdAt: new Date().toISOString() }, ...savedPuzzles]); showToast('✓ Saved'); };
+            const deletePuzzle = (id) => { setSavedPuzzles(savedPuzzles.filter(p => p.id !== id)); showToast('✓ Deleted'); };
+            
+            const exportData = () => {
+                const data = { representations, sequences, savedPuzzles, version: '2.0.0', exportedAt: new Date().toISOString() };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+                a.download = `rungs-builder-${new Date().toISOString().split('T')[0]}.json`; a.click();
+                showToast('✓ Exported');
+            };
+            
+            const importData = (e) => {
+                const file = e.target.files[0]; if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        if (data.representations) setRepresentations(data.representations);
+                        if (data.sequences) setSequences(data.sequences);
+                        if (data.savedPuzzles) setSavedPuzzles(data.savedPuzzles);
+                        showToast('✓ Imported');
+                    } catch { showToast('✗ Invalid file'); }
+                };
+                reader.readAsText(file); e.target.value = '';
+            };
+            
+            const resetToDefaults = () => {
+                if (confirm('Reset all data?')) {
+                    setRepresentations(INITIAL_REPRESENTATIONS);
+                    setSequences(INITIAL_SEQUENCES);
+                    setSavedPuzzles([]);
+                    showToast('✓ Reset');
+                }
+            };
+            
+            return (
+                <div className="app">
+                    <header className="header">
+                        <h1>🪜 <span>Rungs</span> Puzzle Builder</h1>
+                        <span className="version">v2.0</span>
+                        <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            <button className="btn btn-ghost btn-sm" onClick={exportData}>📤 Export</button>
+                            <label className="btn btn-ghost btn-sm" style={{ cursor: 'pointer' }}>📥 Import<input type="file" accept=".json" onChange={importData} style={{ display: 'none' }} /></label>
+                            <button className="btn btn-ghost btn-sm" onClick={resetToDefaults}>🔄 Reset</button>
+                        </div>
+                    </header>
+                    <div className="main">
+                        <nav className="sidebar">
+                            <div className="sidebar-section">
+                                <div className="sidebar-title">Build</div>
+                                <div className={`sidebar-item ${view === 'builder' ? 'active' : ''}`} onClick={() => setView('builder')}>🔨 Builder</div>
+                                <div className={`sidebar-item ${view === 'saved' ? 'active' : ''}`} onClick={() => setView('saved')}>💾 Saved <span className="badge">{savedPuzzles.length}</span></div>
+                            </div>
+                            <div className="sidebar-section">
+                                <div className="sidebar-title">Database</div>
+                                <div className={`sidebar-item ${view === 'reps' ? 'active' : ''}`} onClick={() => setView('reps')}>📚 Representations <span className="badge">{representations.length}</span></div>
+                                <div className={`sidebar-item ${view === 'seqs' ? 'active' : ''}`} onClick={() => setView('seqs')}>📈 Sequences <span className="badge">{sequences.length}</span></div>
+                            </div>
+                            <div className="sidebar-section">
+                                <div className="sidebar-title">Tools</div>
+                                <div className={`sidebar-item ${view === 'lookup' ? 'active' : ''}`} onClick={() => setView('lookup')}>🔍 Lookup</div>
+                            </div>
+                        </nav>
+                        <main className="content">
+                            {view === 'builder' && <PuzzleBuilder representations={representations} sequences={sequences} onSave={savePuzzle} showToast={showToast} />}
+                            {view === 'saved' && <SavedPuzzles puzzles={savedPuzzles} onDelete={deletePuzzle} showToast={showToast} />}
+                            {view === 'reps' && <RepresentationsView representations={representations} onAdd={addRepresentation} onDelete={deleteRepresentation} />}
+                            {view === 'seqs' && <SequencesView sequences={sequences} representations={representations} onAdd={addSequence} onDelete={deleteSequence} />}
+                            {view === 'lookup' && <LookupTool representations={representations} />}
+                        </main>
+                    </div>
+                    {toast && <div className="toast">{toast}</div>}
+                </div>
+            );
+        }
+        
+        // ============ PUZZLE BUILDER (Core Feature) ============
+        function PuzzleBuilder({ representations, sequences, onSave, showToast }) {
+            const [selectedSeq, setSelectedSeq] = useState(null);
+            const [selectedReps, setSelectedReps] = useState({});
+            const [puzzleName, setPuzzleName] = useState('');
+            const [step, setStep] = useState(1);
+            const [filter, setFilter] = useState('');
+            
+            const selectSequence = (seq) => { setSelectedSeq(seq); setSelectedReps({}); setStep(2); };
+            
+            const toggleRep = (value, rep) => {
+                const current = selectedReps[value] || [];
+                if (current.find(r => r.id === rep.id)) {
+                    setSelectedReps({ ...selectedReps, [value]: current.filter(r => r.id !== rep.id) });
+                } else if (current.length < 2) {
+                    setSelectedReps({ ...selectedReps, [value]: [...current, rep] });
+                }
+            };
+            
+            const isComplete = useMemo(() => selectedSeq && selectedSeq.values.every(v => (selectedReps[v] || []).length === 2), [selectedSeq, selectedReps]);
+            const usedRepIds = useMemo(() => { const ids = new Set(); Object.values(selectedReps).forEach(reps => reps.forEach(r => ids.add(r.id))); return ids; }, [selectedReps]);
+            const getAvailableReps = (value) => representations.filter(r => r.values.includes(value));
+            
+            // DIFFICULTY SCORING
+            const difficulty = useMemo(() => {
+                if (!isComplete) return null;
+                let ambiguousCount = 0;
+                Object.values(selectedReps).forEach(reps => reps.forEach(rep => { if (rep.values.length > 1) ambiguousCount++; }));
+                const isConsecutive = selectedSeq.values.every((v, i) => i === 0 || v === selectedSeq.values[i-1] + 1);
+                const maxVal = Math.max(...selectedSeq.values);
+                let score = ambiguousCount * 2 + (isConsecutive ? 0 : 2) + (maxVal > 12 ? 1 : 0);
+                if (score <= 1) return { level: 'easy', label: 'Easy' };
+                if (score <= 3) return { level: 'medium', label: 'Medium' };
+                if (score <= 5) return { level: 'hard', label: 'Hard' };
+                return { level: 'expert', label: 'Expert' };
+            }, [isComplete, selectedReps, selectedSeq]);
+            
+            // DISAMBIGUATION WARNINGS
+            const warnings = useMemo(() => {
+                if (!selectedSeq) return [];
+                const warns = [];
+                Object.entries(selectedReps).forEach(([value, reps]) => {
+                    const ambiguous = reps.filter(r => r.values.length > 1);
+                    if (ambiguous.length === 2) {
+                        warns.push({ type: 'critical', message: `Both items for ${value} are ambiguous! Add a clear disambiguator.` });
+                    } else if (ambiguous.length === 1 && reps.length < 2) {
+                        warns.push({ type: 'warning', message: `"${ambiguous[0].display}" is ambiguous — pair with a clear ${value}.` });
+                    }
+                });
+                return warns;
+            }, [selectedReps, selectedSeq]);
+            
+            // GENERATE RATIONALE
+            const generateRationale = () => {
+                if (!isComplete) return null;
+                return {
+                    theme: puzzleName || selectedSeq.name,
+                    sequence: { name: selectedSeq.name, values: selectedSeq.values, description: selectedSeq.description },
+                    difficulty: difficulty?.label,
+                    rungs: selectedSeq.values.map(value => ({
+                        value,
+                        items: (selectedReps[value] || []).map(r => ({
+                            display: r.display,
+                            rationale: r.rationales?.[value] || `Represents ${value}`
+                        }))
+                    })),
+                    warnings: warnings.length > 0 ? warnings.map(w => w.message) : undefined
+                };
+            };
+            
+            const savePuzzle = () => {
+                if (!puzzleName.trim()) { showToast('Enter puzzle name'); return; }
+                const items = [];
+                selectedSeq.values.forEach(v => (selectedReps[v] || []).forEach(r => items.push({ display: r.display, value: v, rationale: r.rationales?.[v] })));
+                onSave({ name: puzzleName, sequence: selectedSeq, items, selectedReps, rationale: generateRationale(), difficulty: difficulty?.level });
+                setPuzzleName(''); setSelectedSeq(null); setSelectedReps({}); setStep(1);
+            };
+            
+            const copyJSON = () => {
+                const rationale = generateRationale();
+                const items = []; selectedSeq.values.forEach(v => (selectedReps[v] || []).forEach(r => items.push(r.display)));
+                const output = {
+                    theme: puzzleName || selectedSeq.name,
+                    difficulty: difficulty?.label,
+                    items: [...items].sort(() => Math.random() - 0.5),
+                    solution: selectedSeq.values.map(v => (selectedReps[v] || []).map(r => r.display)),
+                    rationale: rationale.rungs.map(r => ({ value: r.value, explanations: r.items.map(i => `${i.display} = ${r.value} (${i.rationale})`) }))
+                };
+                navigator.clipboard.writeText(JSON.stringify(output, null, 2));
+                showToast('✓ Copied with rationales');
+            };
+            
+            return (
+                <div>
+                    <div className="stats-row">
+                        <div className="stat-card"><div className="stat-value">{representations.length}</div><div className="stat-label">Representations</div></div>
+                        <div className="stat-card"><div className="stat-value">{sequences.length}</div><div className="stat-label">Sequences</div></div>
+                        <div className="stat-card"><div className="stat-value">{Object.values(selectedReps).flat().length}/8</div><div className="stat-label">Selected</div></div>
+                        <div className="stat-card"><div className="stat-value" style={{ color: difficulty ? 'var(--accent)' : 'var(--text-muted)' }}>{difficulty?.label || '—'}</div><div className="stat-label">Difficulty</div></div>
+                    </div>
+                    
+                    <div className="tabs">
+                        <div className={`tab ${step === 1 ? 'active' : ''}`} onClick={() => setStep(1)}>1. Sequence</div>
+                        <div className={`tab ${step === 2 ? 'active' : ''} ${!selectedSeq ? 'disabled' : ''}`} onClick={() => selectedSeq && setStep(2)}>2. Items</div>
+                        <div className={`tab ${step === 3 ? 'active' : ''} ${!isComplete ? 'disabled' : ''}`} onClick={() => isComplete && setStep(3)}>3. Preview</div>
+                    </div>
+                    
+                    {step === 1 && (
+                        <div className="card">
+                            <div className="card-header">
+                                <div><h3 className="card-title">Select Sequence</h3><div className="card-subtitle">Choose the numeric pattern</div></div>
+                                <input type="text" className="form-input" style={{ width: '200px' }} placeholder="Filter..." value={filter} onChange={e => setFilter(e.target.value)} />
+                            </div>
+                            <div className="sequence-grid">
+                                {sequences.filter(s => !filter || s.name.toLowerCase().includes(filter.toLowerCase()) || s.values.join(',').includes(filter)).map(seq => (
+                                    <div key={seq.id} className={`sequence-card ${selectedSeq?.id === seq.id ? 'selected' : ''}`} onClick={() => selectSequence(seq)}>
+                                        <div className="sequence-name">{seq.name}</div>
+                                        <div className="sequence-values">{seq.values.join(' → ')}</div>
+                                        <span className="badge badge-blue" style={{ marginTop: '8px' }}>{seq.category}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    
+                    {step === 2 && selectedSeq && (
+                        <div>
+                            <div className="card" style={{ background: 'var(--bg-secondary)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div><strong style={{ color: 'var(--accent)' }}>{selectedSeq.name}</strong>
+                                    <div style={{ fontFamily: 'monospace', marginTop: '4px' }}>{selectedSeq.values.join(' → ')}</div></div>
+                                    <button className="btn btn-ghost btn-sm" onClick={() => setStep(1)}>← Change</button>
+                                </div>
+                            </div>
+                            
+                            {warnings.filter(w => w.type === 'critical').map((w, i) => (
+                                <div key={i} className="warning-box"><div className="warning-box-icon">⚠️</div><div className="warning-box-text">{w.message}</div></div>
+                            ))}
+                            
+                            {selectedSeq.values.map((value, idx) => {
+                                const available = getAvailableReps(value);
+                                const selected = selectedReps[value] || [];
+                                const isRungComplete = selected.length === 2;
+                                const hasAmbiguous = selected.some(r => r.values.length > 1);
+                                
+                                return (
+                                    <div key={value} className={`rung-slot ${isRungComplete ? 'complete' : selected.length > 0 ? 'filled' : ''} ${hasAmbiguous ? 'has-ambiguous' : ''}`}>
+                                        <div className="rung-header">
+                                            <div><div className="rung-label">Rung {idx + 1}</div><div className="rung-value">{value}</div></div>
+                                            <div style={{ textAlign: 'right', fontSize: '0.85rem', color: isRungComplete ? 'var(--success)' : 'var(--text-muted)' }}>{selected.length}/2 • {available.length} available</div>
+                                        </div>
+                                        {selected.length > 0 && (
+                                            <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                                {selected.map(rep => (
+                                                    <span key={rep.id} className="badge badge-green" style={{ padding: '6px 12px' }}>
+                                                        {rep.display}{rep.values.length > 1 && ' ⚠️'}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {available.length < 2 ? (
+                                            <div style={{ color: 'var(--danger)', padding: '12px', background: 'rgba(239,68,68,0.1)', borderRadius: '8px' }}>
+                                                ⚠️ Need 2+ representations for {value}. Have {available.length}.
+                                            </div>
+                                        ) : (
+                                            <div className="rep-grid">
+                                                {available.map(rep => {
+                                                    const isSelected = selected.find(r => r.id === rep.id);
+                                                    const isUsed = !isSelected && usedRepIds.has(rep.id);
+                                                    const isAmbiguous = rep.values.length > 1;
+                                                    return (
+                                                        <div key={rep.id} className={`rep-chip ${isSelected ? 'selected' : ''} ${isUsed ? 'used' : ''} ${isAmbiguous ? 'ambiguous' : ''}`}
+                                                             onClick={() => !isUsed && toggleRep(value, rep)}>
+                                                            <div className="rep-chip-display">{rep.display}</div>
+                                                            {rep.rationales?.[value] && <div className="rep-chip-rationale">{rep.rationales[value]}</div>}
+                                                            <div className="rep-chip-meta">
+                                                                <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>{rep.category}</span>
+                                                                {isAmbiguous && <span className="badge badge-yellow" style={{ fontSize: '0.65rem' }}>Multi: {rep.values.join(', ')}</span>}
+                                                            </div>
+                                                            {isAmbiguous && <div className="rep-chip-warning">Also: {rep.values.filter(v => v !== value).map(v => `${v} (${rep.rationales?.[v] || '?'})`).join(', ')}</div>}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                            {isComplete && <div style={{ textAlign: 'center', marginTop: '20px' }}><button className="btn btn-primary" onClick={() => setStep(3)}>Preview →</button></div>}
+                        </div>
+                    )}
+                    
+                    {step === 3 && isComplete && (
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="card-title">Puzzle Preview</h3>
+                                <span className={`badge badge-${difficulty?.level === 'easy' ? 'green' : difficulty?.level === 'medium' ? 'yellow' : 'red'}`} style={{ padding: '6px 14px' }}>{difficulty?.label}</span>
+                            </div>
+                            
+                            <div className="difficulty-indicator">
+                                <span style={{ fontSize: '0.85rem' }}>Difficulty:</span>
+                                <div className="difficulty-meter"><div className={`difficulty-fill ${difficulty?.level}`}></div></div>
+                                <span style={{ fontWeight: '600' }}>{difficulty?.label}</span>
+                            </div>
+                            
+                            {warnings.map((w, i) => <div key={i} className="warning-box"><div className="warning-box-icon">⚠️</div><div className="warning-box-text">{w.message}</div></div>)}
+                            
+                            <div className="form-group">
+                                <label className="form-label">Puzzle Name *</label>
+                                <input type="text" className="form-input" value={puzzleName} onChange={e => setPuzzleName(e.target.value)} placeholder="e.g., 'Olympic Numbers'" />
+                            </div>
+                            
+                            <div style={{ background: 'var(--bg-tertiary)', borderRadius: '12px', padding: '20px' }}>
+                                {[...selectedSeq.values].reverse().map((value, idx, arr) => {
+                                    const reps = selectedReps[value] || [];
+                                    return (
+                                        <React.Fragment key={value}>
+                                            <div className="preview-rung">
+                                                <div className="preview-rung-number">{arr.length - idx}</div>
+                                                <div className="preview-item">{reps[0]?.display}</div>
+                                                <span style={{ color: 'var(--text-muted)' }}>&</span>
+                                                <div className="preview-item">{reps[1]?.display}</div>
+                                                <div style={{ marginLeft: 'auto', color: 'var(--accent)', fontWeight: '600' }}>= {value}</div>
+                                            </div>
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </div>
+                            
+                            <div className="rationale-section">
+                                <div className="rationale-title">📖 Rationale</div>
+                                {selectedSeq.values.map(value => (
+                                    <div key={value} className="rationale-item">
+                                        <span className="rationale-value">Value {value}:</span>
+                                        <ul style={{ margin: '4px 0 0 20px', color: 'var(--text-secondary)' }}>
+                                            {(selectedReps[value] || []).map(rep => (
+                                                <li key={rep.id}><strong>{rep.display}</strong> = {value} ({rep.rationales?.[value] || '?'})</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                ))}
+                            </div>
+                            
+                            <div style={{ marginTop: '24px', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                <button className="btn btn-secondary" onClick={() => setStep(2)}>← Edit</button>
+                                <button className="btn btn-secondary" onClick={copyJSON}>📋 Copy JSON</button>
+                                <button className="btn btn-primary" onClick={savePuzzle}>💾 Save</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        
+        // ============ LOOKUP TOOL ============
+        function LookupTool({ representations }) {
+            const [term, setTerm] = useState('');
+            const [value, setValue] = useState('');
+            
+            const results = useMemo(() => {
+                if (!term && !value) return [];
+                return representations.filter(r => {
+                    const matchTerm = term && r.display.toLowerCase().includes(term.toLowerCase());
+                    const matchValue = value && r.values.includes(parseInt(value));
+                    return term && value ? matchTerm && matchValue : matchTerm || matchValue;
+                });
+            }, [representations, term, value]);
+            
+            const possibleValues = useMemo(() => {
+                if (!term) return [];
+                const vals = new Set();
+                representations.filter(r => r.display.toLowerCase().includes(term.toLowerCase())).forEach(r => r.values.forEach(v => vals.add(v)));
+                return Array.from(vals).sort((a, b) => a - b);
+            }, [representations, term]);
+            
+            return (
+                <div>
+                    <div className="card-header"><div><h2 style={{ fontSize: '1.3rem' }}>🔍 Lookup Tool</h2><div className="card-subtitle">Find by term or value</div></div></div>
+                    <div className="card">
+                        <div className="form-row" style={{ marginBottom: '20px' }}>
+                            <div className="form-group"><label className="form-label">Search Term</label><input type="text" className="form-input" placeholder="e.g., 'rings'" value={term} onChange={e => setTerm(e.target.value)} /></div>
+                            <div className="form-group"><label className="form-label">Search Value</label><input type="number" className="form-input" placeholder="e.g., 5" value={value} onChange={e => setValue(e.target.value)} /></div>
+                        </div>
+                        {term && possibleValues.length > 0 && (
+                            <div style={{ marginBottom: '20px', padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '10px' }}>
+                                <div style={{ fontWeight: 600, marginBottom: '8px' }}>"{term}" could represent:</div>
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                    {possibleValues.map(v => <span key={v} className="badge badge-orange" style={{ fontSize: '1rem', padding: '8px 16px', cursor: 'pointer' }} onClick={() => setValue(String(v))}>{v}</span>)}
+                                </div>
+                                {possibleValues.length > 1 && <div style={{ marginTop: '10px', color: 'var(--warning)', fontSize: '0.85rem' }}>⚠️ Ambiguous — valuable for red herrings!</div>}
+                            </div>
+                        )}
+                    </div>
+                    {results.length > 0 && (
+                        <div className="card">
+                            <div className="card-header"><span className="card-title">Results ({results.length})</span></div>
+                            <table>
+                                <thead><tr><th>Display</th><th>Value(s)</th><th>Category</th><th>Rationales</th></tr></thead>
+                                <tbody>
+                                    {results.slice(0, 50).map(r => (
+                                        <tr key={r.id}>
+                                            <td style={{ fontWeight: 600 }}>{r.display}</td>
+                                            <td>{r.values.map(v => <span key={v} className="badge badge-orange">{v}</span>)}{r.values.length > 1 && <span className="badge badge-yellow">⚠️</span>}</td>
+                                            <td><span className="badge badge-blue">{r.category}</span></td>
+                                            <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{r.rationales && Object.entries(r.rationales).map(([v, rat]) => <div key={v}><strong>{v}:</strong> {rat}</div>)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                    {(term || value) && results.length === 0 && <div className="empty-state"><div className="empty-state-icon">🔍</div><h3>No results</h3></div>}
+                </div>
+            );
+        }
+        
+        // ============ SAVED PUZZLES ============
+        function SavedPuzzles({ puzzles, onDelete, showToast }) {
+            const [expanded, setExpanded] = useState(null);
+            
+            const copyPuzzle = (p) => {
+                const output = { theme: p.name, difficulty: p.difficulty, items: p.items.map(i => i.display).sort(() => Math.random() - 0.5), solution: p.sequence.values.map(v => (p.selectedReps[v] || []).map(r => r.display)), rationale: p.rationale };
+                navigator.clipboard.writeText(JSON.stringify(output, null, 2));
+                showToast('✓ Copied');
+            };
+            
+            if (puzzles.length === 0) return <div className="empty-state"><div className="empty-state-icon">🧩</div><h3>No Saved Puzzles</h3><p>Build puzzles in the Builder tab</p></div>;
+            
+            return (
+                <div>
+                    <div className="card-header"><div><h2 style={{ fontSize: '1.3rem' }}>💾 Saved Puzzles</h2><div className="card-subtitle">{puzzles.length} saved</div></div></div>
+                    {puzzles.map(p => (
+                        <div key={p.id} className="card">
+                            <div className="card-header">
+                                <div>
+                                    <h3 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>{p.name}<span className={`badge badge-${p.difficulty === 'easy' ? 'green' : p.difficulty === 'medium' ? 'yellow' : 'red'}`}>{p.difficulty}</span></h3>
+                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{p.sequence?.name} • {p.sequence?.values.join(' → ')}</div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button className="btn btn-secondary btn-sm" onClick={() => copyPuzzle(p)}>📋</button>
+                                    <button className="btn btn-ghost btn-sm" onClick={() => setExpanded(expanded === p.id ? null : p.id)}>{expanded === p.id ? '▲' : '▼'}</button>
+                                    <button className="btn btn-ghost btn-sm" onClick={() => onDelete(p.id)}>🗑️</button>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>{p.items?.map((i, idx) => <span key={idx} className="badge badge-orange" style={{ padding: '6px 12px' }}>{i.display}</span>)}</div>
+                            {expanded === p.id && p.rationale && (
+                                <div className="rationale-section" style={{ marginTop: '16px' }}>
+                                    <div className="rationale-title">📖 Rationale</div>
+                                    {p.rationale.rungs?.map(rung => (
+                                        <div key={rung.value} className="rationale-item">
+                                            <span className="rationale-value">Value {rung.value}:</span>
+                                            <ul style={{ margin: '4px 0 0 20px', color: 'var(--text-secondary)' }}>{rung.items?.map((i, idx) => <li key={idx}><strong>{i.display}</strong> = {rung.value} ({i.rationale})</li>)}</ul>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            <div style={{ marginTop: '12px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>Created: {new Date(p.createdAt).toLocaleDateString()}</div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+        
+        // ============ REPRESENTATIONS VIEW ============
+        function RepresentationsView({ representations, onAdd, onDelete }) {
+            const [search, setSearch] = useState('');
+            const [showAdd, setShowAdd] = useState(false);
+            const [newRep, setNewRep] = useState({ display: '', values: '', category: '', rationales: {} });
+            
+            const filtered = useMemo(() => representations.filter(r => !search || r.display.toLowerCase().includes(search.toLowerCase())), [representations, search]);
+            
+            const handleAdd = () => {
+                if (!newRep.display || !newRep.values) return;
+                const values = newRep.values.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+                if (values.length === 0) return;
+                const rationales = {}; values.forEach(v => { if (newRep.rationales[v]) rationales[v] = newRep.rationales[v]; });
+                onAdd({ display: newRep.display, values, category: newRep.category || 'custom', rationales });
+                setNewRep({ display: '', values: '', category: '', rationales: {} }); setShowAdd(false);
+            };
+            
+            return (
+                <div>
+                    <div className="card-header" style={{ marginBottom: '16px' }}>
+                        <div><h2 style={{ fontSize: '1.3rem' }}>📚 Representations</h2><div className="card-subtitle">{representations.length} items</div></div>
+                        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Add</button>
+                    </div>
+                    <div className="card">
+                        <input type="text" className="form-input" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} style={{ marginBottom: '16px' }} />
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>Showing {filtered.length}</div>
+                        <table>
+                            <thead><tr><th>Display</th><th>Value(s)</th><th>Category</th><th>Rationales</th><th></th></tr></thead>
+                            <tbody>
+                                {filtered.slice(0, 100).map(r => (
+                                    <tr key={r.id}>
+                                        <td style={{ fontWeight: 600 }}>{r.display}</td>
+                                        <td>{r.values.map(v => <span key={v} className="badge badge-orange">{v}</span>)}{r.values.length > 1 && <span className="badge badge-yellow">⚠️</span>}</td>
+                                        <td><span className="badge badge-blue">{r.category}</span></td>
+                                        <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '250px' }}>{r.rationales && Object.entries(r.rationales).map(([v, rat]) => <div key={v}><strong>{v}:</strong> {rat}</div>)}</td>
+                                        <td><button className="btn btn-ghost btn-sm" onClick={() => onDelete(r.id)}>🗑️</button></td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    {showAdd && (
+                        <div className="modal-overlay" onClick={() => setShowAdd(false)}>
+                            <div className="modal" onClick={e => e.stopPropagation()}>
+                                <div className="modal-header"><h3 className="modal-title">Add Representation</h3><button className="modal-close" onClick={() => setShowAdd(false)}>×</button></div>
+                                <div className="form-group"><label className="form-label">Display *</label><input type="text" className="form-input" value={newRep.display} onChange={e => setNewRep({...newRep, display: e.target.value})} placeholder="e.g., 'Olympic Rings'" /></div>
+                                <div className="form-group"><label className="form-label">Values *</label><input type="text" className="form-input" value={newRep.values} onChange={e => setNewRep({...newRep, values: e.target.value})} placeholder="e.g., '5' or '3, 5'" /><div className="form-hint">Comma-separated for ambiguous</div></div>
+                                <div className="form-group"><label className="form-label">Category</label><input type="text" className="form-input" value={newRep.category} onChange={e => setNewRep({...newRep, category: e.target.value})} placeholder="e.g., 'sports'" /></div>
+                                {newRep.values && newRep.values.split(',').map(v => v.trim()).filter(v => !isNaN(parseInt(v))).map(v => (
+                                    <div key={v} className="form-group"><label className="form-label">Why = {v}?</label><input type="text" className="form-input" value={newRep.rationales[parseInt(v)] || ''} onChange={e => setNewRep({...newRep, rationales: {...newRep.rationales, [parseInt(v)]: e.target.value}})} placeholder={`Explain ${v}`} /></div>
+                                ))}
+                                <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}><button className="btn btn-secondary" onClick={() => setShowAdd(false)}>Cancel</button><button className="btn btn-primary" onClick={handleAdd}>Add</button></div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        
+        // ============ SEQUENCES VIEW ============
+        function SequencesView({ sequences, representations, onAdd, onDelete }) {
+            const [showAdd, setShowAdd] = useState(false);
+            const [newSeq, setNewSeq] = useState({ name: '', values: '', category: '', description: '' });
+            
+            const getCoverage = (seq) => { let covered = 0; seq.values.forEach(v => { if (representations.filter(r => r.values.includes(v)).length >= 2) covered++; }); return { covered, total: seq.values.length }; };
+            
+            const handleAdd = () => {
+                if (!newSeq.name || !newSeq.values) return;
+                const values = newSeq.values.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+                if (values.length !== 4) { alert('Need exactly 4 values'); return; }
+                onAdd({ name: newSeq.name, values, category: newSeq.category || 'custom', description: newSeq.description });
+                setNewSeq({ name: '', values: '', category: '', description: '' }); setShowAdd(false);
+            };
+            
+            const grouped = useMemo(() => { const g = {}; sequences.forEach(s => { const c = s.category || 'other'; if (!g[c]) g[c] = []; g[c].push(s); }); return g; }, [sequences]);
+            
+            return (
+                <div>
+                    <div className="card-header" style={{ marginBottom: '16px' }}>
+                        <div><h2 style={{ fontSize: '1.3rem' }}>📈 Sequences</h2><div className="card-subtitle">{sequences.length} sequences</div></div>
+                        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Add</button>
+                    </div>
+                    {Object.entries(grouped).map(([cat, seqs]) => (
+                        <div key={cat} className="card">
+                            <h3 className="card-title" style={{ marginBottom: '16px', textTransform: 'capitalize' }}>{cat} <span className="badge badge-blue">{seqs.length}</span></h3>
+                            <div className="sequence-grid">
+                                {seqs.map(seq => {
+                                    const cov = getCoverage(seq);
+                                    return (
+                                        <div key={seq.id} className="sequence-card" style={{ cursor: 'default' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><div className="sequence-name">{seq.name}</div><button className="btn btn-ghost btn-sm" onClick={() => onDelete(seq.id)} style={{ padding: '2px 6px' }}>🗑️</button></div>
+                                            <div className="sequence-values">{seq.values.join(' → ')}</div>
+                                            <div style={{ marginTop: '10px', fontSize: '0.75rem', color: cov.covered === cov.total ? 'var(--success)' : 'var(--warning)' }}>{cov.covered}/{cov.total} values covered</div>
+                                            <div className="coverage-bar"><div className={`coverage-fill ${cov.covered < cov.total ? 'partial' : ''}`} style={{ width: `${(cov.covered / cov.total) * 100}%` }}></div></div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
+                    {showAdd && (
+                        <div className="modal-overlay" onClick={() => setShowAdd(false)}>
+                            <div className="modal" onClick={e => e.stopPropagation()}>
+                                <div className="modal-header"><h3 className="modal-title">Add Sequence</h3><button className="modal-close" onClick={() => setShowAdd(false)}>×</button></div>
+                                <div className="form-group"><label className="form-label">Name *</label><input type="text" className="form-input" value={newSeq.name} onChange={e => setNewSeq({...newSeq, name: e.target.value})} placeholder="e.g., 'First Primes'" /></div>
+                                <div className="form-group"><label className="form-label">Values (4 numbers) *</label><input type="text" className="form-input" value={newSeq.values} onChange={e => setNewSeq({...newSeq, values: e.target.value})} placeholder="e.g., '2, 3, 5, 7'" /></div>
+                                <div className="form-group"><label className="form-label">Category</label><input type="text" className="form-input" value={newSeq.category} onChange={e => setNewSeq({...newSeq, category: e.target.value})} placeholder="e.g., 'math'" /></div>
+                                <div className="form-group"><label className="form-label">Description</label><input type="text" className="form-input" value={newSeq.description} onChange={e => setNewSeq({...newSeq, description: e.target.value})} placeholder="Brief explanation" /></div>
+                                <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}><button className="btn btn-secondary" onClick={() => setShowAdd(false)}>Cancel</button><button className="btn btn-primary" onClick={handleAdd}>Add</button></div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        
+        // ============ RENDER ============
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
