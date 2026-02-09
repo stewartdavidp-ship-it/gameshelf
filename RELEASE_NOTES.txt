@@ -1,3 +1,41 @@
+Game Shelf PWA v1.10.1 Release Notes
+======================================
+
+Release Date: February 9, 2026
+
+iOS PWA SAFARI LAUNCH FIX:
+---------------------------
+
+1. EXTERNAL GAMES OPEN IN SAFARI (Major)
+   - On iOS PWA (standalone mode), external games now open via location.href
+     instead of window.open, which launches Safari rather than the in-app browser
+   - This preserves the user's existing Safari cookies and login sessions
+   - Fixes: NYT subscribers being asked to log in / seeing paywall
+   - Fixes: LinkedIn Games subscribers losing their session
+   - Applies to ALL non-GS-Original games (NYT, LinkedIn, Quordle, etc.)
+   - GS Originals (Quotle, Slate, Rungs, Word Boxing) still use window.open
+     since they are same-origin and don't have the cookie isolation issue
+
+2. UPDATED RETURN TIP (Minor)
+   - First-time return tip now says "Switch back to Game Shelf when done"
+     for external games (since there's no ✕ dismiss button in Safari)
+   - GS Originals retain the original "Tap ✕ or swipe down to return" tip
+
+3. FUNCTION SIGNATURE UPDATE (Technical)
+   - openGameUrl() now accepts optional gameId parameter
+   - All three callers (launchGame, showPrelaunchReminder, sprint launcher)
+     updated to pass gameId through
+
+TECHNICAL:
+----------
+* openGameUrl(launchUrl, gameId) - added gameId param
+* Uses isGSOriginal(gameId) to determine launch method
+* iOS standalone detection unchanged: navigator.standalone || display-mode: standalone
+* Non-iOS platforms and browser-mode Safari unaffected (window.open still used)
+* Desktop browsers unaffected
+
+---
+
 Game Shelf PWA v1.10.0 Release Notes
 ======================================
 
@@ -43,6 +81,27 @@ TECHNICAL:
 * New functions: checkDayChange(), handleNewDay(), resetDailyState(),
   checkDeferredMorningReview(), queueNewDayPopup(), processPopupQueue(),
   startDayCheckInterval(), stopDayCheckInterval()
+* New functions: populateMorningReviewStatus() - consolidated status section
+* New functions: initTimezone(), checkTimezoneChange(), getTimezoneOffsetFromHome(),
+  isTraveling(), getTimezoneSummary(), formatTimezoneDisplay(),
+  updateTimezoneSettings(), changeHomeTimezone(), setHomeTimezone()
+
+6. DEVICE TIMEZONE TRACKING (Medium)
+   - Detects device timezone via Intl.DateTimeFormat API on startup
+   - Stores home timezone in appData (Firebase-synced, set on first use)
+   - Detects timezone changes on visibility/focus events (travel detection)
+   - Settings menu shows Home vs Current timezone with travel indicator
+   - "Change Home Timezone" option lets user update their home timezone
+   - Helper functions: isTraveling(), getTimezoneOffsetFromHome(), getTimezoneSummary()
+
+7. CONSOLIDATED MORNING REVIEW (Medium)
+   - Morning review now includes status sections after puzzle previews:
+     🔥 Streaks at risk and approaching milestones
+     ⚡ Today's scheduled sprint (tappable card)
+     👥 Friends already playing today
+     📊 Activity since last visit (games, points, highlights)
+   - Activity summary data folded into morning review
+   - Old showActivitySummary() kept as fallback when morning review is disabled
 * sessionStorage used for pendingMorningReview (survives within tab, not across)
 * _lastKnownDay tracked in memory, initialized from getTodayString() on load
 * Multiple visibility listeners call checkDayChange() safely (idempotent with guard)
