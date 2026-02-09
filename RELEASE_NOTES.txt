@@ -1,3 +1,945 @@
+Game Shelf PWA v1.10.0 Release Notes
+======================================
+
+Release Date: February 9, 2026
+
+TIMEZONE & DAY-CHANGE DETECTION:
+---------------------------------
+
+1. DAY-CHANGE DETECTION ENGINE (Major)
+   - App now detects when the calendar day rolls over (midnight in device timezone)
+   - Fires on: visibilitychange, focus, pageshow, and a 60-second foreground interval
+   - Interval stops when app is backgrounded (zero performance cost)
+   - On day change: resets played-today indicators, clears badges, refreshes all widgets
+
+2. MIDNIGHT TOAST (Medium)
+   - When midnight rolls over while the app is open, shows a subtle toast:
+     "🌙 New day — your games have reset"
+   - No popup, no interruption — just an informational notification
+
+3. POPUP ORCHESTRATOR (Major)
+   - All new-day popups (morning review, scheduled sprint prompt) now go through
+     a priority queue instead of firing independently
+   - Priority order: active sprint > scheduled sprint prompt > morning review
+   - Shows at most one popup — no more popup avalanche on app open
+   - Activity summary info will be folded into morning review (Part 4 follow-up)
+
+4. MORNING REVIEW 4AM RULE (Medium)
+   - Morning review will not auto-show before 4:00 AM local time
+   - If app is open before 4am (late night session), review is deferred
+   - Once 4am passes (or app is opened after 4am), review becomes eligible
+   - Prevents "tomorrow's briefing" from appearing during late-night play
+
+5. DAILY STATE RESET (Medium)
+   - handleNewDay() orchestrator resets all daily tracking:
+     - Sent nudges tracking
+     - Morning review shown flag
+     - Daily goal progress display
+     - Scheduled sprint card
+   - Syncs from cloud to pick up scores from other devices
+
+TECHNICAL:
+----------
+* New functions: checkDayChange(), handleNewDay(), resetDailyState(),
+  checkDeferredMorningReview(), queueNewDayPopup(), processPopupQueue(),
+  startDayCheckInterval(), stopDayCheckInterval()
+* sessionStorage used for pendingMorningReview (survives within tab, not across)
+* _lastKnownDay tracked in memory, initialized from getTodayString() on load
+* Multiple visibility listeners call checkDayChange() safely (idempotent with guard)
+* Removed direct checkMorningReview() call from auth handler
+* Removed direct checkScheduledSprint() call from init (now orchestrated)
+
+---
+
+Game Shelf PWA v1.9.9 Release Notes
+=====================================
+
+Release Date: February 1, 2026
+
+BUG FIXES & POLISH:
+--------------------
+
+1. BATTLE: NO PRE-SELECTED GAMES (Medium)
+   - Game selector in battle creation now starts empty
+   - User chooses all games instead of starting with Wordle + Connections
+
+2. BATTLE: GAME SHELF ORIGINALS MOVED UP (Medium)
+   - Game Shelf Originals (Quotle, Slate, Rungs, Word Boxing) now appear
+     as 2nd category after NYT Games, instead of last
+
+3. SPRINT: "CHALLENGE" → "SPRINT" TERMINOLOGY (Low)
+   - Ready page, completion subtitles, toasts, tips, share text, and
+     empty states all now consistently say "sprint" instead of "challenge"
+
+4. SPRINT COMPLETION: ACTUAL PLAY TIME (Medium)
+   - Total Time now shows the sum of individual game times (actual play time)
+     instead of the configured sprint duration (e.g. 10:00)
+   - Added totalPlayTime field to calculateSprintStats
+
+5. SPRINT SHARE TEXT: RICHER DETAIL (Medium)
+   - Share text now includes: Any Order/Fixed Order mode,
+     per-game scores and times, total play time, avg per game, PB flag
+   - Group sprint share text also updated
+
+6. SIGN-OUT AFTER SPRINT COMPLETION (Critical)
+   - completeSprint now wraps saveSprintStats in try/catch so a Firebase
+     write failure cannot cascade into an auth error or sign-out
+   - saveSprintStats Firebase sync is now best-effort with non-fatal error
+     handling (local save always succeeds)
+
+7. SOLO SPRINT ACCESS WITHOUT SIGN-IN (Critical)
+   - showCreateBattle no longer gates on currentUser
+   - Auth check moved to selectChallengeType — only required for Battle type
+   - Solo sprints can now be created without signing in
+
+8. ABANDON SPRINT CONFIRM MODAL VISIBLE (Critical)
+   - .confirm-modal-overlay z-index raised from 1100 to 99999
+   - Confirm modal now appears above the active sprint modal (z-index 9999)
+   - Fixes Abandon Sprint and all other confirmations during sprint play
+
+FILES MODIFIED:
+--------------
+- index.html: All 8 bug fixes, v1.9.8 → v1.9.9
+- sw.js: CACHE_VERSION updated to v1.9.9
+
+---
+
+Game Shelf PWA v1.9.8 Release Notes
+=====================================
+
+Release Date: February 1, 2026
+
+SPRINT FIXES:
+-------------
+
+1. STALE LAUNCH CLEARING / GAME SWITCHING
+   - When user launches Game A then switches to Game B, Game A's launch data
+     is cleared so it doesn't stick as "current" forever
+   - playSprintGame() now deletes unrecorded launches for other games
+   - Also added 30-minute stale threshold — launches older than 30 min are
+     ignored by the current-game detection logic
+
+2. ALL GAME ROWS TAPPABLE IN ANY ORDER
+   - Previously the "current" game row was not tappable (only pending/skipped)
+   - Now ALL non-completed rows are tappable in Any Order mode
+   - Current game row shows "Tap to play" and Play hint (unless awaiting result)
+   - Makes it easy to re-launch a game or switch to any other game
+
+3. BETTER COMPLETION MESSAGING
+   - "Perfect Sprint!" with "All N games completed in X minutes!" for full completion
+   - "Sprint Complete" with "X of Y games completed · Z skipped" for partial
+   - Clearer distinction between full success and partial completion
+
+FILES MODIFIED:
+--------------
+- index.html: Stale launch fix, tappable rows, finish messaging, v1.9.8
+- sw.js: CACHE_VERSION updated to v1.9.8
+
+---
+
+Game Shelf PWA v1.9.7 Release Notes
+=====================================
+
+Release Date: February 1, 2026
+
+SPRINT FIXES:
+-------------
+
+1. ANY ORDER: SMART LAUNCHED-GAME DETECTION
+   - Sprint modal now tracks which game was actually launched via gameLaunches
+   - When returning from playing a game (e.g. Rungs), the modal correctly
+     shows "Record Rungs Result" instead of defaulting to first pending game
+   - The most recently launched, unrecorded game always becomes the current game
+
+2. ALREADY-PLAYED GAME SPRINT CREDIT
+   - If a game was played earlier today (outside sprint) and then included in
+     a sprint, recording it now properly credits the sprint
+   - Previously showed "Already recorded" toast and dumped user to home screen
+   - New 'sprint-credited' outcome in processShareText handles this gracefully
+   - Sprint modal re-shows after crediting
+
+3. SPRINT GAME SELECTOR: FILTER PLAYED GAMES
+   - Games already played today are dimmed (50% opacity) with "Done ✓" badge
+   - Default sprint games exclude already-played games
+   - Users can still select played games if they want (not blocked, just visual)
+
+FILES MODIFIED:
+--------------
+- index.html: Sprint detection, duplicate handling, game selector filter, v1.9.7
+- sw.js: CACHE_VERSION updated to v1.9.7
+
+---
+
+Game Shelf PWA v1.9.6 Release Notes
+=====================================
+
+Release Date: February 1, 2026
+
+SPRINT FLOW FIXES:
+------------------
+
+1. SPRINT MODAL RE-SHOW AFTER RECORDING (Critical Flow Fix)
+   - After recording a game result, sprint modal now always re-appears
+   - Root cause: playSprintGame() minimized modal before launching game,
+     then logGame() checked sprintModalMinimized flag and skipped re-showing
+   - Fix: logGame() now always re-shows sprint modal after recording a sprint
+     game, with 800ms delay to let the success toast display first
+
+2. ABANDON SPRINT BUTTON FIX (Critical)
+   - Abandon Sprint button was completely non-functional
+   - Root cause: called undefined function showConfirm() instead of
+     showConfirmModal() which uses callback pattern, not Promises
+   - Now uses showConfirmModal with proper callback and danger styling
+
+3. FINISH SPRINT EARLY FIX (Critical)
+   - Same showConfirm() bug as Abandon - confirmation never appeared
+   - Now uses showConfirmModal with proper callback
+
+4. ANY ORDER: TAPPABLE GAME ROWS (Feature Fix)
+   - In "Any Order" sprints, all pending and skipped game rows are now
+     tappable to launch that game directly
+   - Each playable row shows "Tap to play" hint and "Play ▶" badge
+   - Tapping a skipped game un-skips it and launches it
+   - Skip button text changes to "Skip for now" in Any Order mode
+   - Skipped games show "Skipped · tap to play" instead of just "Skipped"
+   - event.stopPropagation() prevents taps from minimizing the modal
+
+5. SPRINT BANNER ALL-GAMES-RESOLVED CHECK
+   - Home screen sprint banner now hides immediately when all games are
+     completed or skipped, even before completeSprint() finishes
+
+FILES MODIFIED:
+--------------
+- index.html: Sprint flow fixes, Any Order tappable rows, confirm fixes, v1.9.6
+- sw.js: CACHE_VERSION updated to v1.9.6
+
+---
+
+Game Shelf PWA v1.9.5 Release Notes
+=====================================
+
+Release Date: February 1, 2026
+
+BUG FIX - SPRINT RETURN ON iOS:
+--------------------------------
+
+1. SPRINT MODAL RECOVERY (Root Cause Fix)
+   - On iOS, closing the in-app browser (SFSafariViewController) after playing
+     a game did not reliably fire visibilitychange event
+   - Sprint modal would not reappear, leaving user stuck on home screen
+   - Added window focus and pageshow event listeners as backup triggers
+   - checkForActiveSprint() now fires on focus, pageshow, AND visibilitychange
+
+2. SPRINT HOME BANNER (New Recovery Path)
+   - New persistent "Sprint Active" banner on home screen above Paste Activity
+   - Shows countdown timer and games progress (e.g. "1/5 games")
+   - Pulsing purple banner is impossible to miss
+   - Tapping banner opens the full sprint modal
+   - Auto-hides when sprint completes or is abandoned
+
+3. LOG SHEET → SPRINT HANDOFF
+   - Closing the Paste Activity sheet during an active sprint now
+     automatically re-opens the sprint modal
+   - Prevents user from getting stranded on home screen after pasting
+
+FILES MODIFIED:
+--------------
+- index.html: Sprint recovery fixes, home banner, v1.9.5
+- sw.js: CACHE_VERSION updated to v1.9.5
+
+---
+
+Game Shelf PWA v1.9.4 Release Notes
+=====================================
+
+Release Date: January 31, 2026
+
+REBRANDING: RUSH → SPRINT
+-------------------------
+
+1. TERMINOLOGY CHANGE
+   - "Time Rush" is now "Time Sprint"
+   - "Group Rush" is now "Group Sprint"
+   - "Scheduled Rush" is now "Scheduled Sprint"
+   - All UI text, buttons, modals, and messages updated
+   - Firebase paths remain unchanged for data compatibility
+
+2. WHY THE CHANGE
+   - "Sprint" feels less stressful and more playful
+   - Better conveys a focused burst of activity
+   - Familiar term from gaming and athletics
+
+FILES MODIFIED:
+--------------
+- index.html: All "Rush" references changed to "Sprint", v1.9.4
+- sw.js: CACHE_VERSION updated to v1.9.4
+
+---
+
+Game Shelf PWA v1.9.3 Release Notes
+=====================================
+
+Release Date: January 31, 2026
+
+TUTORIAL UPDATES:
+-----------------
+
+1. NEW TUTORIAL STEPS
+   - Added Stats tab step (step 7) - explains game statistics and trends
+   - Added Time Sprint step (step 8) - highlights the Sprints subtab
+   - Now 14 steps total (was 12)
+   - Updated time estimate to "90 seconds" (was "1 minute")
+
+2. SPOTLIGHT FIX
+   - Fixed "Daily Progress" and "Browse Games" steps not showing highlight
+   - Added scrollIntoView to ensure target elements are visible before highlighting
+   - Elements now smoothly scroll into center of screen
+
+3. VERSION ALIGNMENT
+   - Fixed all version labels to consistently show 1.9.3
+
+FILES MODIFIED:
+--------------
+- index.html: TUTORIAL_STEPS expanded, scrollIntoView fix, version labels fixed
+- sw.js: CACHE_VERSION updated to v1.9.3
+
+---
+
+Game Shelf PWA v1.9.2 Release Notes
+=====================================
+
+Release Date: January 31, 2026
+
+HELP & DOCUMENTATION UPDATE:
+----------------------------
+
+1. FAQ EXPANSION (v2.0 → v2.5)
+   - Added 36 new questions (136 → 172 total)
+   - Added 3 new categories: Time Sprint, Scheduled Sprint, Group Sprint
+   - 14 Time Sprint questions covering timer, pause, personal bests, stats
+   - 8 Scheduled Sprint questions covering setup, reminders, "Use My Schedule"
+   - 12 Group Sprint questions covering creation, invite codes, scoring, results
+
+2. TERMINOLOGY UPDATES
+   - "Record Game" renamed to "Paste Activity" throughout FAQ
+   - Friend adding updated to reflect direct link flow (no more codes)
+   - Navigation FAQ updated to include Sprints subtab in Stats
+
+3. NEW FAQ ENTRIES
+   - "What is the lightbulb icon?" (Daily Insights)
+   - "What is Morning Review?" (personalized greetings)
+
+4. AI HELP IMPROVEMENTS (v2.0 → v3.0)
+   - AI Help now understands all Sprint features
+   - New navigation actions: showCreateSprint, showJoinSprint
+   - Updated examples for Sprint-related questions
+   - Stats subtab navigation includes Sprints
+
+FILES MODIFIED:
+--------------
+- index.html: FAQ data expanded (18 categories, 172 questions)
+- Firebase Functions: AI Help system prompt v3.0
+
+---
+
+Game Shelf PWA v1.9.1 Release Notes
+=====================================
+
+Release Date: January 31, 2026
+
+BUG FIXES & IMPROVEMENTS (Group Sprint):
+--------------------------------------
+
+1. INVITE CODE UNIQUENESS (Fix #1)
+   - Invite codes now verified unique before use
+   - Retries up to 5 times if collision detected
+   - Prevents two sprints having same invite code
+
+2. PAUSE DISABLED FOR GROUP SPRINT (Fix #9)
+   - Removed pause functionality in group sprint mode
+   - No fair way to coordinate pause in competitive mode
+   - Pause button hidden during group sprint
+
+3. GRACE PERIOD JOIN FIX (Fix #3)
+   - Users can now join during 5-minute grace period
+   - Previously blocked if start time had passed
+   - Now checks status='pending' instead of time
+
+4. NULL SAFETY (Fix #4 & #5)
+   - Added null checks in beginGroupSprintPlay()
+   - Added null check for myEntry in leaderboard
+   - Prevents crashes on corrupted/incomplete data
+
+5. INVITE CODE CLEANUP (Fix #6)
+   - Invite codes now cleaned up when sprint completes
+   - Creator cleans up after all participants done
+   - Prevents orphan codes accumulating in Firebase
+
+6. SHARE TEXT FIX (Fix #8)
+   - Fixed newlines in share text (was showing literal \n)
+   - Share results now display correctly formatted
+
+---
+
+Game Shelf PWA v1.9.0 Release Notes
+=====================================
+
+Release Date: January 31, 2026
+
+NEW FEATURE - GROUP SPRINT (Phase 4):
+-----------------------------------
+
+1. GROUP SPRINT CREATION (Part A)
+   - New "Group" mode toggle in Create Sprint sheet
+   - Start time picker for scheduling group sprint
+   - Friend selection with checkboxes
+   - Invite code generation (R-XXXXX pattern)
+   - Share/copy invite buttons
+   - Waiting Room modal with real-time countdown
+   - Real-time participant list updates
+   - Leave/cancel sprint functionality
+
+2. JOIN GROUP SPRINT (Part B)
+   - "Join Sprint" option in battle creation menu
+   - Code input with validation
+   - ?sprint=CODE URL parameter handling
+   - Sprint preview showing host, duration, games, start time
+   - Auto-join after sign-in if pending code
+   - Auto-cancel if only creator after 5-minute grace period
+   - Transition from pending → active at start time
+
+3. GROUP SPRINT GAMEPLAY & RESULTS (Part C)
+   - Group sprint plays like solo sprint after start
+   - Completion syncs to Firebase with scoring
+   - Scoring formula: (gamesCompleted × 60) + (successRate × 40)
+   - Group Results modal with leaderboard
+   - Real-time leaderboard updates as players finish
+   - Winner celebration with confetti for 1st place
+   - Tie-breaker: faster completion wins
+   - Abandoned players ranked last
+   - Share group sprint results
+
+DATA MODEL:
+-----------
+Group sprints stored at: group-sprints/{sprintId}
+Invite codes indexed at: sprint-codes/{code}
+
+Participant data includes:
+- status: pending | active | completed | abandoned
+- finalScore: calculated score for ranking
+- gamesCompleted, successRate, completedAt
+
+TECHNICAL DETAILS:
+------------------
+- Real-time Firebase listeners for participant updates
+- Leaderboard auto-updates as players complete
+- Grace period handling for late joiners
+- Proper cleanup of listeners on modal close
+
+---
+
+Game Shelf PWA v1.8.0 Release Notes
+=====================================
+
+Release Date: January 31, 2026
+
+NEW FEATURE - SCHEDULED SPRINT (Phase 5):
+---------------------------------------
+
+1. DAILY SPRINT REMINDER
+   - Enable in Settings → Scheduled Sprint
+   - Set your preferred time for daily sprint prompt
+   - Get reminded within ±30 minute window of scheduled time
+   - Configure which days of the week to be reminded
+
+2. SCHEDULE CONFIGURATION
+   - Time picker for sprint time (24h format stored, 12h displayed)
+   - Duration selection: 10, 20, or 30 minutes
+   - Days of week selector with visual buttons
+   - Game selection using existing game selector UI
+   - Game order: Any or Fixed
+
+3. SCHEDULED SPRINT PROMPT MODAL
+   - Beautiful modal with purple gradient header
+   - Shows configured games as chips
+   - "Start Sprint" button for one-tap start
+   - "Not Now" dismisses until tomorrow
+   - "Edit Schedule" link to adjust settings
+   - Sprint start sound plays when prompt appears
+
+4. QUICK START FROM SCHEDULE
+   - "Use My Schedule" button in Create Sprint screen
+   - Only shows when schedule is enabled with games
+   - One tap to start sprint with saved configuration
+
+DATA MODEL:
+-----------
+New: appData.sprintSchedule
+{
+  enabled: false,
+  time: '07:00',           // 24h format, local time
+  durationMinutes: 20,
+  games: ['wordle', 'connections', 'strands', 'mini-crossword'],
+  gameOrder: 'any',
+  daysOfWeek: [0, 1, 2, 3, 4, 5, 6],  // 0=Sunday
+  windowMinutes: 30,
+  lastPromptDate: null,    // Prevents multiple prompts same day
+  lastStartedDate: null    // Tracks when schedule was used
+}
+
+TECHNICAL DETAILS:
+------------------
+- checkScheduledSprint() runs 3 seconds after init
+- Time window calculation handles midnight wraparound
+- lastPromptDate prevents re-prompt on same day
+- lastStartedDate tracks schedule use vs manual sprint
+- Invalid games filtered before starting (handles removed games)
+- Cloud sync for schedule settings across devices
+
+BUG FIXES FROM CODE WALKTHROUGH:
+--------------------------------
+1. Dismissing prompt now syncs to cloud (prevents re-prompt on other devices)
+2. Quick start properly updates lastStartedDate
+3. Invalid games filtered before sprint start (in case games removed from GAMES object)
+
+CODE LOCATIONS:
+---------------
+- Data model: line ~16943 (createDefaultData)
+- Settings UI: line ~10511 (settings-section)
+- Prompt modal: line ~13360 (scheduled-sprint-prompt)
+- Config modal: line ~13390 (scheduled-sprint-config-sheet)
+- Core functions: line ~25130 (toggleScheduledSprint through startScheduledSprint)
+- Cloud sync: line ~18980 (loadFromCloud sprintSchedule merge)
+
+---
+
+Game Shelf PWA v1.7.1 Release Notes
+=====================================
+
+Release Date: January 31, 2026
+
+BUG FIXES - SPRINT CODE WALKTHROUGH:
+----------------------------------
+
+1. FIXED: Race condition with Time's Up modal
+   - Time's Up modal now cancels the auto-completion timeout
+   - Previously, the sprint could complete while user was deciding
+   - Modal now stays visible until user chooses Record or Discard
+   - Added sprintCompletionTimeout tracking variable
+
+2. FIXED: Firebase gamesCompleted count inaccurate
+   - Firebase now only counts games with countedInSprint: true
+   - Previously included late games that didn't actually count
+   - Sprint history in Firebase now shows accurate scores
+
+3. FIXED: pauseUsed not set on auto-resume from background
+   - When pause auto-expires during backgrounding, pauseUsed now set
+   - Prevents users from pausing again after auto-resume
+   - More consistent pause behavior
+
+4. FIXED: No validation for empty game list
+   - Sprint creation now validates at least one game is selected
+   - Shows "Select at least one game" error toast
+   - Prevents creation of broken/empty sprints
+
+TECHNICAL DETAILS:
+------------------
+- sprintCompletionTimeout variable tracks the 3-second completion delay
+- showTimesUpModal() now clears the timeout before displaying
+- recordSprintGame() filters for countedInSprint before counting
+- checkForActiveSprint() sets pauseUsed = true on auto-resume
+- confirmStartSprint() validates sprintSelectedGames.length > 0
+
+CODE LOCATIONS:
+---------------
+- Timeout tracking: line ~23315 (sprintCompletionTimeout variable)
+- Timeout cancellation: line ~24562 (showTimesUpModal)
+- Firebase count fix: line ~23795 (recordSprintGame)
+- Pause flag fix: line ~23337 (checkForActiveSprint auto-resume)
+- Validation fix: line ~23212 (confirmStartSprint)
+
+---
+
+Game Shelf PWA v1.7.0 Release Notes
+====================================
+
+Release Date: January 31, 2026
+
+NEW FEATURES - PHASE 3: SPRINT POLISH & STATS (Sessions 5-6)
+----------------------------------------------------------
+
+1. CONFETTI CELEBRATION FOR PERSONAL BESTS:
+   - Beautiful confetti animation triggers on new personal bests
+   - Trophy icon bounces with celebration animation
+   - PB card pulses to highlight achievement
+   - Canvas-based animation with smooth 3.5-second duration
+
+2. SPRINT SOUND EFFECTS:
+   - New sprint-specific sounds added to SoundManager:
+     • sprintStart: Energetic race-start fanfare when sprint begins
+     • sprintComplete: Quick satisfying ding when recording a game
+     • sprintWarning: Tick-tock alert at 3 min and 1 min remaining
+     • sprintTimeUp: Dramatic descending tone when sprint expires
+     • sprintPersonalBest: Triumphant fanfare with sparkle overlay
+   - Sounds play automatically at appropriate moments
+
+3. SPRINTES SUBTAB IN STATS:
+   - New "⚡ Sprints" subtab added to Stats screen
+   - Personal Best Records section:
+     • Shows best games completed for 10/20/30 min sprints
+     • 20-min highlighted as primary/recommended duration
+     • Total sprints and completed count
+   - Sprint Streak section:
+     • Current streak with motivational status message
+     • Longest streak ever achieved
+     • Today's sprint status indicator
+   - Recent Sprints history:
+     • Last 15 completed sprints from Firebase
+     • Shows date, time, duration, and games completed
+     • "Perfect" badge for sprints with all games completed
+
+4. ENHANCED PERSONAL BEST TRACKING:
+   - Warning flags prevent duplicate warning sounds
+   - sprint._warned3min and sprint._warned1min track sound triggers
+   - Celebration classes added to PB elements
+
+TECHNICAL DETAILS:
+------------------
+- triggerSprintConfetti() creates 150 particles with physics
+- Canvas element #sprint-confetti-canvas positioned over modal
+- renderSprintStatsTab() populates all three sections
+- renderSprintHistory() loads from Firebase with pagination
+- New CSS animations: pbPulse, trophyBounce
+- SoundManager.defaults extended with 5 new sprint events
+
+CODE LOCATIONS:
+---------------
+- Confetti: triggerSprintConfetti() after showSprintComplete()
+- Sounds: SoundManager case statements for sprint* sounds
+- Stats Tab: renderSprintStatsTab(), renderSprintHistory()
+- HTML: #stats-tab-sprints, #sprint-confetti-canvas
+
+---
+
+Game Shelf PWA v1.6.2 Release Notes
+=====================================
+
+Release Date: January 31, 2026
+
+BUG FIXES - SPRINT COMPLETION (Session 4 Fixes):
+----------------------------------------------
+
+1. FIXED: Sprint not checking on app return
+   - Sprint modal now properly appears when returning to the app
+   - Added checkForActiveSprint() to visibilitychange handler
+
+2. FIXED: Time's Up modal never appearing
+   - handleExpiredSprintRecord() now integrated into logGame()
+   - Late game recording properly intercepted and handled
+
+3. FIXED: Race condition with clipboard detection
+   - Delayed sprint completion by 3 seconds on return
+   - Allows clipboard processing to happen before sprint is cleared
+   - Time's Up modal can now properly handle late games
+
+4. FIXED: Infinite loop in late game recording
+   - Added _recordingLateSprintGame flag to prevent re-trigger
+   - recordLateGame() now properly clears state before logging
+
+5. FIXED: Sprint stats not syncing from cloud
+   - Added sprintStats merge in loadFromCloud()
+   - Personal bests and streaks now sync across devices
+
+6. FIXED: currentUser.odometerId undefined
+   - Changed all sprint code to use currentUser.uid
+   - Firebase paths now consistent with rest of app
+
+7. FIXED: saveToCloud() function didn't exist
+   - Changed calls to correct syncToCloud() function
+
+8. FIXED: Abandoned sprint stats not syncing
+   - abandonSprint() now syncs sprintStats to Firebase
+
+TECHNICAL DETAILS:
+------------------
+- visibilitychange handler now calls checkForActiveSprint()
+- 3-second delay before completing expired sprint on return
+- window._recordingLateSprintGame flag prevents Time's Up loop
+- sprintStats merge in loadFromCloud() takes max of counts/bests
+- All Firebase paths use currentUser.uid consistently
+
+---
+
+Game Shelf PWA v1.6.1 Release Notes
+=====================================
+
+Release Date: January 31, 2026
+
+NEW FEATURE - SPRINT COMPLETION (Session 4 Complete):
+---------------------------------------------------
+
+1. SPRINT COMPLETE MODAL:
+   - Beautiful results display showing games completed
+   - Per-game breakdown with times and results
+   - Shows counted games (✅), missed games (❌), and skipped games (⏭️)
+   - Stats summary: total time, average game time
+   - Personal best detection and celebration (🏆)
+   - Share Results button for social sharing
+
+2. TIME'S UP MODAL:
+   - Appears when user returns after sprint expired with a pending game
+   - Shows how long ago the sprint ended
+   - Option to "Record Anyway" (saves to history but doesn't count)
+   - Option to "Discard" the late result
+   - Graceful handling of edge cases
+
+3. SPRINT STATS TRACKING:
+   - New appData.sprintStats object tracks sprint performance
+   - Personal bests tracked per duration (10/20/30 min)
+   - Streak tracking for consecutive sprint days
+   - Stats sync to Firebase for cloud backup
+
+4. EARLY FINISH:
+   - "Finish Sprint" button appears when all games done
+   - Can end sprint early with confirmation
+   - Stats calculated based on completed games
+
+5. IMPROVED ABANDON FLOW:
+   - Abandoned sprints now tracked in stats
+   - Firebase status properly updated to 'abandoned'
+
+WHAT'S NEXT:
+------------
+- Session 5: Personal bests, celebration animations
+- Session 6: Sprint history view, stats integration
+- Session 7: Group sprints with friends
+
+TECHNICAL DETAILS:
+------------------
+- completeSprint() handles all completion scenarios (timer, return, early)
+- calculateSprintStats() computes final game counts and times
+- saveSprintStats() persists to local storage and Firebase
+- handleExpiredSprintRecord() manages late game recording flow
+- showSprintComplete() and showTimesUpModal() display results
+- Share functionality uses native Share API with clipboard fallback
+
+---
+
+Game Shelf PWA v1.6.0 Release Notes
+=====================================
+
+Release Date: January 31, 2026
+
+NEW FEATURE - TIMED CHALLENGES (Session 3 Complete):
+----------------------------------------------------
+
+1. ACTIVE SPRINT MODAL:
+   - Beautiful gradient header with live countdown timer
+   - Progress bar showing games completed vs total
+   - Game list with status indicators (completed, current, pending)
+   - Visual feedback: green checkmarks, purple highlight for current game
+   - Timer changes color as time runs low (yellow at 3min, red at 1min)
+
+2. GAME FLOW DURING SPRINT:
+   - "Play [Game]" button launches the current game
+   - Automatic tracking of game launch timestamps
+   - Games record with full timing data (launch → record duration)
+   - "Skip this game" option to move to next
+   - Sprint modal reappears automatically after recording
+
+3. SPRINT TIMER SYSTEM:
+   - Accurate countdown with mm:ss format
+   - Timer continues when app is backgrounded (timestamp-based)
+   - 30-second grace period after deadline
+   - Minimizable to floating indicator
+   - Tap indicator to restore full modal
+
+4. PAUSE FUNCTIONALITY:
+   - One pause allowed per sprint (max 5 minutes)
+   - Pause extends deadline by actual pause duration
+   - Visual state shows when pause is used/available
+   - Auto-resume after 5 minutes if still paused
+
+5. INTEGRATION WITH EXISTING SYSTEMS:
+   - Game history entries now include sprint context (sprintId, sprintCounted)
+   - Timing data source marked as 'sprint' for sprint games
+   - Clipboard detection still works alongside sprint modal
+   - Firebase sync for sprint progress
+
+6. NEW UI COMPONENTS:
+   - .active-sprint-modal - Full-screen sprint control center
+   - .sprint-indicator - Minimized floating timer badge
+   - .sprint-game-row - Game progress list items
+   - .sprint-play-btn - Primary action button
+   - Timer color states: normal, warning (yellow), critical (red)
+
+WHAT'S NEXT:
+------------
+- Session 4: Sprint completion modal, results display, stats saving
+- Session 5: Personal bests, celebration animations
+- Session 6: Sprint history, stats integration
+- Session 7: Group sprints with friends
+
+TECHNICAL DETAILS:
+------------------
+- Timer uses setInterval + timestamp calculation (not setTimeout)
+- Grace period: 30 seconds after deadline for late recordings
+- Sprint context stored in game history for future analytics
+- Pause extends endsAt timestamp by actual pause duration
+- Modal minimizes to indicator, not closed, to preserve state
+
+---
+
+Game Shelf PWA v1.6.0 Release Notes (Session 2)
+===============================================
+
+Release Date: January 31, 2026
+
+NEW FEATURE - TIMED CHALLENGES SETUP:
+-------------------------------------
+
+1. CHALLENGE TYPE SELECTOR:
+   - "Create Battle" now shows a choice between:
+     • Multi-Day Battle (existing battle system)
+     • Timed Challenge (NEW - race against the clock)
+   - Clean separation between competitive modes
+
+2. TIMED CHALLENGE SETUP:
+   - Choose duration: 10, 20, or 30 minutes
+   - Select up to 8 games for your challenge
+   - Choose play order: Fixed sequence or Any order
+   - Summary card shows your configuration
+   - Pro tip reminder to set a phone timer
+
+3. SPRINT DATA MODEL:
+   - New Firebase schema at /sprints/{userId}/{sprintId}
+   - Local state: appData.activeSprint for quick access
+   - Tracks: config, participants, timing, status
+   - Ready for group sprints in future update
+
+---
+
+Game Shelf PWA v1.5.0 Release Notes
+=====================================
+
+Release Date: January 31, 2026
+
+NEW FEATURE - GAME TIMING:
+--------------------------
+
+1. AUTOMATIC TIME TRACKING:
+   - Game Shelf now tracks how long you take to solve each puzzle
+   - Time starts when you tap "Play" in Game Shelf
+   - Time stops when you record your result
+   - Only records reasonable times (5 seconds to 2 hours)
+
+2. TIMING STATS DISPLAY:
+   - Stats tab overview shows your average time across all games
+   - Per-game stats list shows average time for each game
+   - Game detail sheet shows Best, Average, and Worst times
+   - Based on timed games only (games logged before this update won't have times)
+
+3. NEW DATA FIELDS:
+   - History entries now include timing data (sessionStartedAt, sessionRecordedAt, sessionDurationSeconds)
+   - New gameTiming object tracks per-game timing stats
+   - All timing data syncs to cloud and merges properly
+
+TECHNICAL DETAILS:
+------------------
+- Timing captured using existing activeGame localStorage mechanism
+- No background timers needed - uses timestamp comparison
+- Backward compatible: games without timing data display normally
+- Timing stats accumulate over time (best, worst, avg, recent 30 days)
+
+FUTURE USE:
+-----------
+This timing infrastructure is the foundation for upcoming features:
+- Timed puzzle challenges ("Time Sprint" mode)
+- Speed-based achievements
+- Competitive timing in battles
+
+---
+
+Game Shelf PWA v1.4.4 Release Notes
+=====================================
+
+Release Date: January 30, 2026
+
+WHAT'S NEW POPUP REMOVED:
+-------------------------
+
+1. LESS INTRUSIVE UPDATE NOTIFICATIONS:
+   - What's New no longer auto-pops up when you log in
+   - A badge will still appear on the Help button when there's an update
+   - Click Help → What's New to see changes at your convenience
+
+---
+
+Game Shelf PWA v1.4.3 Release Notes
+=====================================
+
+Release Date: January 30, 2026
+
+HELP BUTTON DEFAULT CHANGE:
+---------------------------
+
+1. HELP BUTTON NOW ON BY DEFAULT:
+   - New users will see the floating help button (❓) by default
+   - Previously defaulted to hidden
+   - Users can still toggle it off in Settings if preferred
+
+Also includes Desktop Menu Fix from v1.4.2.
+
+---
+
+Game Shelf PWA v1.4.2 Release Notes
+=====================================
+
+Release Date: January 30, 2026
+
+DESKTOP MENU FIX:
+-----------------
+
+1. SETTINGS MENU POSITIONING ON DESKTOP:
+   - On screens 900px+ wide, the settings menu now appears beside the app
+   - Menu slides in to the left of the centered 480px container
+   - No longer covers the main app content on desktop
+   - Overlay only dims the app area, not the entire screen
+   - Falls back to standard slide-over on narrower screens (600-900px)
+
+---
+
+Game Shelf PWA v1.4.1 Release Notes
+=====================================
+
+Release Date: January 30, 2026
+
+LEGAL & TERMS UPDATE:
+---------------------
+
+1. IMPLICIT TERMS ACKNOWLEDGMENT:
+   - Added "By continuing, you agree to our Terms of Service and Privacy Policy"
+   - Displayed on the setup welcome screen
+   - Links to gameshelf.co/terms and gameshelf.co/privacy
+   - Low-friction: continuing through setup = acceptance
+
+2. LEGAL SECTION IN SETTINGS MENU:
+   - Added new "Legal" section at bottom of settings menu
+   - Links to Terms of Service and Privacy Policy
+   - Added third-party disclaimer: "Game Shelf is not affiliated with 
+     The New York Times, LinkedIn, or any game publisher."
+
+3. AI HINT DISCLAIMER:
+   - Added disclaimer at bottom of hint sheet
+   - "Hints are AI-generated and may not always be accurate."
+   - "Game Shelf is not affiliated with game publishers."
+
+Note: Terms and Privacy Policy documents created but need to be hosted at:
+- gameshelf.co/terms
+- gameshelf.co/privacy
+
+---
+
 Game Shelf PWA v1.4.0 Release Notes
 =====================================
 
