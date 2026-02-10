@@ -1,17 +1,38 @@
-Game Shelf PWA — Release Notes
-================================
+==============================
+SLATE RELEASE NOTES
+==============================
 
-v1.11.1 — Heart Fix, Tab Refresh, Clues by Sam Parser
-------------------------------------------------------
-- Heart favorite toggle no longer triggers game card click (proper event isolation)
-- Larger heart tap target with padding for mobile
-- Tab switching now refreshes the destination screen (home, games)
-- Clues by Sam parser updated: matches #CluesBySam hashtag format
-- Parser now captures time and difficulty from share text
-- Score display includes time (e.g., "19/20 12m")
+v1.0.19 — 2026-02-10
+------------------------------
+Word Validation & Difficulty Rating
 
-v1.11.0 — Dynamic Home Grid & Favorites
-------------------------------------------------------
-- Home screen dynamically sizes: 1 row (1-3), 2 rows (4-6), compact 3 rows (7-9)
-- Favorite games: tap heart to pick top 9 for home when 10+ games on shelf
-- External games open in Safari on iOS (preserves logins/subscriptions)
+- Added 6,014-word English dictionary for guess validation
+  • Guessing a non-word (e.g., random letters) → amber flash, "Not a valid word — no penalty!"
+  • Guessing a real word that's wrong → red flash + penalty (unchanged behavior)
+  • All 785 puzzle words included in valid set
+
+- Added puzzle difficulty rating system
+  • Each daily puzzle scored on 5 factors: unique consonants, vowel pattern ambiguity,
+    consonant overlap, cascade potential, minimum keyboard consonants
+  • 5 tiers: ⭐ Easy, ⭐⭐ Moderate, ⭐⭐⭐ Tricky, ⭐⭐⭐⭐ Hard, ⭐⭐⭐⭐⭐ Brutal
+  • Shown on end-game results screen and already-played screen
+  • Included in share text
+
+- Synced sw.js CACHE_VERSION to v1.0.19
+
+
+v1.0.18 — 2026-02-10
+------------------------------
+Initial deployment package with full PWA support.
+
+
+v1.0.0 — 2026-01-XX
+------------------------------
+Initial release.
+- 8×5 chalkboard word puzzle
+- 785 curated five-letter words
+- Easy/Hard modes with cascade mechanics
+- 50-point limit scoring
+- Statistics, streaks, sharing
+- Practice mode
+- PWA + Game Shelf Integration
