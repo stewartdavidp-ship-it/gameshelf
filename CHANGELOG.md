@@ -5,6 +5,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ---
 
+## [1.0.20] - 2026-02-10
+
+### Fixed
+- End-game results screen crash for players with pre-existing localStorage stats from older versions (missing `ratingDistribution` property)
+- `getStats()` now merges stored data with defaults so new properties are always present
+
+---
+
 ## [1.0.19] - 2026-02-10
 
 ### Added
