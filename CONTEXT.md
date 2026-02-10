@@ -4,7 +4,7 @@
 
 ## Current Version
 
-**v1.0.19**
+**v1.0.20**
 
 ## What Slate Is
 
