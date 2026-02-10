@@ -1,108 +1,89 @@
-# Game Shelf — CONTEXT.md
+# Slate — CONTEXT.md
 
 > **Read this first** at the start of every session.
 
 ## Current Version
 
-**v1.11.1** — Released 2026-02-10
+**v1.0.19**
 
-## What Game Shelf Is
+## What Slate Is
 
-Game Shelf is a PWA that tracks daily puzzle games (Wordle, Connections, Strands, etc.) in one place. Users paste share text from any supported game, and Game Shelf logs scores, tracks streaks, calculates analytics, and enables social features like battles and leaderboards. It also hosts four original games: Quotle, Slate, Rungs, and Word Boxing.
+A daily word puzzle game with a chalkboard theme. Players are shown an 8×5 grid where 8 five-letter words have their vowels revealed but consonants hidden. Players deduce words by revealing consonants (via keyboard or per-square guessing), with a scoring system that rewards efficiency — fewer consonants used = better score.
+
+Built for puzzle enthusiasts who enjoy word deduction games like Wordle and Connections.
 
 ## Architecture
 
-- **Single-file HTML app**: All CSS/JS inline in index.html (~44K lines)
-- **Framework**: Vanilla JavaScript (no React/Vue)
-- **Data**: Firebase Realtime Database (cloud sync) + localStorage (offline-first)
-- **Auth**: Firebase Anonymous Auth, upgradeable to Google Sign-In
-- **PWA**: Yes — sw.js (network-first caching) + manifest.json
-- **AI**: Anthropic Claude API via Firebase Cloud Function proxy for game hints
-- **Deploy target**: GitHub Pages at gameshelf.co/app (prod), gameshelftest/app (test)
+- **Single-file HTML app**: All CSS/JS inline in index.html (~233 KB)
+- **Framework**: Vanilla JavaScript
+- **Styling**: Custom CSS (inline), chalkboard aesthetic with chalk-dust effects
+- **Data**: localStorage for game state, stats, streaks
+- **PWA**: Yes — sw.js + manifest.json + icons/
+- **Cloud Sync**: Game Shelf Integration module for Firebase sync
 
 ## Key Technical Details
 
-### Meta Tags (Required)
+### Meta Tags
 ```html
-<meta name="version" content="1.11.1">
-<meta name="gs-app-id" content="gameshelf">
+<meta name="version" content="1.0.19">
+<meta name="gs-app-id" content="slate">
 ```
 
-### Data Schema
+### Game Mechanics
+- **Grid**: 8 rows × 5 columns, each row is a 5-letter word
+- **Vowels**: Always revealed (free)
+- **Consonants**: Hidden, revealed via keyboard (+1 cost) or per-square guess (free)
+- **Wrong word guess**: +1 penalty if valid English word, no penalty if not a real word
+- **Scoring**: Sum of consonant count at time each word is completed. Lower = better.
+- **Point Limit**: 50 points — exceeding = game over (DNF)
+- **Modes**: Easy (completing a word auto-reveals its consonants in other rows, cascading) and Hard (no auto-reveal)
 
-**localStorage key**: `gameShelfData`
+### Word Database
+- **WORD_DATABASE**: 785 curated five-letter words used as daily puzzle answers
+- **VALID_WORDS**: 6,014 five-letter English words (American English dictionary) used for guess validation
+- Puzzle words are a subset of valid words — all puzzle words are valid guesses
 
-Core appData structure:
-```javascript
-{
-  games: [{id, addedAt}],           // Shelf — ordered list of tracked games
-  history: {date: {gameId: {score, won, numericScore, grid, shareText, meta}}},
-  stats: {gameId: {currentStreak, maxStreak, totalPlayed, totalWon}},
-  wallet: {tokens, coins},
-  settings: {favoriteGames: [], theme, dailyGoal, ...},
-  friends: [{uid, displayName, friendCode}],
-  achievements: {achId: {unlockedAt}},
-  gameTiming: {gameId: {totalSeconds, bestSeconds, avgSeconds, ...}},
-  sprintStats: {totalSprints, completedSprints, best10min, ...},
-  sprintSchedule: {enabled, days, time, ...}
-}
+### Puzzle Generation
+- Deterministic daily seed from date: `parseInt(YYYYMMDD) * 377 + 12345`
+- Seeded shuffle of WORD_DATABASE, first 8 words selected
+- Same puzzle for all players on same day
+
+### Difficulty Rating System
+- `analyzePuzzleDifficulty(words)` scores each puzzle on 5 factors:
+  - Unique consonants needed (8–16 range)
+  - Vowel pattern ambiguity (how many DB words share same vowel pattern)
+  - Consonant overlap between word pairs (more overlap = easier cascades)
+  - Max cascade from single word solve (Easy mode)
+  - Minimum keyboard consonants to solve (greedy simulation)
+- Returns 1–5 stars: Easy, Moderate, Tricky, Hard, Brutal
+- Displayed on end-game screen and included in share text
+
+### Share Text Format
+```
+🪨 Slate #33 ✅
+🟩🟩🟩🟩🟩🟩🟩🟩
+Score: 12 🌟
+🟢 Easy
+🧩 ⭐⭐⭐⭐ Hard
+slate.game
 ```
 
-**Firebase paths**:
-- `users/{uid}/shelf` — Full appData backup
-- `gameshelf-public/{uid}` — Public profile (name, scores, streaks)
-- `friends/{uid}` — Friend list
-- `nudges/{uid}` — Pending nudge notifications
-- `battles/{battleId}` — Battle state and scores
-
-### Key Components / Functions
-
-**Tab System**: 5 tabs — Home, Games, Stats, Social, Share
-
-| Area | Key Functions | Lines (approx) |
-|------|--------------|-----------------|
-| Share Text Parsing | `PARSERS[]`, `parseShareText()`, `parseMultipleGames()` | 17325-19470 |
-| Game Registry | `GAMES{}` — all game definitions (id, name, icon, url) | 17191-17320 |
-| Shelf Management | `addToShelf()`, `removeFromShelf()`, `renderShelfGames()` | 36760-31860 |
-| Home Screen | `getHomeGames()`, `renderHomeGames()`, favorites system | 31670-31800 |
-| Cloud Sync | `syncToCloud()`, `loadFromCloud()` — merge strategy | 20480-20650 |
-| Hint System | `HINT_GAMES{}`, Anthropic API calls via domainProxy | 34435-34560 |
-| Battle System | Challenge friends, compare daily scores | 15600-16800 |
-| Sprint System | Timed puzzle sessions with scheduling | Various |
-| Setup Wizard | First-run game selection flow | 41500-42200 |
-
-### Share Text Parsers
-
-The `PARSERS` array contains regex-based parsers for 30+ games. Each parser has:
-- `id` — game ID matching GAMES registry
-- `regex` — pattern to match share text format
-- `extract(match, text)` — returns `{gameId, score, won, numericScore, meta}`
-
-When adding a new game: add to `GAMES{}`, add parser to `PARSERS[]`, add to `STATS_GAME_KEYWORDS{}`, optionally add to hint system `HINT_GAMES{}`.
+### Version Locations (5 places)
+1. `<meta name="version" content="X.X.X">`
+2. `const APP_VERSION = 'X.X.X'`
+3. Tutorial/About display
+4. Footer version badge
+5. `sw.js` → `const CACHE_VERSION = 'vX.X.X'`
 
 ## Deployment
 
-- **Prod Repo:** stewartdavidp-ship-it/gameshelf
-- **Test Repo:** stewartdavidp-ship-it/gameshelftest
-- **SubPath:** `app`
-- **Structure:** Dual repo (test → prod), consolidated repo with other apps
-- **Deploy type:** PWA package (index.html + sw.js + manifest.json + icons/)
-- **Detection patterns:** `gameshelf`, `game-shelf`, `game shelf`
+- **Production**: https://gameshelf.co/slate
+- **Test**: https://stewartdavidp-ship-it.github.io/gameshelftest/slate/
+- **Repo**: Consolidated gameshelf repo, subpath `slate/`
 
 ## Conventions
 
-- **Offline-first**: All data saved to localStorage immediately, then synced to cloud
-- **Cloud merge strategy**: Field-by-field merge, cloud wins for conflicts except wallet tokens (take higher)
-- **Version locations**: 5 places — meta tag, header badge, settings display, APP_VERSION const, console log
-- **sw.js CACHE_VERSION**: Must always match app version
-- **CSS**: Inline styles with CSS custom properties (--accent-purple, --text-muted, etc.)
-- **No build step**: Everything is vanilla JS, no transpilation
-- **Mobile-first**: Designed for iOS PWA, touch targets ≥44px
-
-## Recent Changes
-
-**v1.11.1** — Heart tap fix (event delegation instead of inline onclick), tab switch refresh (renderHomeGames/renderShelfGames on tab change), Clues by Sam parser fix (#CluesBySam hashtag format + time/difficulty capture)
-
-**v1.11.0** — Dynamic home grid (1-9 tiles auto-layout), favorite games system (heart toggle, top 9 for home when 10+ games), iOS Safari external game opening
-
-**v1.10.0** — Smart day detection (midnight reset), morning review timing, coordinated popup system
+- All code in single index.html file
+- Chalkboard dark theme (#2a3a2a background, chalk-white text, #f4e4c1 gold accents)
+- Mobile-first responsive design
+- Game Shelf Integration module at bottom of file for cross-app reporting
