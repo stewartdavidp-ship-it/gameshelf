@@ -1,136 +1,109 @@
-# Game Shelf v1.11.0 Project Plan
-## Dynamic Home Grid & Favorite Games
+# Game Shelf — Project Plan
 
-**Document Version:** 1.0  
-**Release Version:** 1.11.0  
-**Date:** February 9, 2026  
-**Previous Version:** 1.10.1
+## Mission
 
----
+Provide a single, beautiful hub for daily puzzle game enthusiasts to track all their games, compete with friends, and discover new puzzles.
 
-## Executive Summary
+## Completed Features
 
-Version 1.11.0 replaces the hard-coded 6-tile home screen with a dynamic grid that adapts to the user's shelf size, and adds a favorite games system for users with 10+ games.
+### Core Platform
+- [x] Multi-game share text parsing (30+ games supported)
+- [x] Daily score logging with emoji grid preservation
+- [x] Streak tracking per game (current + max)
+- [x] Firebase cloud sync (offline-first, merge on reconnect)
+- [x] PWA with service worker (installable, offline capable)
+- [x] Anonymous auth → Google sign-in upgrade path
 
-### Key Achievements
+### Home & Navigation
+- [x] Dynamic home grid (auto-sizes 1-9 tiles)
+- [x] Favorite games system (heart toggle, top 9 for 10+ games)
+- [x] 5-tab navigation (Home, Games, Stats, Social, Share)
+- [x] Quick game launch from home tiles
+- [x] Streak fire indicators on game cards
 
-1. **Dynamic Home Grid** — Auto-sizes from 1 to 3 rows based on shelf count
-2. **Compact Card Mode** — Smaller cards at 7+ tiles keep the grid readable
-3. **Favorite Games** — Heart toggle on Games tab for 10+ game users to curate home screen
+### Games Tab
+- [x] Shelf management (add/remove games)
+- [x] Browse by category (Word, Logic, Geography, etc.)
+- [x] Game recommendations engine
+- [x] Long-press game options menu
+- [x] Search across all games
 
----
+### Stats & Analytics
+- [x] Per-game statistics (played, won, streaks)
+- [x] Overall dashboard with trends
+- [x] Game timing tracking
+- [x] Sprint system (timed puzzle sessions)
+- [x] Sprint scheduling with reminders
 
-## Issues Addressed
+### Social
+- [x] Friend system (friend codes, contact matching)
+- [x] Daily battles (challenge friends, compare scores)
+- [x] Leaderboards
+- [x] Nudge system (remind friends to play)
+- [x] Public profiles
 
-| ID | Issue | Resolution |
-|----|-------|------------|
-| Home tile limit | Hard-coded to 6 tiles regardless of shelf size | Dynamic: show all up to 9 |
-| No customization | Users couldn't choose which games appear on home | Heart favorites for 10+ games |
-| Wasted space | Users with 1-3 games had empty grid slots | Grid rows match game count |
+### AI Hints
+- [x] Anthropic Claude-powered hints for select games
+- [x] 10-level hint system (Whisper → Answer)
+- [x] Token economy for hint usage
+- [x] Firebase Cloud Function proxy (domainProxy)
 
----
+### Economy
+- [x] Token wallet (earn by playing, spend on hints)
+- [x] Coin system
+- [x] Achievement system with unlockables
 
-## Solution Design
+### Original Games (Hosted in Ecosystem)
+- [x] Quotle — Daily quote guessing
+- [x] Slate — Word puzzle on 8x5 grid
+- [x] Rungs — Word ladder ranking
+- [x] Word Boxing — Multiplayer word game
 
-### Design Decision: Auto-Size Over Settings
+## In Progress
 
-**Rejected:** Settings dropdown to choose 3/6/9 tiles  
-**Chosen:** Automatic sizing based on shelf count
+- [ ] Command Center App Files view improvements (v8.35.0)
+- [ ] Testing new CC deploy workflow with Game Shelf packages
 
-**Rationale:** Simpler UX — no configuration needed for most users. The grid just works.
+## Planned Features
 
-### Tier System
+### Near Term
+- [ ] Improved share text parsing for edge cases
+- [ ] Additional game parsers as new games are discovered
+- [ ] Better onboarding for new users
 
-| Shelf Size | Home Tiles | Card Style | Favorites? |
-|-----------|-----------|-----------|-----------|
-| 1-3 | All (1 row) | Standard | No |
-| 4-6 | All (2 rows) | Standard | No |
-| 7-9 | All (3 rows) | Compact | No |
-| 10+ | Top 9 (3 rows) | Compact | Yes — hearts shown |
+### Medium Term
+- [ ] Weekly/monthly recap summaries
+- [ ] Game groups (create custom groups beyond categories)
+- [ ] Expanded battle types (weekly challenges, tournaments)
+- [ ] Push notifications for battle invites and nudges
 
-### Favorite Games UX
+### Future / Ideas
+- [ ] Public shareable profile pages
+- [ ] Integration with game APIs (where available)
+- [ ] Community-contributed game parsers
+- [ ] Puzzle difficulty ratings based on community data
+- [ ] Achievement showcase / trophy case
+- [ ] Dark/light theme toggle
 
-- Heart icon (🤍/❤️) in bottom-right corner of each game card on Games tab
-- Only visible when shelf has 10+ games (otherwise unnecessary)
-- Tap toggles favorite on/off with toast feedback
-- Max 9 favorites enforced with warning toast
-- `event.stopPropagation()` prevents card click-through
+## Architecture Decisions
 
----
+### Single-File HTML
+All code lives in one index.html. This simplifies deployment (just push one file), avoids build steps, and works well with the GitHub Pages + Command Center workflow. Tradeoff: file is large (~44K lines) but gzip compression keeps transfer size manageable.
 
-## Implementation Details
+### Offline-First with Cloud Sync
+localStorage is the source of truth. Cloud sync is additive (merge, never overwrite). This means the app works instantly on load and never blocks on network. Cloud data merges field-by-field with conflict resolution per data type.
 
-### Change #1: CSS — Compact Grid & Heart Icons
+### Firebase Anonymous Auth
+Users start anonymous (zero friction). Can upgrade to Google Sign-In to enable cross-device sync and social features. Anonymous data persists through the upgrade.
 
-**New CSS classes:**
-- `.games-grid.compact` — reduces padding, icon size, font sizes
-- `.game-fav-heart` — positioned bottom-right, opacity-based visibility
-- `.game-fav-heart.favorited` — full opacity with red heart
+### Parser-Based Share Text Ingestion
+Each game has a dedicated regex parser rather than a generic AI-based parser. This is faster, works offline, and is deterministic. Tradeoff: each new game needs a custom parser added manually.
 
-**Compact reductions:**
-- Card padding: 14px 10px → 10px 6px
-- Icon: 1.5rem → 1.25rem
-- Name: 0.72rem → 0.65rem
-- Status: 0.7rem → 0.62rem
-- Done checkmark: 18px → 15px
+### Heart Favorites via Event Delegation (v1.11.1)
+Hearts use `addEventListener` after render instead of inline `onclick`. This prevents click propagation to parent game card, which was causing accidental game launches when trying to favorite.
 
-### Change #2: Helper Functions
+## Open Questions
 
-```javascript
-getFavoriteGames()        // Returns favorites array
-isGameFavorited(gameId)   // Boolean check
-toggleFavoriteGame(id, e) // Add/remove with max enforcement
-getHomeGames()            // Dynamic game list for home display
-```
-
-### Change #3: renderHomeGames()
-
-- Uses `getHomeGames()` instead of `appData.games.slice(0, 6)`
-- Applies `.compact` class when `shelf.length >= 7`
-- "+X more" badge adapts to actual overflow count
-
-### Change #4: renderShelfGames()
-
-- Adds heart HTML to each card when `appData.games.length >= 10`
-- Heart calls `toggleFavoriteGame()` with `event.stopPropagation()`
-
-### Change #5: renderQuickGames()
-
-- Uses `getHomeGames()` instead of `appData.games.slice(0, 6)`
-
----
-
-## Data Model
-
-```javascript
-appData.settings.favoriteGames = ['wordle', 'connections', 'strands', ...]
-// Array of game ID strings, max length 9
-// Empty array = no favorites set
-// Syncs via existing Firebase settings object
-```
-
----
-
-## Testing Plan
-
-| Test Case | Steps | Expected |
-|-----------|-------|----------|
-| 1-3 games | Add 2 games to shelf | 1 row, standard cards, no hearts |
-| 4-6 games | Add 5 games to shelf | 2 rows, standard cards, no hearts |
-| 7-9 games | Add 8 games to shelf | 3 rows, compact cards, no hearts |
-| 10+ games | Add 11 games to shelf | 3 rows compact, hearts visible on Games tab |
-| Favorite toggle | Tap heart on Games tab | Heart fills red, toast confirms, home updates |
-| Max favorites | Favorite 9 games, try 10th | Warning toast, 10th not added |
-| Unfavorite | Tap filled heart | Heart empties, home grid updates |
-| Auto-fill | 12 games, 5 favorites | Home shows 5 favs + 4 from shelf order |
-| Quick games | Any shelf size | Quick bar matches home grid games |
-| Cloud sync | Sign in on second device | Favorites array syncs via settings |
-
----
-
-## Future Considerations
-
-- Favorites could inform: share text priority, friend recommendations, morning review focus
-- Drag-to-reorder favorites for custom home grid ordering
-- "Pin to top" as alternative UX metaphor
-- Per-game home screen widgets (stats preview in card)
+- Should we add a "compact mode" option for users who want denser game grids?
+- How to handle games that change their share text format without breaking existing parsers?
+- Should sprint scheduling support different schedules per day of week?
