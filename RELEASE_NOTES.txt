@@ -2,6 +2,15 @@
 SLATE RELEASE NOTES
 ==============================
 
+v1.0.20 — 2026-02-10
+------------------------------
+Hotfix: End-game screen crash
+
+- Fixed crash on victory/defeat for players who had localStorage stats from
+  older Slate versions that pre-date the ratingDistribution property.
+  getStats() now merges stored data with defaults so new fields are always present.
+
+
 v1.0.19 — 2026-02-10
 ------------------------------
 Word Validation & Difficulty Rating
