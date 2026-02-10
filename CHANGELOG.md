@@ -5,7 +5,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ---
 
-## [1.0.20] - 2026-02-10
+## [1.0.21] - 2026-02-10
 
 ### Fixed
 - End-game results screen crash for players with pre-existing localStorage stats from older versions (missing `ratingDistribution` property)
