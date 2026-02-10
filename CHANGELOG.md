@@ -1,53 +1,51 @@
-# Game Shelf — Changelog
+# Slate — CHANGELOG.md
 
-All notable changes to the Game Shelf PWA.
+All notable changes to Slate are documented here.
+Format follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [1.11.1] — 2026-02-10
+---
+
+## [1.0.19] - 2026-02-10
+
+### Added
+- VALID_WORDS dictionary (6,014 five-letter English words from American English dictionary)
+- Word validation on guess: invalid words rejected with amber flash and no penalty
+- Puzzle difficulty analyzer (`analyzePuzzleDifficulty`) scoring 5 factors: unique consonants, vowel pattern ambiguity, consonant overlap, cascade potential, keyboard cost
+- Difficulty rating display (1–5 stars: Easy/Moderate/Tricky/Hard/Brutal) on end-game screen
+- Difficulty rating on already-played return visit screen
+- Difficulty line in share text (e.g., "🧩 ⭐⭐⭐⭐ Hard")
+
+### Changed
+- Wrong guess validation now uses VALID_WORDS Set instead of WORD_DATABASE array
+- Share text format updated to include difficulty line
+- sw.js CACHE_VERSION bumped to v1.0.19
 
 ### Fixed
-- Heart favorite toggle no longer triggers game card click (switched from inline onclick to addEventListener with stopPropagation)
-- Increased heart tap target with 8px padding and z-index: 10 for reliable mobile tapping
-- Clues by Sam parser: regex now matches `#CluesBySam` hashtag format (previously only matched `Clues by Sam` with spaces)
+- N/A
 
-### Changed
-- Tab switching now refreshes destination screen (home renders games/quick games, games tab renders shelf)
-- Clues by Sam parser captures time from header line ("in less than 12 minutes") and difficulty (Easy/Medium/Hard)
-- Clues by Sam score display now includes time (e.g., "19/20 12m")
-- Added `#cluesbysam` to STATS_GAME_KEYWORDS for detection
+---
 
-## [1.11.0] — 2026-02-09
+## [1.0.18] - 2026-02-10
 
 ### Added
-- Dynamic home grid: auto-sizes to 1 row (1-3 games), 2 rows (4-6), compact 3 rows (7-9)
-- Favorite games system: heart toggle on game cards when 10+ games on shelf
-- MAX_FAVORITES (9) — favorited games shown first on home screen, remaining slots filled from shelf order
-- Compact CSS class for 7+ tile home grid
+- Initial deployment package with PWA support
 
 ### Changed
-- External games on iOS PWA now open in Safari (preserves logins and subscriptions)
-- Home screen "See All" shows count of additional games not displayed
-
-## [1.10.0] — 2026-02-06
-
-### Added
-- Smart day detection: app detects midnight crossover and resets daily state automatically
-- Midnight toast notification when new day starts
-- Coordinated popup system: morning review, sprint prompts, and notifications are sequenced
-
-### Changed
-- Morning review waits until 4am to appear (late-night sessions don't trigger next-day review)
-
-## [1.9.9] — 2026-02-04
+- N/A
 
 ### Fixed
-- Sprint scheduling reliability improvements
-- Minor UI polish across settings screens
+- N/A
 
-## [1.9.5] — 2026-02-01
+---
+
+## [1.0.0] - 2026-01-XX
 
 ### Added
-- Sprint home banner showing active/upcoming sprint status
-- Sprint scheduling with customizable days and times
-
-### Changed
-- Sprint stats tracking: best times per duration, streak tracking
+- Initial release: 8×5 word puzzle grid with chalkboard theme
+- 785-word curated database
+- Easy and Hard modes
+- 50-point limit scoring system
+- Statistics, streaks, share results
+- Practice mode
+- PWA support
+- Game Shelf Integration
