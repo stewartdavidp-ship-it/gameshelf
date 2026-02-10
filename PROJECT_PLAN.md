@@ -1,109 +1,80 @@
-# Game Shelf — Project Plan
+# Slate — PROJECT_PLAN.md
 
-## Mission
+> Roadmap, completed work, design decisions, and pending items.
 
-Provide a single, beautiful hub for daily puzzle game enthusiasts to track all their games, compete with friends, and discover new puzzles.
+---
 
 ## Completed Features
 
-### Core Platform
-- [x] Multi-game share text parsing (30+ games supported)
-- [x] Daily score logging with emoji grid preservation
-- [x] Streak tracking per game (current + max)
-- [x] Firebase cloud sync (offline-first, merge on reconnect)
-- [x] PWA with service worker (installable, offline capable)
-- [x] Anonymous auth → Google sign-in upgrade path
+### v1.0.0 — Initial Release
+- [x] 8×5 grid with vowel-revealed, consonant-hidden word puzzle
+- [x] 785-word curated database of five-letter words
+- [x] Deterministic daily puzzle generation (date-seeded)
+- [x] Keyboard consonant reveal (+1 cost per letter)
+- [x] Per-square free guessing (tap square, type letter)
+- [x] Word completion detection and scoring
+- [x] Easy mode (auto-reveal consonants in other rows on word complete, cascading)
+- [x] Hard mode (no auto-reveal)
+- [x] 50-point limit scoring system (lower = better)
+- [x] Score ratings: Perfect (0), Master (1-8), Expert (9-16), etc.
+- [x] Chalkboard visual theme with chalk-dust particle effects
+- [x] Tutorial/How to Play modal
+- [x] Statistics tracking (games played, win rate, streaks, score distribution)
+- [x] Share results with emoji grid
+- [x] Practice mode (random non-daily puzzles)
+- [x] localStorage persistence
+- [x] PWA support (sw.js, manifest.json, icons)
+- [x] Game Shelf Integration (cloud sync, cross-app reporting)
+- [x] Mobile-responsive design
 
-### Home & Navigation
-- [x] Dynamic home grid (auto-sizes 1-9 tiles)
-- [x] Favorite games system (heart toggle, top 9 for 10+ games)
-- [x] 5-tab navigation (Home, Games, Stats, Social, Share)
-- [x] Quick game launch from home tiles
-- [x] Streak fire indicators on game cards
+### v1.0.18 — Prior Session
+- [x] Various bug fixes and refinements
 
-### Games Tab
-- [x] Shelf management (add/remove games)
-- [x] Browse by category (Word, Logic, Geography, etc.)
-- [x] Game recommendations engine
-- [x] Long-press game options menu
-- [x] Search across all games
+### v1.0.19 — Word Validation & Difficulty Rating
+- [x] VALID_WORDS dictionary (6,014 five-letter English words) for guess validation
+- [x] Invalid word rejection: amber flash + "Not a valid word — no penalty!" toast
+- [x] Valid wrong word: red flash + penalty (existing behavior preserved)
+- [x] Puzzle difficulty analyzer (`analyzePuzzleDifficulty`) with 5-factor scoring
+- [x] Difficulty rating display on end-game screen (1–5 stars)
+- [x] Difficulty rating in share text
+- [x] Difficulty shown on already-played return visit screen
+- [x] sw.js version sync to v1.0.19
 
-### Stats & Analytics
-- [x] Per-game statistics (played, won, streaks)
-- [x] Overall dashboard with trends
-- [x] Game timing tracking
-- [x] Sprint system (timed puzzle sessions)
-- [x] Sprint scheduling with reminders
-
-### Social
-- [x] Friend system (friend codes, contact matching)
-- [x] Daily battles (challenge friends, compare scores)
-- [x] Leaderboards
-- [x] Nudge system (remind friends to play)
-- [x] Public profiles
-
-### AI Hints
-- [x] Anthropic Claude-powered hints for select games
-- [x] 10-level hint system (Whisper → Answer)
-- [x] Token economy for hint usage
-- [x] Firebase Cloud Function proxy (domainProxy)
-
-### Economy
-- [x] Token wallet (earn by playing, spend on hints)
-- [x] Coin system
-- [x] Achievement system with unlockables
-
-### Original Games (Hosted in Ecosystem)
-- [x] Quotle — Daily quote guessing
-- [x] Slate — Word puzzle on 8x5 grid
-- [x] Rungs — Word ladder ranking
-- [x] Word Boxing — Multiplayer word game
+---
 
 ## In Progress
 
-- [ ] Command Center App Files view improvements (v8.35.0)
-- [ ] Testing new CC deploy workflow with Game Shelf packages
+*Nothing currently in progress.*
 
-## Planned Features
+---
+
+## Planned / Backlog
 
 ### Near Term
-- [ ] Improved share text parsing for edge cases
-- [ ] Additional game parsers as new games are discovered
-- [ ] Better onboarding for new users
+- [ ] **Puzzle difficulty gate** — If data shows too-easy puzzles occurring, add minimum difficulty threshold to `getDailyWords()` that rerolls seed until puzzle meets minimum score
+- [ ] **Difficulty calibration** — Collect player data on difficulty ratings vs actual scores to tune the 5-factor formula weights
 
 ### Medium Term
-- [ ] Weekly/monthly recap summaries
-- [ ] Game groups (create custom groups beyond categories)
-- [ ] Expanded battle types (weekly challenges, tournaments)
-- [ ] Push notifications for battle invites and nudges
+- [ ] **Sound effects** — Chalk writing sounds, eraser sounds, completion fanfare
+- [ ] **Animations** — Letter reveal animations, cascade visual effects in Easy mode
+- [ ] **Streak calendar** — Visual calendar showing play history and streaks
+- [ ] **Personal best tracking** — Track best scores per difficulty level
 
-### Future / Ideas
-- [ ] Public shareable profile pages
-- [ ] Integration with game APIs (where available)
-- [ ] Community-contributed game parsers
-- [ ] Puzzle difficulty ratings based on community data
-- [ ] Achievement showcase / trophy case
-- [ ] Dark/light theme toggle
+### Long Term
+- [ ] **Expanded word database** — Add more curated puzzle words beyond 785
+- [ ] **Themed puzzle packs** — Special category puzzles (science words, geography, etc.)
+- [ ] **Multiplayer/Battle mode** — Head-to-head Slate via Game Shelf battle system
 
-## Architecture Decisions
+---
 
-### Single-File HTML
-All code lives in one index.html. This simplifies deployment (just push one file), avoids build steps, and works well with the GitHub Pages + Command Center workflow. Tradeoff: file is large (~44K lines) but gzip compression keeps transfer size manageable.
+## Design Decisions
 
-### Offline-First with Cloud Sync
-localStorage is the source of truth. Cloud sync is additive (merge, never overwrite). This means the app works instantly on load and never blocks on network. Cloud data merges field-by-field with conflict resolution per data type.
-
-### Firebase Anonymous Auth
-Users start anonymous (zero friction). Can upgrade to Google Sign-In to enable cross-device sync and social features. Anonymous data persists through the upgrade.
-
-### Parser-Based Share Text Ingestion
-Each game has a dedicated regex parser rather than a generic AI-based parser. This is faster, works offline, and is deterministic. Tradeoff: each new game needs a custom parser added manually.
-
-### Heart Favorites via Event Delegation (v1.11.1)
-Hearts use `addEventListener` after render instead of inline `onclick`. This prevents click propagation to parent game card, which was causing accidental game launches when trying to favorite.
-
-## Open Questions
-
-- Should we add a "compact mode" option for users who want denser game grids?
-- How to handle games that change their share text format without breaking existing parsers?
-- Should sprint scheduling support different schedules per day of week?
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Two-list word architecture | 785 puzzle words + 6,014 valid guesses | Keeps puzzle quality curated while allowing fair validation |
+| Dictionary source | American English system dictionary | Broad coverage, no licensing issues, includes common words |
+| Invalid guess = no penalty | Amber flash, clear, no score impact | Penalizing typos/obscure words feels unfair; only real wrong guesses cost |
+| Difficulty scoring | 5-factor weighted formula | Captures consonant complexity, ambiguity, cascade potential, and keyboard cost |
+| No difficulty gate (yet) | Let random generation run freely | Sampling showed 82% of puzzles are Hard/Brutal naturally; gate not needed yet |
+| Deterministic seeding | `parseInt(YYYYMMDD) * 377 + 12345` | Ensures all players get same daily puzzle |
+| 50-point limit | Game over if score exceeds 50 | Prevents aimless consonant clicking; rewards strategic play |
