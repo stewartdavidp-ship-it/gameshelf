@@ -1,48 +1,53 @@
-# Game Shelf PWA Changelog
+# Game Shelf — Changelog
 
-## [1.11.0] (February 9, 2026)
+All notable changes to the Game Shelf PWA.
 
-### Added
-- **Dynamic Home Grid**: Home screen auto-sizes based on shelf count (1-3: 1 row, 4-6: 2 rows, 7-9: 3 rows)
-- **Compact Card Mode**: At 7+ home tiles, cards use smaller icons (1.25rem), tighter padding, proportional badges
-- **Favorite Games System**: Heart toggle (❤️/🤍) on Games tab cards for users with 10+ games
-- **`getHomeGames()` function**: Central logic for determining which games appear on home screen
-- **`toggleFavoriteGame()` function**: Add/remove favorites with max-9 enforcement and toast feedback
+## [1.11.1] — 2026-02-10
 
-### Changed
-- `renderHomeGames()` now uses `getHomeGames()` instead of `appData.games.slice(0, 6)`
-- `renderQuickGames()` now uses `getHomeGames()` for consistency with home grid
-- `renderShelfGames()` now renders heart icons when shelf has 10+ games
-- "+X more" badge dynamically calculates overflow based on actual displayed count
-
-### Data Model
-- New: `appData.settings.favoriteGames` (array of game ID strings, max 9)
-- Syncs via existing Firebase settings cloud sync — no migration needed
-
----
-
-## [1.10.1] (February 9, 2026)
-
-### Added
-- **Clues by Sam** game: daily logic puzzle (🔍), integrated across all 10 config sections
-- iOS PWA subscriber login fix: external games use `location.href` to open in Safari
+### Fixed
+- Heart favorite toggle no longer triggers game card click (switched from inline onclick to addEventListener with stopPropagation)
+- Increased heart tap target with 8px padding and z-index: 10 for reliable mobile tapping
+- Clues by Sam parser: regex now matches `#CluesBySam` hashtag format (previously only matched `Clues by Sam` with spaces)
 
 ### Changed
-- `openGameUrl()` now accepts gameId parameter for iOS standalone detection
-- First-time tip updated for external vs GS Original games
+- Tab switching now refreshes destination screen (home renders games/quick games, games tab renders shelf)
+- Clues by Sam parser captures time from header line ("in less than 12 minutes") and difficulty (Easy/Medium/Hard)
+- Clues by Sam score display now includes time (e.g., "19/20 12m")
+- Added `#cluesbysam` to STATS_GAME_KEYWORDS for detection
 
----
-
-## [1.10.0] (February 8, 2026)
+## [1.11.0] — 2026-02-09
 
 ### Added
-- Smart day-change detection with timezone awareness
-- Midnight toast notification for new day
-- Popup orchestrator to prevent notification avalanche
-- Morning review waits until 4am
+- Dynamic home grid: auto-sizes to 1 row (1-3 games), 2 rows (4-6), compact 3 rows (7-9)
+- Favorite games system: heart toggle on game cards when 10+ games on shelf
+- MAX_FAVORITES (9) — favorited games shown first on home screen, remaining slots filled from shelf order
+- Compact CSS class for 7+ tile home grid
 
----
+### Changed
+- External games on iOS PWA now open in Safari (preserves logins and subscriptions)
+- Home screen "See All" shows count of additional games not displayed
 
-## v1.9.9 and earlier
+## [1.10.0] — 2026-02-06
 
-See RELEASE_NOTES.txt for full history.
+### Added
+- Smart day detection: app detects midnight crossover and resets daily state automatically
+- Midnight toast notification when new day starts
+- Coordinated popup system: morning review, sprint prompts, and notifications are sequenced
+
+### Changed
+- Morning review waits until 4am to appear (late-night sessions don't trigger next-day review)
+
+## [1.9.9] — 2026-02-04
+
+### Fixed
+- Sprint scheduling reliability improvements
+- Minor UI polish across settings screens
+
+## [1.9.5] — 2026-02-01
+
+### Added
+- Sprint home banner showing active/upcoming sprint status
+- Sprint scheduling with customizable days and times
+
+### Changed
+- Sprint stats tracking: best times per duration, streak tracking
