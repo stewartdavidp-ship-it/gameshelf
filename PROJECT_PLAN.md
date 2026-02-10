@@ -30,6 +30,9 @@
 ### v1.0.18 — Prior Session
 - [x] Various bug fixes and refinements
 
+### v1.0.20 — Hotfix: Stats Migration
+- [x] Fix `getStats()` to merge localStorage data with defaults (old stats missing `ratingDistribution`)
+
 ### v1.0.19 — Word Validation & Difficulty Rating
 - [x] VALID_WORDS dictionary (6,014 five-letter English words) for guess validation
 - [x] Invalid word rejection: amber flash + "Not a valid word — no penalty!" toast
