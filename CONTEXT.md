@@ -1,83 +1,108 @@
-# Game Shelf Ecosystem - Active Development Context
+# Game Shelf — CONTEXT.md
 
-**Archive Date:** February 9, 2026  
-**Current Version:** **v1.11.0**
+> **Read this first** at the start of every session.
 
----
+## Current Version
 
-## Current Versions
+**v1.11.1** — Released 2026-02-10
 
-| App | Version | Key Features |
-|-----|---------|--------------|
-| Game Shelf | 1.11.0 | Dynamic home grid, favorite games, compact mode |
-| Command Center | 8.3.4 | Fixed auto-close to wait for all steps to complete |
-| Quotle | 1.2.6 | Removed PWA install banner |
-| Rungs | 1.0.15 | Removed PWA install banner |
-| Slate | 1.0.16 | Removed PWA install banner, wrong word clear fix |
-| Word Boxing | 1.0.10 | Removed PWA install banner |
+## What Game Shelf Is
 
----
+Game Shelf is a PWA that tracks daily puzzle games (Wordle, Connections, Strands, etc.) in one place. Users paste share text from any supported game, and Game Shelf logs scores, tracks streaks, calculates analytics, and enables social features like battles and leaderboards. It also hosts four original games: Quotle, Slate, Rungs, and Word Boxing.
 
-## Recent Changes (v1.11.0)
+## Architecture
 
-### Dynamic Home Grid
-- Home screen now auto-sizes: 1-3 games = 1 row, 4-6 = 2 rows, 7-9 = 3 rows (compact)
-- Replaces previous hard-coded 6-tile maximum
-- Compact mode at 7+ tiles: smaller icons (1.25rem), tighter padding, proportional badges
+- **Single-file HTML app**: All CSS/JS inline in index.html (~44K lines)
+- **Framework**: Vanilla JavaScript (no React/Vue)
+- **Data**: Firebase Realtime Database (cloud sync) + localStorage (offline-first)
+- **Auth**: Firebase Anonymous Auth, upgradeable to Google Sign-In
+- **PWA**: Yes — sw.js (network-first caching) + manifest.json
+- **AI**: Anthropic Claude API via Firebase Cloud Function proxy for game hints
+- **Deploy target**: GitHub Pages at gameshelf.co/app (prod), gameshelftest/app (test)
 
-### Favorite Games System
-- Heart toggle (❤️/🤍) on each game card in the Games tab
-- Only appears when user has 10+ games on shelf
-- Max 9 favorites; home screen shows favorites first, fills remaining from shelf order
-- Stored in `appData.settings.favoriteGames` (array of game IDs)
-- Syncs to Firebase via existing settings cloud sync
+## Key Technical Details
 
-### Previous (v1.10.1)
-- iOS PWA subscriber login fix: external games use `location.href` instead of `window.open`
-- Clues by Sam game added (10 config sections)
-
-### Previous (v1.10.0)
-- Smart day-change detection with timezone awareness
-- Midnight toast notification
-- Popup orchestrator to prevent notification avalanche
-- Morning review waits until 4am
-
----
-
-## Architecture Notes
-
-### Home Grid Logic (`getHomeGames()`)
-```
-if shelf ≤ 9 → show all games
-if shelf ≥ 10 → show favorited games first, fill remaining slots from shelf order, max 9
+### Meta Tags (Required)
+```html
+<meta name="version" content="1.11.1">
+<meta name="gs-app-id" content="gameshelf">
 ```
 
-### Key Functions Added
-- `getFavoriteGames()` — returns `appData.settings.favoriteGames || []`
-- `isGameFavorited(gameId)` — checks if game is in favorites array
-- `toggleFavoriteGame(gameId, event)` — add/remove with max 9 enforcement
-- `getHomeGames()` — returns array of game objects for home display
+### Data Schema
 
-### Data Storage
-- `appData.settings.favoriteGames` — array of game ID strings
-- Syncs via existing `settings` object in Firebase cloud sync
-- No migration needed — empty array treated as "no favorites"
+**localStorage key**: `gameShelfData`
 
----
+Core appData structure:
+```javascript
+{
+  games: [{id, addedAt}],           // Shelf — ordered list of tracked games
+  history: {date: {gameId: {score, won, numericScore, grid, shareText, meta}}},
+  stats: {gameId: {currentStreak, maxStreak, totalPlayed, totalWon}},
+  wallet: {tokens, coins},
+  settings: {favoriteGames: [], theme, dailyGoal, ...},
+  friends: [{uid, displayName, friendCode}],
+  achievements: {achId: {unlockedAt}},
+  gameTiming: {gameId: {totalSeconds, bestSeconds, avgSeconds, ...}},
+  sprintStats: {totalSprints, completedSprints, best10min, ...},
+  sprintSchedule: {enabled, days, time, ...}
+}
+```
 
-## Supported Games (30+)
+**Firebase paths**:
+- `users/{uid}/shelf` — Full appData backup
+- `gameshelf-public/{uid}` — Public profile (name, scores, streaks)
+- `friends/{uid}` — Friend list
+- `nudges/{uid}` — Pending nudge notifications
+- `battles/{battleId}` — Battle state and scores
 
-NYT Games: wordle, connections, strands, mini-crossword, spelling-bee, tiles, vertex  
-Word Games: quotle, slate, rungs, wordboxing, cemantle, semantle  
-Logic/Other: contexto, redactle, costcodle, cluesbysam  
-LinkedIn: linkedin-queens, linkedin-crossclimb, linkedin-pinpoint, linkedin-tango  
-And more: quordle, octordle, waffle, worldle, globle, tradle, immaculate-grid
+### Key Components / Functions
 
----
+**Tab System**: 5 tabs — Home, Games, Stats, Social, Share
 
-## Pending Backlog (High Priority)
+| Area | Key Functions | Lines (approx) |
+|------|--------------|-----------------|
+| Share Text Parsing | `PARSERS[]`, `parseShareText()`, `parseMultipleGames()` | 17325-19470 |
+| Game Registry | `GAMES{}` — all game definitions (id, name, icon, url) | 17191-17320 |
+| Shelf Management | `addToShelf()`, `removeFromShelf()`, `renderShelfGames()` | 36760-31860 |
+| Home Screen | `getHomeGames()`, `renderHomeGames()`, favorites system | 31670-31800 |
+| Cloud Sync | `syncToCloud()`, `loadFromCloud()` — merge strategy | 20480-20650 |
+| Hint System | `HINT_GAMES{}`, Anthropic API calls via domainProxy | 34435-34560 |
+| Battle System | Challenge friends, compare daily scores | 15600-16800 |
+| Sprint System | Timed puzzle sessions with scheduling | Various |
+| Setup Wizard | First-run game selection flow | 41500-42200 |
 
-- Daily Play Flow: "Today's games" checklist, "5 games remaining" UX
-- Friend Comparison in Share: "Beat 3 friends" context
-- Global Percentile: "Top 15% today" (needs aggregate Firebase stats)
-- OCR Stats Import: Partially working (Wordle OK, Connections font issue unresolved)
+### Share Text Parsers
+
+The `PARSERS` array contains regex-based parsers for 30+ games. Each parser has:
+- `id` — game ID matching GAMES registry
+- `regex` — pattern to match share text format
+- `extract(match, text)` — returns `{gameId, score, won, numericScore, meta}`
+
+When adding a new game: add to `GAMES{}`, add parser to `PARSERS[]`, add to `STATS_GAME_KEYWORDS{}`, optionally add to hint system `HINT_GAMES{}`.
+
+## Deployment
+
+- **Prod Repo:** stewartdavidp-ship-it/gameshelf
+- **Test Repo:** stewartdavidp-ship-it/gameshelftest
+- **SubPath:** `app`
+- **Structure:** Dual repo (test → prod), consolidated repo with other apps
+- **Deploy type:** PWA package (index.html + sw.js + manifest.json + icons/)
+- **Detection patterns:** `gameshelf`, `game-shelf`, `game shelf`
+
+## Conventions
+
+- **Offline-first**: All data saved to localStorage immediately, then synced to cloud
+- **Cloud merge strategy**: Field-by-field merge, cloud wins for conflicts except wallet tokens (take higher)
+- **Version locations**: 5 places — meta tag, header badge, settings display, APP_VERSION const, console log
+- **sw.js CACHE_VERSION**: Must always match app version
+- **CSS**: Inline styles with CSS custom properties (--accent-purple, --text-muted, etc.)
+- **No build step**: Everything is vanilla JS, no transpilation
+- **Mobile-first**: Designed for iOS PWA, touch targets ≥44px
+
+## Recent Changes
+
+**v1.11.1** — Heart tap fix (event delegation instead of inline onclick), tab switch refresh (renderHomeGames/renderShelfGames on tab change), Clues by Sam parser fix (#CluesBySam hashtag format + time/difficulty capture)
+
+**v1.11.0** — Dynamic home grid (1-9 tiles auto-layout), favorite games system (heart toggle, top 9 for home when 10+ games), iOS Safari external game opening
+
+**v1.10.0** — Smart day detection (midnight reset), morning review timing, coordinated popup system
