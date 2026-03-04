@@ -33198,33 +33198,27 @@
         }
         
         function openGameUrl(launchUrl, gameId) {
-            // v1.11.0: On iOS PWA, open external games in Safari (not in-app browser)
-            // so subscribers retain their login cookies/sessions for NYT, LinkedIn, etc.
-            // GS Originals stay with window.open since they're same-origin.
+            // v1.11.0: On PWA (iOS or Android), open external games in the real browser
+            // (not in-app browser/WebView) so subscribers retain their login cookies/sessions
+            // for NYT, LinkedIn, etc. GS Originals stay with window.open since they're same-origin.
+            // v1.11.1: Extended to Android — window.open in Android PWA opens a Custom Tab/WebView
+            // which NYT detects and redirects to landing page instead of the game.
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
             const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
             const isExternal = !gameId || !isGSOriginal(gameId);
-            
-            if (isIOS && isStandalone && launchUrl.startsWith('http')) {
+
+            if (isStandalone && isExternal && launchUrl.startsWith('http')) {
                 // Check if user has seen the return tip
                 const hasSeenReturnTip = localStorage.getItem('gs_seen_return_tip');
                 if (!hasSeenReturnTip) {
                     localStorage.setItem('gs_seen_return_tip', 'true');
-                    // v1.11.0: Updated tip — external games open in Safari now
-                    if (isExternal) {
-                        showToast('Switch back to Game Shelf when done', 'info', 2500);
-                    } else {
-                        showToast('Tap ✕ or swipe down to return', 'info', 2500);
-                    }
+                    showToast('Switch back to Game Shelf when done', 'info', 2500);
                 }
-                
-                // v1.11.0: External games open in Safari via location.href
-                // This ensures the user's existing Safari cookies/login sessions
-                // are available (fixes NYT/LinkedIn subscriber login issues)
-                if (isExternal) {
-                    window.location.href = launchUrl;
-                    return;
-                }
+
+                // Open in real browser via location.href (not window.open which uses WebView)
+                // This ensures the user's existing browser cookies/login sessions are available
+                window.location.href = launchUrl;
+                return;
             }
             
             if (launchUrl.startsWith('http')) {
