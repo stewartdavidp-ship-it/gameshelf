@@ -5561,58 +5561,66 @@
             // Clean up previous listener
             if (lobbyListener) {
                 console.log('Cleaning up previous lobby listener');
-                db.ref('lobby').off('value', lobbyListener);
+                const lRef = db.ref('lobby');
+                lRef.off('child_added', lobbyListener.onAdded);
+                lRef.off('child_changed', lobbyListener.onChanged);
+                lRef.off('child_removed', lobbyListener.onRemoved);
                 lobbyListener = null;
             }
             
-            // Listen to lobby changes
+            // Listen to lobby changes using a single .once() load + child events
+            // to avoid re-downloading the entire lobby on every change
             const lobbyRef = db.ref('lobby');
-            console.log('Setting up lobby listener on:', lobbyRef.toString());
-            
-            lobbyListener = lobbyRef.on('value', (snapshot) => {
-                console.log('=== LOBBY SNAPSHOT ===');
-                console.log('Exists:', snapshot.exists());
-                console.log('Num children:', snapshot.numChildren());
-                
-                const games = [];
-                const now = Date.now();
-                const maxAge = 10 * 60 * 1000; // 10 minutes max
-                
+            const now = Date.now();
+            const maxAge = 10 * 60 * 1000; // 10 minutes max
+            const myId = currentUser ? currentUser.uid : deviceId;
+            let lobbyGames = {};
+
+            // Initial one-time load
+            lobbyRef.once('value').then((snapshot) => {
                 if (snapshot.exists()) {
                     snapshot.forEach((child) => {
                         const game = child.val();
-                        console.log('Found game:', child.key, 'hostId:', game.hostId, 'hostName:', game.hostName);
                         const age = now - (game.createdAt || 0);
-                        
-                        // Skip expired games or own games
-                        const myId = currentUser ? currentUser.uid : deviceId;
-                        console.log('Comparing hostId:', game.hostId, 'vs myId:', myId, 'match:', game.hostId === myId);
-                        
-                        if (age < maxAge && game.hostId !== myId) {
-                            console.log('Adding game to list:', child.key);
-                            games.push({
-                                ...game,
-                                gameCode: child.key
-                            });
-                        } else if (age >= maxAge) {
-                            // Clean up expired lobby entry
-                            console.log('Removing expired lobby entry:', child.key);
+                        if (age >= maxAge) {
                             child.ref.remove();
-                        } else {
-                            console.log('Skipping own game:', child.key);
+                        } else if (game.hostId !== myId) {
+                            lobbyGames[child.key] = { ...game, gameCode: child.key };
                         }
                     });
                 }
-                
-                // Sort by most recent first
-                games.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-                
-                console.log('Rendering', games.length, 'public games');
-                renderPublicGames(games);
-            }, (error) => {
-                console.error('Lobby listener error:', error);
-                listEl.innerHTML = `<div style="color: #f44; padding: 20px; text-align: center;">Error loading games: ${error.message}</div>`;
+                renderLobbyGames();
             });
+
+            // Then listen only for incremental changes
+            const onAdded = lobbyRef.on('child_added', (child) => {
+                const game = child.val();
+                const age = Date.now() - (game.createdAt || 0);
+                if (age < maxAge && game.hostId !== myId) {
+                    lobbyGames[child.key] = { ...game, gameCode: child.key };
+                    renderLobbyGames();
+                }
+            });
+            const onChanged = lobbyRef.on('child_changed', (child) => {
+                const game = child.val();
+                if (game.hostId !== myId) {
+                    lobbyGames[child.key] = { ...game, gameCode: child.key };
+                    renderLobbyGames();
+                }
+            });
+            const onRemoved = lobbyRef.on('child_removed', (child) => {
+                delete lobbyGames[child.key];
+                renderLobbyGames();
+            });
+
+            // Store references for cleanup
+            lobbyListener = { onAdded, onChanged, onRemoved };
+
+            function renderLobbyGames() {
+                const games = Object.values(lobbyGames);
+                games.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                renderPublicGames(games);
+            }
         }
         
         function renderPublicGames(games) {
@@ -5652,7 +5660,10 @@
         function joinPublicGame(gameCode) {
             // Stop listening to lobby
             if (lobbyListener) {
-                db.ref('lobby').off('value', lobbyListener);
+                const lRef = db.ref('lobby');
+                lRef.off('child_added', lobbyListener.onAdded);
+                lRef.off('child_changed', lobbyListener.onChanged);
+                lRef.off('child_removed', lobbyListener.onRemoved);
                 lobbyListener = null;
             }
             
@@ -5745,7 +5756,10 @@
         // Clean up lobby listener when leaving find game phase
         function cleanupLobbyListener() {
             if (lobbyListener) {
-                db.ref('lobby').off('value', lobbyListener);
+                const lRef = db.ref('lobby');
+                lRef.off('child_added', lobbyListener.onAdded);
+                lRef.off('child_changed', lobbyListener.onChanged);
+                lRef.off('child_removed', lobbyListener.onRemoved);
                 lobbyListener = null;
             }
         }
@@ -6968,61 +6982,11 @@
             }
         }
         
-        // Periodic check to ensure local state matches Firebase
-        let battleSyncInterval = null;
-        function startBattleSyncCheck() {
-            // Clear any existing interval
-            if (battleSyncInterval) {
-                clearInterval(battleSyncInterval);
-            }
-            
-            battleSyncInterval = setInterval(() => {
-                if (gameState.status !== 'battle' || !gameRef) {
-                    clearInterval(battleSyncInterval);
-                    battleSyncInterval = null;
-                    return;
-                }
-                
-                gameRef.once('value').then(snapshot => {
-                    if (!snapshot.exists()) return;
-                    const game = snapshot.val();
-                    
-                    // Check if turn is out of sync
-                    if (game.status === 'battle' && game.currentTurn) {
-                        const shouldBeMyTurn = game.currentTurn === gameState.myRole;
-                        
-                        if (shouldBeMyTurn !== gameState.isMyTurn) {
-                            console.warn('TURN SYNC FIX: Local isMyTurn:', gameState.isMyTurn, 'should be:', shouldBeMyTurn);
-                            gameState.isMyTurn = shouldBeMyTurn;
-                            gameState.currentTurn = game.currentTurn;
-                            
-                            if (gameState.isMyTurn) {
-                                cancelSolve();
-                                document.getElementById('keyboard').classList.remove('active');
-                                document.getElementById('action-buttons').style.display = 'flex';
-                                showPhase('phase-battle');
-                            } else {
-                                showPhase('phase-waiting-turn');
-                            }
-                            updateBattleStatus();
-                        }
-                    }
-                    
-                    // Check if game has ended
-                    if (game.status === 'round_over' || game.status === 'finished') {
-                        clearInterval(battleSyncInterval);
-                        battleSyncInterval = null;
-                    }
-                });
-            }, 3000); // Check every 3 seconds
-        }
-        
-        function stopBattleSyncCheck() {
-            if (battleSyncInterval) {
-                clearInterval(battleSyncInterval);
-                battleSyncInterval = null;
-            }
-        }
+        // Battle sync check removed — the gameRef.on('value') listener
+        // already provides real-time updates, making polling redundant.
+        // This was reading the full game state every 3 seconds unnecessarily.
+        function startBattleSyncCheck() { /* no-op — handled by game listener */ }
+        function stopBattleSyncCheck() { /* no-op */ }
 
         function setupBattleUI() {
             // Setup opponent word display
@@ -9198,17 +9162,24 @@ wordboxing.com`;
             if (disconnectCheckInterval) {
                 clearInterval(disconnectCheckInterval);
             }
-            
-            // Update our lastSeen timestamp periodically
+
+            if (!gameRef || !gameState.myRole) return;
+
+            const myRef = gameRef.child(gameState.myRole);
+
+            // Use Firebase onDisconnect to automatically mark us disconnected
+            myRef.child('connected').onDisconnect().set(false);
+            myRef.child('lastSeen').onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
+            myRef.child('connected').set(true);
+            myRef.child('lastSeen').set(firebase.database.ServerValue.TIMESTAMP);
+
+            // Reduce periodic heartbeat from 10s to 60s (just a backup)
             const updateLastSeen = () => {
                 if (gameRef && gameState.myRole) {
                     gameRef.child(gameState.myRole + '/lastSeen').set(firebase.database.ServerValue.TIMESTAMP);
                 }
             };
-            
-            // Update every 10 seconds
-            disconnectCheckInterval = setInterval(updateLastSeen, 10000);
-            updateLastSeen();
+            disconnectCheckInterval = setInterval(updateLastSeen, 60000);
         }
         
         function stopDisconnectMonitoring() {
