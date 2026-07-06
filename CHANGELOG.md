@@ -5,6 +5,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ---
 
+## [1.0.23] - 2026-07-06
+
+### Changed
+- Renamed "Consonant Score" to "Word Cost" everywhere (score banner, tutorial, intro, menu, confirm dialog, toasts, end screen) — the number is the price each solved word adds to your Score, and the old name didn't say that. End-screen breakdown now reads "X clues + Y misses"
+- sw.js CACHE_VERSION bumped to v1.0.23
+
+---
+
 ## [1.0.22] - 2026-07-06
 
 ### Fixed

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="1.0.22">
+    <meta name="version" content="1.0.23">
     <title>Slate - Daily Word Challenge</title>
     
     <!-- PWA Support -->
@@ -1952,7 +1952,7 @@
 
         <div class="score-display">
             Score: <strong id="score">0</strong> |
-            Consonant Score: <strong id="consonants-count">0</strong> |
+            Word Cost: <strong id="consonants-count">0</strong> |
             Words Found: <strong id="words-found">0</strong>/8
         </div>
 
@@ -2055,9 +2055,9 @@
                     </div>
                     <p style="color: #a8d5a8;">✓ Filling squares this way is <strong>FREE</strong> — no points added!</p>
                     <p style="margin-top: 10px; color: #a8d5a8;">✓ <strong>Solve a word correctly</strong> and its consonants appear FREE in all other words!</p>
-                    <p style="margin-top: 10px; color: #d5a8a8;">✗ <strong>Wrong guess?</strong> If it's a valid word, your consonant score goes up by 1. Non-words are rejected with no penalty.</p>
+                    <p style="margin-top: 10px; color: #d5a8a8;">✗ <strong>Wrong guess?</strong> If it's a valid word, your Word Cost goes up by 1. Non-words are rejected with no penalty.</p>
                     <p style="margin-top: 12px; padding: 10px; background: rgba(90,90,90,0.3); border-radius: 8px;">
-                        <strong>Alternatively</strong>, if you need help, select a consonant from the keyboard at the bottom. Each consonant selected adds <strong>+1 to your consonant score</strong>. Remember: your goal is the lowest total score — a higher consonant score quickly adds up!
+                        <strong>Alternatively</strong>, if you need help, select a consonant from the keyboard at the bottom. Each consonant selected adds <strong>+1 to your Word Cost</strong>. Remember: your goal is the lowest total score — a higher Word Cost quickly adds up!
                     </p>
                 </div>
             </div>
@@ -2078,14 +2078,14 @@
                                 <div style="font-size: 1.5rem; font-weight: bold; color: #a8d5a8;">3/8</div>
                             </div>
                             <div>
-                                <div style="font-size: 0.75rem; color: #a8b896;">CONSONANTS</div>
+                                <div style="font-size: 0.75rem; color: #a8b896;">WORD COST</div>
                                 <div style="font-size: 1.5rem; font-weight: bold; color: #d5a8a8;">5</div>
                             </div>
                         </div>
                     </div>
                     <p><strong style="color: #f4e4c1;">Total Score</strong> = sum of all word scores</p>
-                    <p style="margin-top: 8px;"><strong style="color: #a8d5a8;">Word Score</strong> = consonant score when that word is solved</p>
-                    <p style="margin-top: 8px;"><strong style="color: #d5a8a8;">Consonant Score</strong> = consonants used from keyboard + wrong valid word guesses</p>
+                    <p style="margin-top: 8px;"><strong style="color: #a8d5a8;">Word Score</strong> = the Word Cost at the moment that word is solved</p>
+                    <p style="margin-top: 8px;"><strong style="color: #d5a8a8;">Word Cost</strong> = consonant clues used + wrong valid-word guesses</p>
                     <p style="margin-top: 12px; padding: 10px; background: rgba(125,90,90,0.3); border-radius: 8px;">
                         <strong>⚠️ Game Over</strong> if total score exceeds <strong>50 points</strong>, or if it becomes impossible to stay under 50.
                     </p>
@@ -2157,15 +2157,15 @@
                     <span class="intro-icon">🔘</span>
                     <div>
                         <strong>Click a consonant button (bottom)</strong><br>
-                        <span class="intro-detail">Reveals that letter <em>everywhere</em> — <strong style="color: #d5a8a8;">+1 point</strong> (use as a hint!)</span>
+                        <span class="intro-detail">Reveals that letter <em>everywhere</em> — <strong style="color: #d5a8a8;">+1 Word Cost</strong> (use as a hint!)</span>
                     </div>
                 </div>
             </div>
             
             <div class="intro-section">
                 <h3>⭐ Scoring</h3>
-                <p>When you complete a word, it scores the <strong>current consonant count</strong>. Solve words early before the count rises!</p>
-                <p style="color: #d5a8a8; font-size: 0.9rem; margin-top: 8px;">⚠️ Wrong valid word = +1 penalty (non-words rejected free)</p>
+                <p>When you complete a word, it scores the <strong>current Word Cost</strong>. Solve words early while the cost is low!</p>
+                <p style="color: #d5a8a8; font-size: 0.9rem; margin-top: 8px;">⚠️ Wrong valid word = +1 Word Cost (non-words rejected free)</p>
                 <p style="color: #d5a8a8; font-size: 0.9rem;">⚠️ Point limit: 50 (game over if exceeded)</p>
             </div>
             
@@ -2208,7 +2208,7 @@
             <div style="margin: 20px 0;">
                 <div style="font-size: 4rem; margin: 15px 0;" id="confirm-letter">?</div>
                 <p style="color: #c9b896; font-size: 1.1rem;">Reveal <strong id="confirm-letter-text">?</strong> everywhere?</p>
-                <p style="color: #d5a8a8; font-size: 0.95rem;">This will cost <strong>+1 point</strong></p>
+                <p style="color: #d5a8a8; font-size: 0.95rem;">This adds <strong>+1 to your Word Cost</strong></p>
             </div>
             <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
                 <button onclick="confirmConsonantReveal()" style="background: #5a7d5a; padding: 12px 30px;">Yes, Reveal</button>
@@ -2276,7 +2276,7 @@
             <div class="setting-row">
                 <div>
                     <span>Confirm Global Reveals</span>
-                    <p style="font-size: 0.8rem; color: #888; margin: 2px 0 0 0;">Ask before revealing consonants (+1 pt)</p>
+                    <p style="font-size: 0.8rem; color: #888; margin: 2px 0 0 0;">Ask before revealing consonants (+1 Word Cost)</p>
                 </div>
                 <label class="toggle-switch">
                     <input type="checkbox" id="confirm-toggle" onchange="toggleConfirmation()" checked>
@@ -2303,7 +2303,7 @@
             <p style="margin-top: 8px;"><strong>Two ways to fill consonants:</strong></p>
             <ul>
                 <li><strong>Click a square</strong> → Select a consonant (FREE!)</li>
-                <li><strong>Click consonant button</strong> → Reveal everywhere (+1 point)</li>
+                <li><strong>Click consonant button</strong> → Reveal everywhere (+1 Word Cost)</li>
             </ul>
             
             <details style="margin-top: 10px;">
@@ -2317,7 +2317,7 @@
             <!-- 7. GAME INFO -->
             <h3>ℹ️ Game Info</h3>
             <p><strong>Puzzle:</strong> <span id="puzzle-date">Daily</span></p>
-            <p><strong>Version:</strong> v1.0.22</p>
+            <p><strong>Version:</strong> v1.0.23</p>
             <p style="font-size: 0.85rem; color: #a8b896; margin-top: 8px;">A daily word puzzle game. New words every day at midnight!</p>
             
             <!-- 8. DATA -->
@@ -4186,7 +4186,7 @@
                 }
             });
 
-            showMessage(`+1 pts: Revealed ${cellsRevealed} × ${letter}`, 'success');
+            showMessage(`Word Cost +1: Revealed ${cellsRevealed} × ${letter}`, 'success');
             updateDisplay();
             saveGameState(); // v1.0.9: Persist progress
             
@@ -4330,7 +4330,7 @@
                     saveGameState(); // v1.0.9: Save after wrong word clears individual guesses
                 }, 800);
                 
-                showMessage(`✗ Wrong word! +1 penalty`, 'error');
+                showMessage(`✗ Wrong word! Word Cost +1`, 'error');
                 updateDisplay();
             }
         }
@@ -4661,7 +4661,7 @@
                         <div style="color: #a8b896; font-size: 1rem; line-height: 2;">
                             <div>🎮 Mode: <strong style="color: #d5a8a8;">${modeText}</strong></div>
                             <div>${won ? '✓' : '✗'} Words Completed: <strong style="color: ${wordsCompletedColor};">${wordsCompletedText}</strong></div>
-                            <div>📊 Consonant Score: <strong style="color: #d5a8a8;">${consonantCount}</strong> <span style="font-size: 0.85em;">(${revealCount} reveal${revealCount === 1 ? '' : 's'} + ${penaltyCount} penalt${penaltyCount === 1 ? 'y' : 'ies'})</span></div>
+                            <div>📊 Word Cost: <strong style="color: #d5a8a8;">${consonantCount}</strong> <span style="font-size: 0.85em;">(${revealCount} clue${revealCount === 1 ? '' : 's'} + ${penaltyCount} miss${penaltyCount === 1 ? '' : 'es'})</span></div>
                             <div>🎯 Final Score: <strong style="color: ${won ? '#ffd700' : '#ff6666'};">${currentScore}</strong></div>
                             ${!won ? `<div>⚠️ Point Limit: <strong style="color: #ff6666;">${POINT_LIMIT}</strong></div>` : ''}
                             ${(() => {
@@ -5014,7 +5014,7 @@ slate.game`;
             name: 'Slate',
             icon: '🪨',
             url: 'slate.game',
-            version: '1.0.22',
+            version: '1.0.23',
             type: 'daily'
         });
 
