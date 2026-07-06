@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.3.0">
+    <meta name="version" content="1.4.0">
     <title>Quotle - Daily Quote Puzzle</title>
     
     <!-- Early initialization: Set defaults and apply dark mode BEFORE any CSS renders -->
@@ -996,7 +996,6 @@
         body.plain-mode .token-display,
         body.plain-mode .challenge-badge,
         body.plain-mode #token-hints-section,
-        body.plain-mode #give-up-btn,
         body.plain-mode .practice-badge,
         body.plain-mode #practice-mode-settings,
         body.plain-mode #token-info-section {
@@ -3504,7 +3503,7 @@
                 </div>
                 <div class="difficulty-option" id="hard-option" onclick="setDifficulty('hard')">
                     <h4>🔴 Hard Mode</h4>
-                    <p>No filtering, no attribute hints - just guess based on the quote alone!</p>
+                    <p>Attribute clues only — no dropdown narrowing and no free bonus hints. You track the clues yourself.</p>
                 </div>
             </div>
             
@@ -3605,7 +3604,7 @@
                     <p><strong>Quote #:</strong> <span id="current-quote-number">Loading...</span></p>
                     <p><strong>Total Quotes:</strong> 365</p>
                     <p><strong>Days Live:</strong> <span id="days-since-launch">Loading...</span></p>
-                    <p><strong>Version:</strong> v1.3.0</p>
+                    <p><strong>Version:</strong> v1.4.0</p>
                 </div>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--slate); line-height: 1.5;">
                     A daily quote guessing game featuring wisdom from ancient philosophers to modern thinkers - spanning over 2,500 years of human thought.
@@ -4175,18 +4174,6 @@
                 year: "1930s"
             },
             {
-                index: 16,
-                text: "Ask not what your country can do for you — ask what you can do for your country.",
-                author: "John F. Kennedy",
-                gender: "Male",
-                category: "Speech",
-                period: "1900s",
-                difficulty: 3,
-                hint: "He was the 35th President of the United States and the youngest elected to that office.",
-                location: "Washington, D.C., USA",
-                year: "1961"
-            },
-            {
                 index: 17,
                 text: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
                 author: "Winston Churchill",
@@ -4497,18 +4484,6 @@
                 hint: "He was kidnapped by pirates and later returned to crucify them.",
                 location: "Rome, Italy",
                 year: "50 BCE"
-            },
-            {
-                index: 43,
-                text: "If you want to go fast, go alone. If you want to go far, go together.",
-                author: "Al Gore",
-                gender: "Male",
-                category: "Speech",
-                period: "2000s",
-                difficulty: 5,
-                hint: "He served as Vice President and won the Nobel Peace Prize for climate work.",
-                location: "Washington, D.C., USA",
-                year: "2000s"
             },
             {
                 index: 44,
@@ -4845,18 +4820,6 @@
                 hint: "She was the first Black woman to have a screenplay produced.",
                 location: "St. Louis, Missouri, USA",
                 year: "1970s"
-            },
-            {
-                index: 72,
-                text: "Be curious, not judgmental.",
-                author: "Walt Whitman",
-                gender: "Male",
-                category: "Literature",
-                period: "1800s",
-                difficulty: 6,
-                hint: "Emerson hailed his poetry as the beginning of a great career.",
-                location: "Brooklyn, New York, USA",
-                year: "1860s"
             },
             {
                 index: 73,
@@ -5589,18 +5552,6 @@
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Los Angeles, California, USA",
                 year: "1960s"
-            },
-            {
-                index: 134,
-                text: "And those who were seen dancing were thought to be insane by those who could not hear the music.",
-                author: "Friedrich Nietzsche",
-                gender: "Male",
-                category: "Literature",
-                period: "1800s",
-                difficulty: 9,
-                hint: "He proposed to Lou Salomé three times; she refused each time.",
-                location: "Basel, Switzerland",
-                year: "1880s"
             },
             {
                 index: 135,
@@ -6851,18 +6802,6 @@
                 year: "1910s"
             },
             {
-                index: 239,
-                text: "The mind is its own place, and in itself can make a heaven of hell, a hell of heaven.",
-                author: "John Milton",
-                gender: "Male",
-                category: "Literature",
-                period: "1600s",
-                difficulty: 9,
-                hint: "He was briefly imprisoned after the restoration of the monarchy.",
-                location: "London, England",
-                year: "1660s"
-            },
-            {
                 index: 240,
                 text: "Nature does not hurry, yet everything is accomplished.",
                 author: "Lao Tzu",
@@ -7449,18 +7388,6 @@
                 hint: "She never married, despite receiving at least one proposal.",
                 location: "Hampshire, England",
                 year: "1810s"
-            },
-            {
-                index: 289,
-                text: "The quieter you become, the more you can hear.",
-                author: "Rumi",
-                gender: "Male",
-                category: "Literature",
-                period: "1200s",
-                difficulty: 7,
-                hint: "He dictated his poetry while in states of ecstatic trance.",
-                location: "Konya, Turkey",
-                year: "1250s"
             },
             {
                 index: 290,
@@ -8674,7 +8601,7 @@
                 location: "Illinois, USA",
                 year: "1858"
             }
-        ];        
+        ];
         // Get all unique authors for dropdown
         const authors = [...new Set(quotes.map(q => q.author))].sort();
         
@@ -11368,30 +11295,27 @@
             if (isCorrect) {
                 hintsHTML = '<span class="hint-tag correct">✓ Correct!</span>';
             } else {
-                if (gameDifficulty === 'easy') {
-                    // Show all hints in easy mode
-                    const genderMatch = guessedQuote.gender === currentQuote.gender;
-                    // An author can have quotes in multiple categories (e.g. MLK, Einstein);
-                    // count it a match if ANY of their quotes shares the target's category.
-                    const categoryMatch = quotes.some(q => q.author === guessedAuthor && q.category === currentQuote.category);
-                    const displayCategory = categoryMatch ? currentQuote.category : guessedQuote.category;
-                    const periodMatch = guessedQuote.period === currentQuote.period;
+                // Both modes get attribute feedback so the puzzle is solvable by
+                // reasoning. Hard mode's challenge is the missing help elsewhere:
+                // no dropdown narrowing and no free bonus/location hints (see submitGuess).
+                const genderMatch = guessedQuote.gender === currentQuote.gender;
+                // An author can have quotes in multiple categories (e.g. MLK, Einstein);
+                // count it a match if ANY of their quotes shares the target's category.
+                const categoryMatch = quotes.some(q => q.author === guessedAuthor && q.category === currentQuote.category);
+                const displayCategory = categoryMatch ? currentQuote.category : guessedQuote.category;
+                const periodMatch = guessedQuote.period === currentQuote.period;
 
-                    hintsHTML = `
-                        <span class="hint-tag ${genderMatch ? 'correct' : 'incorrect'}">
-                            Gender: ${guessedQuote.gender} ${genderMatch ? '✓' : '✗'}
-                        </span>
-                        <span class="hint-tag ${categoryMatch ? 'correct' : 'incorrect'}">
-                            Category: ${displayCategory} ${categoryMatch ? '✓' : '✗'}
-                        </span>
-                        <span class="hint-tag ${periodMatch ? 'correct' : 'incorrect'}">
-                            Period: ${guessedQuote.period} ${periodMatch ? '✓' : '✗'}
-                        </span>
-                    `;
-                } else {
-                    // Hard mode - no hints
-                    hintsHTML = '<span class="hint-tag incorrect">✗ Incorrect</span>';
-                }
+                hintsHTML = `
+                    <span class="hint-tag ${genderMatch ? 'correct' : 'incorrect'}">
+                        Gender: ${guessedQuote.gender} ${genderMatch ? '✓' : '✗'}
+                    </span>
+                    <span class="hint-tag ${categoryMatch ? 'correct' : 'incorrect'}">
+                        Category: ${displayCategory} ${categoryMatch ? '✓' : '✗'}
+                    </span>
+                    <span class="hint-tag ${periodMatch ? 'correct' : 'incorrect'}">
+                        Period: ${guessedQuote.period} ${periodMatch ? '✓' : '✗'}
+                    </span>
+                `;
             }
             
             feedbackItem.innerHTML = `
