@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.11.1">
+    <meta name="version" content="1.12.0">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -11413,7 +11413,32 @@
 
     </style>
 </head>
-<body>
+<body class="gs-simplified">
+<!-- ============ SIMPLIFIED MODE (v1.12.0) ============
+     Hides cost-generating / high-clutter feature clusters: AI insights &
+     morning review, AI hints / Ask AI, coin economy & store, and Battles.
+     Paired with GS_FEATURES flags in the main script that hard-block the
+     underlying paid API calls. To restore a cluster: flip its GS_FEATURES
+     flag to true AND remove the matching rule below (or the whole block). -->
+<style id="gs-simplified-styles">
+    /* Battles (social tab + home widgets) */
+    body.gs-simplified .nav-tab[data-tab="social"],
+    body.gs-simplified #friends-widget,
+    body.gs-simplified #battle-widget,
+    /* AI hints (header button, floating action button, in-sheet hint buttons) */
+    body.gs-simplified #header-hint-btn,
+    body.gs-simplified .hint-fab,
+    body.gs-simplified .hint-btn,
+    body.gs-simplified .hint-get-btn,
+    /* AI insights (💡 icons on game cards) */
+    body.gs-simplified .insight-available,
+    /* Ask AI (help sheet) */
+    body.gs-simplified .help-ask-ai,
+    /* Coins / store / rewards / morning-review menu entries (tagged inline) */
+    body.gs-simplified [data-lean-hide] {
+        display: none !important;
+    }
+</style>
     <!-- Floating Help Button Badge - Hidden, no longer needed -->
     <div class="uat-mode-badge" id="feedback-mode-badge" style="display:none;">❓ Help</div>
     
@@ -11443,7 +11468,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.11.1</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.12.0</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -11465,7 +11490,7 @@
         </div>
         <div class="settings-body">
             <!-- Wallet Display - at top of menu (tappable) -->
-            <div class="settings-section" style="padding: 16px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); border-radius: 12px; margin: 0 16px 16px; cursor: pointer;" onclick="showWalletOptionsSheet()">
+            <div class="settings-section" data-lean-hide style="padding: 16px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); border-radius: 12px; margin: 0 16px 16px; cursor: pointer;" onclick="showWalletOptionsSheet()">
                 <div style="display: flex; justify-content: center; gap: 24px; font-size: 1.1rem;">
                     <span class="tokens" style="display: flex; align-items: center; gap: 6px;">💎 <span id="token-count" style="font-weight: 700;">0</span></span>
                     <span class="coins" style="display: flex; align-items: center; gap: 6px;">🪙 <span id="coin-count" style="font-weight: 700;">0</span></span>
@@ -11504,7 +11529,7 @@
             </div>
             
             <!-- Rewards - Combined Invite + Shop -->
-            <div class="settings-section">
+            <div class="settings-section" data-lean-hide>
                 <div class="settings-section-title">🎁 Rewards</div>
                 <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(showReferralSheet, 300)">
                     <span class="icon">📨</span>
@@ -11625,7 +11650,7 @@
                     </div>
                     
                     <!-- Morning Review -->
-                    <div class="settings-section">
+                    <div class="settings-section" data-lean-hide>
                         <div class="settings-section-title">☀️ Morning Review</div>
                         <div class="settings-toggle-row">
                             <label>
@@ -11782,7 +11807,7 @@
             </div>
         </div>
         <div class="settings-footer">
-            <div class="settings-version">Game Shelf PWA v1.11.1</div>
+            <div class="settings-version">Game Shelf PWA v1.12.0</div>
         </div>
     </div>
     
@@ -15410,6 +15435,21 @@
     </div>
     
     <script>
+        // ============ SIMPLIFIED MODE FEATURE FLAGS (v1.12.0) ============
+        // Hard-off switches for cost-generating features. When false, the entry
+        // functions guarded below return early so NO paid Cloud Function /
+        // Anthropic API / Stripe call can fire — even if a UI surface leaks
+        // through. Pairs with the #gs-simplified-styles CSS block that hides the
+        // corresponding UI. To restore a feature: set its flag true AND remove
+        // the matching rule from #gs-simplified-styles.
+        const GS_FEATURES = {
+            aiInsights: false,    // getDailyInsight / getInsightReaction / submitInsightReaction
+            morningReview: false, // getMorningReview
+            aiHints: false,       // getHint / getAIHelp (in-game hints + Ask AI)
+            coins: false,         // createCoinCheckout (coin purchases / store)
+            battles: false        // PvP battles tab, home widgets, recommendations
+        };
+
         // ============ FIREBASE CONFIG ============
         const firebaseConfig = {
             apiKey: "AIzaSyBQVwn8vOrFTzLlm2MYIPBwgZV2xR9AuhM",
@@ -19032,6 +19072,7 @@
         }
         
         function renderBattleRecommendations() {
+            if (!GS_FEATURES.battles) return ''; // simplified mode: battles removed
             const container = document.getElementById('recommendations-list-social');
             const section = document.getElementById('recommendations-section-social');
             
@@ -19107,6 +19148,7 @@
         }
         
         function renderFriendRecommendations() {
+            if (!GS_FEATURES.battles) return ''; // simplified mode: friend/social recommendations removed
             const container = document.getElementById('recommendations-list-share');
             const section = document.getElementById('recommendations-section-share');
             
@@ -22538,9 +22580,12 @@
         }
         
         // ============ WHAT'S NEW SYSTEM ============
-        const APP_VERSION = '1.11.1';
-        
+        const APP_VERSION = '1.12.0';
+
         const RELEASE_NOTES = {
+            '1.12.0': [
+                { icon: '✨', title: 'Streamlined Game Shelf', desc: 'A cleaner, faster home for your daily puzzles — we simplified the interface to focus on tracking and playing your games' }
+            ],
             '1.11.1': [
                 { icon: '❤️', title: 'Heart Tap Fix', desc: 'Tapping the favorite heart no longer accidentally opens the game — tap zones are properly separated' },
                 { icon: '🔄', title: 'Tab Switch Refresh', desc: 'Home screen and Games tab now refresh when you switch tabs — newly added games and favorites show immediately' },
@@ -23237,6 +23282,7 @@
         }
         
         function showAskAI() {
+            if (!GS_FEATURES.aiHints) return; // simplified mode: AI help disabled, no paid call
             // Get current search query if any
             const searchInput = document.getElementById('help-search-input');
             lastHelpSearchQuery = searchInput?.value?.trim() || '';
@@ -23337,6 +23383,7 @@
         }
         
         async function submitAIHelp() {
+            if (!GS_FEATURES.aiHints) return; // simplified mode: no getAIHelp call
             const input = document.getElementById('ai-help-input');
             const question = input.value.trim();
             
@@ -23476,6 +23523,7 @@
         }
         
         async function submitAIHelpFollowup() {
+            if (!GS_FEATURES.aiHints) return; // simplified mode: no getAIHelp call
             const input = document.getElementById('ai-help-followup-input');
             const question = input.value.trim();
             
@@ -31164,6 +31212,7 @@
         }
         
         async function purchaseCoins(amount) {
+            if (!GS_FEATURES.coins) return; // simplified mode: no createCoinCheckout / Stripe call
             if (!currentUser) {
                 showToast('Please sign in to purchase coins');
                 return;
@@ -32133,6 +32182,7 @@
         }
         
         function renderLeaderboard() {
+            if (!GS_FEATURES.battles) return; // simplified mode: social leaderboard removed
             const container = document.getElementById('leaderboard-list');
             
             // Mock leaderboard for now
@@ -32163,6 +32213,7 @@
         }
         
         function renderFriendsWidget() {
+            if (!GS_FEATURES.battles) return; // simplified mode: friends widget removed
             const container = document.getElementById('friends-row');
             if (!container) return;
             
@@ -34625,6 +34676,7 @@ Hint levels:
         let currentInsightReaction = null;
         
         async function showInsightSheet(gameId) {
+            if (!GS_FEATURES.aiInsights) return; // simplified mode: no getDailyInsight / getInsightReaction call
             // Normalize game ID
             const normalizedId = gameId === 'nyt-connections' ? 'connections' : gameId;
             currentInsightGame = normalizedId;
@@ -34732,6 +34784,7 @@ Hint levels:
         }
         
         async function submitInsightReaction(reaction) {
+            if (!GS_FEATURES.aiInsights) return; // simplified mode: no submitInsightReaction call
             if (!currentUser || !currentInsightGame) {
                 showToast('Sign in to react');
                 return;
@@ -34988,6 +35041,7 @@ Hint levels:
         }
         
         async function showMorningReview(dateOption = 'today', isAutoShow = false) {
+            if (!GS_FEATURES.morningReview) return; // simplified mode: no getMorningReview call (also blocks daily auto-show)
             // Must be signed in
             if (!currentUser) {
                 showToast('Sign in to view morning review');
@@ -35441,6 +35495,7 @@ Hint levels:
         }
         
         async function getHint(level = hintLevel) {
+            if (!GS_FEATURES.aiHints) return; // simplified mode: no getHint call
             if (!hintCurrentGame || hintLoading) return;
             
             // Track hint request
