@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.5.1">
+    <meta name="version" content="1.5.2">
     <title>Quotle - Daily Quote Puzzle</title>
     
     <!-- Early initialization: Set defaults and apply dark mode BEFORE any CSS renders -->
@@ -3604,7 +3604,7 @@
                     <p><strong>Quote #:</strong> <span id="current-quote-number">Loading...</span></p>
                     <p><strong>Total Quotes:</strong> 365</p>
                     <p><strong>Days Live:</strong> <span id="days-since-launch">Loading...</span></p>
-                    <p><strong>Version:</strong> v1.5.1</p>
+                    <p><strong>Version:</strong> v1.5.2</p>
                 </div>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--slate); line-height: 1.5;">
                     A daily quote guessing game featuring wisdom from ancient philosophers to modern thinkers - spanning over 2,500 years of human thought.
@@ -3992,6 +3992,9 @@
 
     <script>
         // Quote Database with 1-10 difficulty scale (only 4+)
+        // `validated`: true = attribution reviewed with no concern; false = flagged as
+        // apocryphal / paraphrase / debated attribution (kept in play, but tracked so
+        // future audits can target them). Not surfaced in gameplay.
         const quotes = [
             {
                 index: 1,
@@ -4003,7 +4006,8 @@
                 difficulty: 8,
                 hint: "He founded the Tuskegee Institute with just 30 students.",
                 location: "Tuskegee, Alabama, USA",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 2,
@@ -4015,7 +4019,8 @@
                 difficulty: 6,
                 hint: "He invented the lightning rod, bifocals, and the Franklin stove.",
                 location: "Philadelphia, Pennsylvania, USA",
-                year: "1750s"
+                year: "1750s",
+                validated: true
             },
             {
                 index: 3,
@@ -4027,7 +4032,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Los Angeles, California, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 4,
@@ -4039,7 +4045,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Washington, D.C., USA",
-                year: "1961"
+                year: "1961",
+                validated: true
             },
             {
                 index: 5,
@@ -4051,7 +4058,8 @@
                 difficulty: 6,
                 hint: "He taught himself five languages: French, Italian, Spanish, Latin, and German.",
                 location: "Philadelphia, Pennsylvania, USA",
-                year: "1750s"
+                year: "1750s",
+                validated: true
             },
             {
                 index: 6,
@@ -4063,7 +4071,8 @@
                 difficulty: 5,
                 hint: "She chaired the UN committee that drafted the Universal Declaration of Human Rights.",
                 location: "New York City, USA",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 7,
@@ -4075,7 +4084,8 @@
                 difficulty: 2,
                 hint: "He was the first person to walk on the Moon.",
                 location: "The Moon",
-                year: "1969"
+                year: "1969",
+                validated: true
             },
             {
                 index: 9,
@@ -4087,7 +4097,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Los Angeles, California, USA",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 10,
@@ -4099,7 +4110,8 @@
                 difficulty: 5,
                 hint: "She resigned from the Daughters of the American Revolution when they barred a Black singer.",
                 location: "New York City, USA",
-                year: "1940s"
+                year: "1940s",
+                validated: false
             },
             {
                 index: 11,
@@ -4111,7 +4123,8 @@
                 difficulty: 6,
                 hint: "She held 348 press conferences as First Lady—but only women reporters could attend.",
                 location: "New York City, USA",
-                year: "1940s"
+                year: "1940s",
+                validated: false
             },
             {
                 index: 13,
@@ -4123,7 +4136,8 @@
                 difficulty: 5,
                 hint: "He was a sickly child who built himself up through exercise.",
                 location: "New York City, USA",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 14,
@@ -4135,7 +4149,8 @@
                 difficulty: 4,
                 hint: "He was thrown off a train in South Africa for refusing to leave first class.",
                 location: "Gujarat, India",
-                year: "1940s"
+                year: "1940s",
+                validated: false
             },
             {
                 index: 15,
@@ -4147,7 +4162,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Alabama, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 18,
@@ -4159,7 +4175,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "London, England",
-                year: "1940s"
+                year: "1940s",
+                validated: false
             },
             {
                 index: 19,
@@ -4171,7 +4188,8 @@
                 difficulty: 5,
                 hint: "He claimed to know only that he knew nothing.",
                 location: "Athens, Greece",
-                year: "400 BCE"
+                year: "400 BCE",
+                validated: true
             },
             {
                 index: 20,
@@ -4183,7 +4201,8 @@
                 difficulty: 6,
                 hint: "She spoke six languages fluently.",
                 location: "St. Louis, Missouri, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 21,
@@ -4195,7 +4214,8 @@
                 difficulty: 6,
                 hint: "He never wrote anything—his ideas survive through his students.",
                 location: "Athens, Greece",
-                year: "400 BCE"
+                year: "400 BCE",
+                validated: true
             },
             {
                 index: 22,
@@ -4207,7 +4227,8 @@
                 difficulty: 7,
                 hint: "He was born into slavery and later became an advisor to presidents.",
                 location: "Tuskegee, Alabama, USA",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 23,
@@ -4219,7 +4240,8 @@
                 difficulty: 6,
                 hint: "She was the first woman to fly solo across the Atlantic Ocean.",
                 location: "Atchison, Kansas, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 24,
@@ -4231,7 +4253,8 @@
                 difficulty: 8,
                 hint: "Her poems were discovered by her sister after her death, tied in neat bundles.",
                 location: "Amherst, Massachusetts, USA",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 25,
@@ -4243,7 +4266,8 @@
                 difficulty: 6,
                 hint: "He wrote 'Les Misérables' while in exile for opposing Napoleon III.",
                 location: "Paris, France",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 26,
@@ -4255,7 +4279,8 @@
                 difficulty: 5,
                 hint: "This individual was influential in the 1900s period.",
                 location: "USA",
-                year: "1912"
+                year: "1912",
+                validated: true
             },
             {
                 index: 27,
@@ -4267,7 +4292,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Paris, France",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 28,
@@ -4279,7 +4305,8 @@
                 difficulty: 9,
                 hint: "'Ulysses' was banned in the US and UK for over a decade for obscenity.",
                 location: "Dublin, Ireland",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 29,
@@ -4291,7 +4318,8 @@
                 difficulty: 7,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Montgomery, Alabama, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 30,
@@ -4303,7 +4331,8 @@
                 difficulty: 8,
                 hint: "He went to prison for 'gross indecency' and died three years after release.",
                 location: "Dublin, Ireland",
-                year: "1890s"
+                year: "1890s",
+                validated: true
             },
             {
                 index: 31,
@@ -4315,7 +4344,8 @@
                 difficulty: 9,
                 hint: "She appeared on the US dollar coin—the first woman so honored.",
                 location: "Rochester, New York, USA",
-                year: "1870s"
+                year: "1870s",
+                validated: true
             },
             {
                 index: 32,
@@ -4327,7 +4357,8 @@
                 difficulty: 8,
                 hint: "His essay on civil disobedience influenced Gandhi and Martin Luther King Jr.",
                 location: "Concord, Massachusetts, USA",
-                year: "1850s"
+                year: "1850s",
+                validated: true
             },
             {
                 index: 33,
@@ -4339,7 +4370,8 @@
                 difficulty: 8,
                 hint: "He served as a chaplain during the English Civil War.",
                 location: "London, England",
-                year: "1650s"
+                year: "1650s",
+                validated: true
             },
             {
                 index: 34,
@@ -4351,7 +4383,8 @@
                 difficulty: 7,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Los Angeles, California, USA",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 35,
@@ -4363,7 +4396,8 @@
                 difficulty: 8,
                 hint: "He coined phrases like 'the pen is mightier than the sword' and 'the great unwashed.'",
                 location: "London, England",
-                year: "1830s"
+                year: "1830s",
+                validated: true
             },
             {
                 index: 36,
@@ -4375,7 +4409,8 @@
                 difficulty: 9,
                 hint: "He invented an early calculator at age 19 to help his tax-collector father.",
                 location: "Paris, France",
-                year: "1650s"
+                year: "1650s",
+                validated: true
             },
             {
                 index: 37,
@@ -4387,7 +4422,8 @@
                 difficulty: 9,
                 hint: "He was so absent-minded he once sent his wife a telegram asking where he should be.",
                 location: "London, England",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 38,
@@ -4399,7 +4435,8 @@
                 difficulty: 9,
                 hint: "He wrote a hundred books and thousands of essays.",
                 location: "London, England",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 39,
@@ -4411,7 +4448,8 @@
                 difficulty: 7,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Montgomery, Alabama, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 40,
@@ -4423,7 +4461,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "New Hampshire, USA",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 41,
@@ -4435,7 +4474,8 @@
                 difficulty: 9,
                 hint: "The circumstances of his mysterious death remain unsolved.",
                 location: "Baltimore, Maryland, USA",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 42,
@@ -4447,7 +4487,8 @@
                 difficulty: 5,
                 hint: "He was kidnapped by pirates and later returned to crucify them.",
                 location: "Rome, Italy",
-                year: "50 BCE"
+                year: "50 BCE",
+                validated: true
             },
             {
                 index: 44,
@@ -4459,7 +4500,8 @@
                 difficulty: 8,
                 hint: "He was so absent-minded he once walked 15 miles in his nightgown while deep in thought.",
                 location: "Edinburgh, Scotland",
-                year: "1770s"
+                year: "1770s",
+                validated: true
             },
             {
                 index: 45,
@@ -4471,7 +4513,8 @@
                 difficulty: 7,
                 hint: "He wrote over 8 million words in his lifetime.",
                 location: "Naples, Italy",
-                year: "1260s"
+                year: "1260s",
+                validated: true
             },
             {
                 index: 46,
@@ -4483,7 +4526,8 @@
                 difficulty: 5,
                 hint: "He lived in India seeking spiritual enlightenment before founding Apple.",
                 location: "Cupertino, California, USA",
-                year: "2000s"
+                year: "2000s",
+                validated: true
             },
             {
                 index: 47,
@@ -4495,7 +4539,8 @@
                 difficulty: 7,
                 hint: "He also wrote comedies, poems, and a history of Florence.",
                 location: "Florence, Italy",
-                year: "1510s"
+                year: "1510s",
+                validated: true
             },
             {
                 index: 48,
@@ -4507,7 +4552,8 @@
                 difficulty: 9,
                 hint: "He narrowly escaped execution during the French Revolution.",
                 location: "Philadelphia, Pennsylvania, USA",
-                year: "1770s"
+                year: "1770s",
+                validated: true
             },
             {
                 index: 49,
@@ -4519,7 +4565,8 @@
                 difficulty: 5,
                 hint: "His funeral procession in Paris drew two million people.",
                 location: "Paris, France",
-                year: "1862"
+                year: "1862",
+                validated: true
             },
             {
                 index: 50,
@@ -4531,7 +4578,8 @@
                 difficulty: 8,
                 hint: "She was the first woman to win a Nobel Prize—and the first person to win two.",
                 location: "Paris, France",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 51,
@@ -4543,7 +4591,8 @@
                 difficulty: 6,
                 hint: "He reportedly discovered his famous principle while taking a bath and ran naked through the streets shouting 'Eureka!'",
                 location: "Syracuse, Sicily",
-                year: "250 BCE"
+                year: "250 BCE",
+                validated: true
             },
             {
                 index: 52,
@@ -4555,7 +4604,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Liverpool, England",
-                year: "1971"
+                year: "1971",
+                validated: true
             },
             {
                 index: 53,
@@ -4567,7 +4617,8 @@
                 difficulty: 8,
                 hint: "He wrote over 300 works, but only fragments survive.",
                 location: "Athens, Greece",
-                year: "300 BCE"
+                year: "300 BCE",
+                validated: true
             },
             {
                 index: 54,
@@ -4579,7 +4630,8 @@
                 difficulty: 6,
                 hint: "He is considered the father of modern management.",
                 location: "Claremont, California, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: false
             },
             {
                 index: 55,
@@ -4591,7 +4643,8 @@
                 difficulty: 7,
                 hint: "He was born a slave and later freed.",
                 location: "Rome, Italy",
-                year: "100 CE"
+                year: "100 CE",
+                validated: true
             },
             {
                 index: 56,
@@ -4603,7 +4656,8 @@
                 difficulty: 7,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "California, USA",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 57,
@@ -4615,7 +4669,8 @@
                 difficulty: 5,
                 hint: "He made this speech at Rice University about the space program.",
                 location: "Houston, Texas, USA",
-                year: "1962"
+                year: "1962",
+                validated: true
             },
             {
                 index: 58,
@@ -4627,7 +4682,8 @@
                 difficulty: 5,
                 hint: "He was a Baptist minister who advocated for nonviolent resistance.",
                 location: "Atlanta, Georgia, USA",
-                year: "1963"
+                year: "1963",
+                validated: true
             },
             {
                 index: 59,
@@ -4639,7 +4695,8 @@
                 difficulty: 8,
                 hint: "He was a believer in the supernatural and conducted séances.",
                 location: "Dublin, Ireland",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 60,
@@ -4651,7 +4708,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "New York City, USA",
-                year: "1964"
+                year: "1964",
+                validated: true
             },
             {
                 index: 61,
@@ -4663,7 +4721,8 @@
                 difficulty: 8,
                 hint: "'The Prophet' has never been out of print since 1923.",
                 location: "Beirut, Lebanon",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 62,
@@ -4675,7 +4734,8 @@
                 difficulty: 8,
                 hint: "She eloped with Percy Bysshe Shelley when she was 16.",
                 location: "London, England",
-                year: "1831"
+                year: "1831",
+                validated: true
             },
             {
                 index: 63,
@@ -4687,7 +4747,8 @@
                 difficulty: 8,
                 hint: "She wrote her novels on small pieces of paper she could hide if interrupted.",
                 location: "Hampshire, England",
-                year: "1810s"
+                year: "1810s",
+                validated: true
             },
             {
                 index: 64,
@@ -4699,7 +4760,8 @@
                 difficulty: 5,
                 hint: "His prisoner number 46664 became a symbol of the anti-apartheid movement.",
                 location: "Johannesburg, South Africa",
-                year: "1990s"
+                year: "1990s",
+                validated: true
             },
             {
                 index: 65,
@@ -4711,7 +4773,8 @@
                 difficulty: 6,
                 hint: "This individual was influential in the 1500s period.",
                 location: "Spain",
-                year: "1490s"
+                year: "1490s",
+                validated: true
             },
             {
                 index: 66,
@@ -4723,7 +4786,8 @@
                 difficulty: 9,
                 hint: "His novel 'Lady Chatterley's Lover' was banned for obscenity for decades.",
                 location: "Nottinghamshire, England",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 67,
@@ -4735,7 +4799,8 @@
                 difficulty: 8,
                 hint: "He had over 1,000 books in his personal library.",
                 location: "Bordeaux, France",
-                year: "1580s"
+                year: "1580s",
+                validated: true
             },
             {
                 index: 68,
@@ -4747,7 +4812,8 @@
                 difficulty: 9,
                 hint: "'Gulliver's Travels' was so popular it was pirated within weeks.",
                 location: "Dublin, Ireland",
-                year: "1720s"
+                year: "1720s",
+                validated: true
             },
             {
                 index: 69,
@@ -4759,7 +4825,8 @@
                 difficulty: 8,
                 hint: "She kept a diary from age 11 until her death—spanning over 60 years.",
                 location: "Paris, France",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 70,
@@ -4771,7 +4838,8 @@
                 difficulty: 8,
                 hint: "The father of modern economics was also a professor of moral philosophy.",
                 location: "Edinburgh, Scotland",
-                year: "1770s"
+                year: "1770s",
+                validated: true
             },
             {
                 index: 71,
@@ -4783,7 +4851,8 @@
                 difficulty: 7,
                 hint: "She was the first Black woman to have a screenplay produced.",
                 location: "St. Louis, Missouri, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 73,
@@ -4795,7 +4864,8 @@
                 difficulty: 5,
                 hint: "He was one of the Founding Fathers of the United States.",
                 location: "Virginia, USA",
-                year: "1775"
+                year: "1775",
+                validated: true
             },
             {
                 index: 74,
@@ -4807,7 +4877,8 @@
                 difficulty: 8,
                 hint: "His last words reportedly were about the ugly wallpaper in his room.",
                 location: "Dublin, Ireland",
-                year: "1890s"
+                year: "1890s",
+                validated: true
             },
             {
                 index: 75,
@@ -4819,7 +4890,8 @@
                 difficulty: 7,
                 hint: "He died in New York at age 39 after reportedly drinking 18 straight whiskeys.",
                 location: "Swansea, Wales",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 76,
@@ -4831,7 +4903,8 @@
                 difficulty: 8,
                 hint: "He was Dean of St. Patrick's Cathedral in Dublin.",
                 location: "Dublin, Ireland",
-                year: "1720s"
+                year: "1720s",
+                validated: true
             },
             {
                 index: 77,
@@ -4843,7 +4916,8 @@
                 difficulty: 6,
                 hint: "He crowned himself Emperor of France in 1804.",
                 location: "Paris, France",
-                year: "1800s"
+                year: "1800s",
+                validated: true
             },
             {
                 index: 78,
@@ -4855,7 +4929,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Alabama, USA",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 79,
@@ -4867,7 +4942,8 @@
                 difficulty: 7,
                 hint: "He designed the Chupa Chups lollipop logo.",
                 location: "Catalonia, Spain",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 80,
@@ -4879,7 +4955,8 @@
                 difficulty: 9,
                 hint: "He was the inspiration for Long John Silver in 'Treasure Island.'",
                 location: "London, England",
-                year: "1880s"
+                year: "1880s",
+                validated: true
             },
             {
                 index: 81,
@@ -4891,7 +4968,8 @@
                 difficulty: 7,
                 hint: "He suffered from severe eye problems and underwent 25 eye surgeries.",
                 location: "Dublin, Ireland",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 82,
@@ -4903,7 +4981,8 @@
                 difficulty: 6,
                 hint: "He lived in exile on the Channel Islands for 19 years.",
                 location: "Paris, France",
-                year: "1862"
+                year: "1862",
+                validated: true
             },
             {
                 index: 83,
@@ -4915,7 +4994,8 @@
                 difficulty: 6,
                 hint: "He invented over 1,700 words still used in English today.",
                 location: "Stratford-upon-Avon, England",
-                year: "1600s"
+                year: "1600s",
+                validated: true
             },
             {
                 index: 84,
@@ -4927,7 +5007,8 @@
                 difficulty: 8,
                 hint: "He married his 13-year-old cousin when he was 27.",
                 location: "Baltimore, Maryland, USA",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 85,
@@ -4939,7 +5020,8 @@
                 difficulty: 7,
                 hint: "Her diaries fill over 35,000 handwritten pages.",
                 location: "Paris, France",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 86,
@@ -4951,7 +5033,8 @@
                 difficulty: 7,
                 hint: "He was imprisoned in the Bastille twice.",
                 location: "Paris, France",
-                year: "1760s"
+                year: "1760s",
+                validated: true
             },
             {
                 index: 87,
@@ -4963,7 +5046,8 @@
                 difficulty: 8,
                 hint: "He was executed for his speeches against Mark Antony.",
                 location: "Rome, Italy",
-                year: "50 BCE"
+                year: "50 BCE",
+                validated: true
             },
             {
                 index: 88,
@@ -4975,7 +5059,8 @@
                 difficulty: 7,
                 hint: "He read at least one book every day, sometimes two.",
                 location: "New York City, USA",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 89,
@@ -4987,7 +5072,8 @@
                 difficulty: 6,
                 hint: "He was sold into slavery after a trip to Syracuse.",
                 location: "Athens, Greece",
-                year: "380 BCE"
+                year: "380 BCE",
+                validated: true
             },
             {
                 index: 90,
@@ -4999,7 +5085,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Washington, D.C., USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 91,
@@ -5011,7 +5098,8 @@
                 difficulty: 7,
                 hint: "He secretly married a 17-year-old, which ruined his career for years.",
                 location: "London, England",
-                year: "1620s"
+                year: "1620s",
+                validated: true
             },
             {
                 index: 92,
@@ -5023,7 +5111,8 @@
                 difficulty: 8,
                 hint: "He is considered one of the greatest philosophers of the 20th century.",
                 location: "Cambridge, England",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 94,
@@ -5035,7 +5124,8 @@
                 difficulty: 8,
                 hint: "He dissected over 30 human corpses to study anatomy.",
                 location: "Florence, Italy",
-                year: "1500s"
+                year: "1500s",
+                validated: true
             },
             {
                 index: 95,
@@ -5047,7 +5137,8 @@
                 difficulty: 6,
                 hint: "He sold the Louisiana Territory to the United States.",
                 location: "Paris, France",
-                year: "1800s"
+                year: "1800s",
+                validated: true
             },
             {
                 index: 96,
@@ -5059,7 +5150,8 @@
                 difficulty: 8,
                 hint: "He died of tuberculosis at only 25 years old.",
                 location: "London, England",
-                year: "1820s"
+                year: "1820s",
+                validated: true
             },
             {
                 index: 97,
@@ -5071,7 +5163,8 @@
                 difficulty: 6,
                 hint: "He won the Nobel Prize in Literature in 1948.",
                 location: "London, England",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 98,
@@ -5083,7 +5176,8 @@
                 difficulty: 5,
                 hint: "He corresponded with kings, popes, and scholars across Europe.",
                 location: "Rotterdam, Netherlands",
-                year: "1510s"
+                year: "1510s",
+                validated: true
             },
             {
                 index: 99,
@@ -5095,7 +5189,8 @@
                 difficulty: 7,
                 hint: "He was the first author to submit a typed manuscript.",
                 location: "Hartford, Connecticut, USA",
-                year: "1880s"
+                year: "1880s",
+                validated: false
             },
             {
                 index: 100,
@@ -5107,7 +5202,8 @@
                 difficulty: 6,
                 hint: "He posed for his portrait in his funeral shroud before death.",
                 location: "London, England",
-                year: "1620s"
+                year: "1620s",
+                validated: true
             },
             {
                 index: 101,
@@ -5119,7 +5215,8 @@
                 difficulty: 6,
                 hint: "He was shot while giving a speech but finished his 90-minute address.",
                 location: "New York City, USA",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 102,
@@ -5131,7 +5228,8 @@
                 difficulty: 8,
                 hint: "He could compose witty remarks as quickly as he could speak.",
                 location: "Dublin, Ireland",
-                year: "1890s"
+                year: "1890s",
+                validated: true
             },
             {
                 index: 103,
@@ -5143,7 +5241,8 @@
                 difficulty: 7,
                 hint: "She was a central figure of the Harlem Renaissance.",
                 location: "Florida, USA",
-                year: "1937"
+                year: "1937",
+                validated: true
             },
             {
                 index: 104,
@@ -5155,7 +5254,8 @@
                 difficulty: 8,
                 hint: "He made major contributions to probability theory through gambling problems.",
                 location: "Paris, France",
-                year: "1650s"
+                year: "1650s",
+                validated: true
             },
             {
                 index: 105,
@@ -5167,7 +5267,8 @@
                 difficulty: 7,
                 hint: "He served only 200 days as president before being assassinated.",
                 location: "Ohio, USA",
-                year: "1870s"
+                year: "1870s",
+                validated: true
             },
             {
                 index: 106,
@@ -5179,7 +5280,8 @@
                 difficulty: 5,
                 hint: "He tested thousands of materials before finding the right light bulb filament.",
                 location: "Menlo Park, New Jersey, USA",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 107,
@@ -5191,7 +5293,8 @@
                 difficulty: 7,
                 hint: "He was one of the wealthiest men in Rome despite preaching simplicity.",
                 location: "Rome, Italy",
-                year: "50 CE"
+                year: "50 CE",
+                validated: true
             },
             {
                 index: 108,
@@ -5203,7 +5306,8 @@
                 difficulty: 8,
                 hint: "He never intended his private journals to be published.",
                 location: "Rome, Italy",
-                year: "170 CE"
+                year: "170 CE",
+                validated: true
             },
             {
                 index: 109,
@@ -5215,7 +5319,8 @@
                 difficulty: 7,
                 hint: "He and Simone de Beauvoir had a lifelong partnership but never married.",
                 location: "Paris, France",
-                year: "1944"
+                year: "1944",
+                validated: true
             },
             {
                 index: 110,
@@ -5227,7 +5332,8 @@
                 difficulty: 8,
                 hint: "He was the most photographed American of the 19th century.",
                 location: "Rochester, New York, USA",
-                year: "1850s"
+                year: "1850s",
+                validated: true
             },
             {
                 index: 111,
@@ -5239,7 +5345,8 @@
                 difficulty: 7,
                 hint: "He founded his school in a garden, which became known as 'The Garden.'",
                 location: "Athens, Greece",
-                year: "300 BCE"
+                year: "300 BCE",
+                validated: true
             },
             {
                 index: 112,
@@ -5251,7 +5358,8 @@
                 difficulty: 7,
                 hint: "He went blind in his 40s and dictated 'Paradise Lost' to his daughters.",
                 location: "London, England",
-                year: "1660s"
+                year: "1660s",
+                validated: true
             },
             {
                 index: 113,
@@ -5263,7 +5371,8 @@
                 difficulty: 6,
                 hint: "She was mute for five years after a childhood trauma.",
                 location: "St. Louis, Missouri, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 114,
@@ -5275,7 +5384,8 @@
                 difficulty: 7,
                 hint: "He could write in Latin with one hand and Greek with the other simultaneously.",
                 location: "Ohio, USA",
-                year: "1870s"
+                year: "1870s",
+                validated: true
             },
             {
                 index: 115,
@@ -5287,7 +5397,8 @@
                 difficulty: 8,
                 hint: "His empiricist philosophy influenced Kant to 'wake from his dogmatic slumber.'",
                 location: "Edinburgh, Scotland",
-                year: "1750s"
+                year: "1750s",
+                validated: true
             },
             {
                 index: 116,
@@ -5299,7 +5410,8 @@
                 difficulty: 5,
                 hint: "He was a successful novelist, playwright, and politician.",
                 location: "London, England",
-                year: "1830s"
+                year: "1830s",
+                validated: true
             },
             {
                 index: 117,
@@ -5311,7 +5423,8 @@
                 difficulty: 7,
                 hint: "He served as a propagandist for the English Commonwealth.",
                 location: "London, England",
-                year: "1660s"
+                year: "1660s",
+                validated: true
             },
             {
                 index: 118,
@@ -5323,7 +5436,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Kolkata, India",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 119,
@@ -5335,7 +5449,8 @@
                 difficulty: 7,
                 hint: "He invented a new system of musical notation.",
                 location: "Geneva, Switzerland",
-                year: "1760s"
+                year: "1760s",
+                validated: true
             },
             {
                 index: 120,
@@ -5347,7 +5462,8 @@
                 difficulty: 8,
                 hint: "He wrote over 20,000 letters that survive today.",
                 location: "Paris, France",
-                year: "1760s"
+                year: "1760s",
+                validated: true
             },
             {
                 index: 121,
@@ -5359,7 +5475,8 @@
                 difficulty: 7,
                 hint: "He won both a Nobel Prize and an Oscar—the only person to do so.",
                 location: "Dublin, Ireland",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 122,
@@ -5371,7 +5488,8 @@
                 difficulty: 5,
                 hint: "He wrote this from a jail cell in Alabama.",
                 location: "Birmingham, Alabama, USA",
-                year: "1963"
+                year: "1963",
+                validated: true
             },
             {
                 index: 123,
@@ -5383,7 +5501,8 @@
                 difficulty: 7,
                 hint: "He held only minor government positions during his lifetime.",
                 location: "Lu State, China",
-                year: "500 BCE"
+                year: "500 BCE",
+                validated: true
             },
             {
                 index: 125,
@@ -5395,7 +5514,8 @@
                 difficulty: 7,
                 hint: "His school was revolutionary for accepting women and slaves as equals.",
                 location: "Athens, Greece",
-                year: "300 BCE"
+                year: "300 BCE",
+                validated: true
             },
             {
                 index: 126,
@@ -5407,7 +5527,8 @@
                 difficulty: 7,
                 hint: "She was an early advocate for women's suffrage.",
                 location: "Concord, Massachusetts, USA",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 127,
@@ -5419,7 +5540,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Detroit, Michigan, USA",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 128,
@@ -5431,7 +5553,8 @@
                 difficulty: 9,
                 hint: "She ran her own printing press to publish her early works.",
                 location: "Paris, France",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 129,
@@ -5443,7 +5566,8 @@
                 difficulty: 6,
                 hint: "He was one of the 'Five Good Emperors' of Rome.",
                 location: "Rome, Italy",
-                year: "170 CE"
+                year: "170 CE",
+                validated: true
             },
             {
                 index: 130,
@@ -5455,7 +5579,8 @@
                 difficulty: 6,
                 hint: "He spent 27 years in prison before becoming South Africa's first Black president.",
                 location: "Johannesburg, South Africa",
-                year: "1990s"
+                year: "1990s",
+                validated: true
             },
             {
                 index: 131,
@@ -5467,7 +5592,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Paris, France",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 132,
@@ -5479,7 +5605,8 @@
                 difficulty: 7,
                 hint: "He is the only president elected four times.",
                 location: "Hyde Park, New York, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 133,
@@ -5491,7 +5618,8 @@
                 difficulty: 8,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Los Angeles, California, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 135,
@@ -5503,7 +5631,8 @@
                 difficulty: 6,
                 hint: "She served as a Civil War nurse until typhoid fever nearly killed her.",
                 location: "Concord, Massachusetts, USA",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 136,
@@ -5515,7 +5644,8 @@
                 difficulty: 7,
                 hint: "This individual was known for their work in the Ancient period.",
                 location: "Greece",
-                year: "600 BCE"
+                year: "600 BCE",
+                validated: true
             },
             {
                 index: 137,
@@ -5527,7 +5657,8 @@
                 difficulty: 6,
                 hint: "He was forced to commit suicide by his former student.",
                 location: "Rome, Italy",
-                year: "50 CE"
+                year: "50 CE",
+                validated: true
             },
             {
                 index: 139,
@@ -5539,7 +5670,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Switzerland",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 140,
@@ -5551,7 +5683,8 @@
                 difficulty: 5,
                 hint: "He moved to Sweden to tutor Queen Christina—and died from the early hours she demanded.",
                 location: "Amsterdam, Netherlands",
-                year: "1640s"
+                year: "1640s",
+                validated: true
             },
             {
                 index: 141,
@@ -5563,7 +5696,8 @@
                 difficulty: 8,
                 hint: "Her writing style influenced the Lost Generation of American writers.",
                 location: "Paris, France",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 142,
@@ -5575,7 +5709,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "New York City, USA",
-                year: "1965"
+                year: "1965",
+                validated: true
             },
             {
                 index: 143,
@@ -5587,7 +5722,8 @@
                 difficulty: 6,
                 hint: "He taught psychology and philosophy at Harvard for 35 years.",
                 location: "Cambridge, Massachusetts, USA",
-                year: "1890s"
+                year: "1890s",
+                validated: true
             },
             {
                 index: 144,
@@ -5599,7 +5735,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Los Angeles, California, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 145,
@@ -5611,7 +5748,8 @@
                 difficulty: 7,
                 hint: "He abandoned all five of his children to foundling homes.",
                 location: "Geneva, Switzerland",
-                year: "1760s"
+                year: "1760s",
+                validated: true
             },
             {
                 index: 146,
@@ -5623,7 +5761,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "California, USA",
-                year: "1890s"
+                year: "1890s",
+                validated: true
             },
             {
                 index: 147,
@@ -5635,7 +5774,8 @@
                 difficulty: 6,
                 hint: "He asked for the poem to be burned at his death; Augustus refused.",
                 location: "Rome, Italy",
-                year: "30 BCE"
+                year: "30 BCE",
+                validated: true
             },
             {
                 index: 148,
@@ -5647,7 +5787,8 @@
                 difficulty: 8,
                 hint: "She and Elizabeth Cady Stanton worked together for 50 years.",
                 location: "Rochester, New York, USA",
-                year: "1870s"
+                year: "1870s",
+                validated: true
             },
             {
                 index: 149,
@@ -5659,7 +5800,8 @@
                 difficulty: 8,
                 hint: "His transformative friendship with a wandering mystic changed his life and poetry.",
                 location: "Konya, Turkey",
-                year: "1250s"
+                year: "1250s",
+                validated: true
             },
             {
                 index: 151,
@@ -5671,7 +5813,8 @@
                 difficulty: 7,
                 hint: "He suffered from what is now believed to be Tourette syndrome.",
                 location: "London, England",
-                year: "1750s"
+                year: "1750s",
+                validated: true
             },
             {
                 index: 152,
@@ -5683,7 +5826,8 @@
                 difficulty: 8,
                 hint: "He was a leader of the existentialist movement in philosophy.",
                 location: "Paris, France",
-                year: "1946"
+                year: "1946",
+                validated: true
             },
             {
                 index: 153,
@@ -5695,7 +5839,8 @@
                 difficulty: 7,
                 hint: "Her personal effects are still radioactive and kept in lead-lined boxes.",
                 location: "Paris, France",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 154,
@@ -5707,7 +5852,8 @@
                 difficulty: 7,
                 hint: "She collected avant-garde art before anyone else recognized its value.",
                 location: "Paris, France",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 155,
@@ -5719,7 +5865,8 @@
                 difficulty: 6,
                 hint: "He worked as a nurse during the Civil War.",
                 location: "Brooklyn, New York, USA",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 156,
@@ -5731,7 +5878,8 @@
                 difficulty: 8,
                 hint: "He was the first non-European to win the Nobel Prize in Literature.",
                 location: "Kolkata, India",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 157,
@@ -5743,7 +5891,8 @@
                 difficulty: 7,
                 hint: "He self-published 'Leaves of Grass' and set some of the type himself.",
                 location: "Brooklyn, New York, USA",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 158,
@@ -5755,7 +5904,8 @@
                 difficulty: 8,
                 hint: "She designed her own house and gardens at The Mount in Massachusetts.",
                 location: "New York City, USA",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 159,
@@ -5767,7 +5917,8 @@
                 difficulty: 5,
                 hint: "He was known as 'the Weeping Philosopher' for his melancholic nature.",
                 location: "Ephesus, Greece",
-                year: "500 BCE"
+                year: "500 BCE",
+                validated: true
             },
             {
                 index: 160,
@@ -5779,7 +5930,8 @@
                 difficulty: 7,
                 hint: "Her mother was the feminist philosopher Mary Wollstonecraft.",
                 location: "London, England",
-                year: "1818"
+                year: "1818",
+                validated: true
             },
             {
                 index: 161,
@@ -5791,7 +5943,8 @@
                 difficulty: 7,
                 hint: "He's credited with establishing Tuscan as the literary language of Italy.",
                 location: "Florence, Italy",
-                year: "1310s"
+                year: "1310s",
+                validated: true
             },
             {
                 index: 162,
@@ -5803,7 +5956,8 @@
                 difficulty: 6,
                 hint: "His existence is debated by historians—he may be a legendary figure.",
                 location: "Wu Kingdom, China",
-                year: "500 BCE"
+                year: "500 BCE",
+                validated: true
             },
             {
                 index: 163,
@@ -5815,7 +5969,8 @@
                 difficulty: 9,
                 hint: "His name means 'acquired' in Greek, reflecting his slave origins.",
                 location: "Rome, Italy",
-                year: "100 CE"
+                year: "100 CE",
+                validated: true
             },
             {
                 index: 164,
@@ -5827,7 +5982,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Montgomery, Alabama, USA",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 165,
@@ -5839,7 +5995,8 @@
                 difficulty: 9,
                 hint: "He founded the Academy, which lasted for over 900 years.",
                 location: "Athens, Greece",
-                year: "380 BCE"
+                year: "380 BCE",
+                validated: true
             },
             {
                 index: 166,
@@ -5851,7 +6008,8 @@
                 difficulty: 8,
                 hint: "'The Second Sex' was placed on the Vatican's list of forbidden books.",
                 location: "Paris, France",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 167,
@@ -5863,7 +6021,8 @@
                 difficulty: 5,
                 hint: "This individual was influential in the 1900s period.",
                 location: "Louisville, Kentucky, USA",
-                year: "1964"
+                year: "1964",
+                validated: true
             },
             {
                 index: 168,
@@ -5875,7 +6034,8 @@
                 difficulty: 9,
                 hint: "He composed the national anthems of two countries: India and Bangladesh.",
                 location: "Kolkata, India",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 169,
@@ -5887,7 +6047,8 @@
                 difficulty: 7,
                 hint: "His philosophy shaped Chinese civilization for over 2,000 years.",
                 location: "Lu State, China",
-                year: "500 BCE"
+                year: "500 BCE",
+                validated: true
             },
             {
                 index: 170,
@@ -5899,7 +6060,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Kolkata, India",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 171,
@@ -5911,7 +6073,8 @@
                 difficulty: 7,
                 hint: "He was known for his witty proverbs and historical writings.",
                 location: "London, England",
-                year: "1650s"
+                year: "1650s",
+                validated: true
             },
             {
                 index: 172,
@@ -5923,7 +6086,8 @@
                 difficulty: 7,
                 hint: "Her most famous novel is 'Their Eyes Were Watching God.'",
                 location: "Florida, USA",
-                year: "1937"
+                year: "1937",
+                validated: true
             },
             {
                 index: 173,
@@ -5935,7 +6099,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Los Angeles, California, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 174,
@@ -5947,7 +6112,8 @@
                 difficulty: 6,
                 hint: "Business executives now study his strategies for corporate competition.",
                 location: "Wu Kingdom, China",
-                year: "500 BCE"
+                year: "500 BCE",
+                validated: true
             },
             {
                 index: 176,
@@ -5959,7 +6125,8 @@
                 difficulty: 8,
                 hint: "He was the oldest signer of the Declaration of Independence at age 70.",
                 location: "Philadelphia, Pennsylvania, USA",
-                year: "1750s"
+                year: "1750s",
+                validated: true
             },
             {
                 index: 177,
@@ -5971,7 +6138,8 @@
                 difficulty: 7,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "California, USA",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 178,
@@ -5983,7 +6151,8 @@
                 difficulty: 7,
                 hint: "He was the first African American invited to dine at the White House.",
                 location: "Tuskegee, Alabama, USA",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 179,
@@ -5995,7 +6164,8 @@
                 difficulty: 8,
                 hint: "'The Prince' was written to win favor with the rulers who imprisoned him.",
                 location: "Florence, Italy",
-                year: "1510s"
+                year: "1510s",
+                validated: true
             },
             {
                 index: 180,
@@ -6007,7 +6177,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Detroit, Michigan, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 181,
@@ -6019,7 +6190,8 @@
                 difficulty: 8,
                 hint: "He and George Bernard Shaw were intellectual rivals but close friends.",
                 location: "London, England",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 182,
@@ -6031,7 +6203,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Alabama, USA",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 183,
@@ -6043,7 +6216,8 @@
                 difficulty: 6,
                 hint: "He taught himself to read while enslaved, despite laws forbidding it.",
                 location: "Rochester, New York, USA",
-                year: "1850s"
+                year: "1850s",
+                validated: true
             },
             {
                 index: 184,
@@ -6055,7 +6229,8 @@
                 difficulty: 8,
                 hint: "He was nominated for the Nobel Peace Prize five times but never won.",
                 location: "Gujarat, India",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 185,
@@ -6067,7 +6242,8 @@
                 difficulty: 8,
                 hint: "He eloped with a married woman, the mother of his professor's wife.",
                 location: "Nottinghamshire, England",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 186,
@@ -6079,7 +6255,8 @@
                 difficulty: 8,
                 hint: "He later became Dean of St. Paul's Cathedral.",
                 location: "London, England",
-                year: "1620s"
+                year: "1620s",
+                validated: true
             },
             {
                 index: 187,
@@ -6091,7 +6268,8 @@
                 difficulty: 6,
                 hint: "He's called the Father of English Literature.",
                 location: "London, England",
-                year: "1390s"
+                year: "1390s",
+                validated: true
             },
             {
                 index: 188,
@@ -6103,7 +6281,8 @@
                 difficulty: 6,
                 hint: "He held over 1,000 patents.",
                 location: "Menlo Park, New Jersey, USA",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 189,
@@ -6115,7 +6294,8 @@
                 difficulty: 7,
                 hint: "He was so poor in early life he had to leave Oxford.",
                 location: "London, England",
-                year: "1750s"
+                year: "1750s",
+                validated: true
             },
             {
                 index: 190,
@@ -6127,7 +6307,8 @@
                 difficulty: 8,
                 hint: "His 'Parallel Lives' influenced Shakespeare's Roman plays.",
                 location: "Delphi, Greece",
-                year: "100 CE"
+                year: "100 CE",
+                validated: true
             },
             {
                 index: 191,
@@ -6139,7 +6320,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "New Hampshire, USA",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 192,
@@ -6151,7 +6333,8 @@
                 difficulty: 7,
                 hint: "He refused to take sides in the Protestant Reformation despite pressure.",
                 location: "Rotterdam, Netherlands",
-                year: "1510s"
+                year: "1510s",
+                validated: true
             },
             {
                 index: 193,
@@ -6163,7 +6346,8 @@
                 difficulty: 9,
                 hint: "His teacher predicted his bellowing would be heard throughout the world.",
                 location: "Naples, Italy",
-                year: "1260s"
+                year: "1260s",
+                validated: true
             },
             {
                 index: 195,
@@ -6175,7 +6359,8 @@
                 difficulty: 6,
                 hint: "He won both the Pulitzer Prize and Nobel Prize in Literature.",
                 location: "Key West, Florida, USA",
-                year: "1929"
+                year: "1929",
+                validated: true
             },
             {
                 index: 196,
@@ -6187,7 +6372,8 @@
                 difficulty: 6,
                 hint: "His famous melting clocks painting took only a few hours to complete.",
                 location: "Catalonia, Spain",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 197,
@@ -6199,7 +6385,8 @@
                 difficulty: 6,
                 hint: "He was exiled twice: to Elba and then to Saint Helena.",
                 location: "Paris, France",
-                year: "1800s"
+                year: "1800s",
+                validated: true
             },
             {
                 index: 198,
@@ -6211,7 +6398,8 @@
                 difficulty: 6,
                 hint: "She won a Pulitzer Prize for 'A Midwife's Tale.'",
                 location: "New Hampshire, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 199,
@@ -6223,7 +6411,8 @@
                 difficulty: 7,
                 hint: "Legend says he was born as an old man with white hair.",
                 location: "Luoyang, China",
-                year: "600 BCE"
+                year: "600 BCE",
+                validated: true
             },
             {
                 index: 200,
@@ -6235,7 +6424,8 @@
                 difficulty: 7,
                 hint: "He spent much of his life in bed, doing his best thinking there.",
                 location: "Amsterdam, Netherlands",
-                year: "1640s"
+                year: "1640s",
+                validated: true
             },
             {
                 index: 201,
@@ -6247,7 +6437,8 @@
                 difficulty: 6,
                 hint: "She named her diary 'Kitty' and wrote to it as if writing to a friend.",
                 location: "Amsterdam, Netherlands",
-                year: "1944"
+                year: "1944",
+                validated: true
             },
             {
                 index: 202,
@@ -6259,7 +6450,8 @@
                 difficulty: 7,
                 hint: "He deposited his book in the temple of Artemis for safekeeping.",
                 location: "Ephesus, Greece",
-                year: "500 BCE"
+                year: "500 BCE",
+                validated: true
             },
             {
                 index: 203,
@@ -6271,7 +6463,8 @@
                 difficulty: 9,
                 hint: "He and his wife were expelled from England during WWI due to her German heritage.",
                 location: "Nottinghamshire, England",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 204,
@@ -6283,7 +6476,8 @@
                 difficulty: 7,
                 hint: "He initially opposed the Constitution for lacking a Bill of Rights.",
                 location: "Virginia, USA",
-                year: "1788"
+                year: "1788",
+                validated: true
             },
             {
                 index: 205,
@@ -6295,7 +6489,8 @@
                 difficulty: 7,
                 hint: "He founded an experimental school that became a university.",
                 location: "Kolkata, India",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 206,
@@ -6307,7 +6502,8 @@
                 difficulty: 8,
                 hint: "He made a fortune by exploiting a flaw in the French lottery.",
                 location: "Paris, France",
-                year: "1760s"
+                year: "1760s",
+                validated: true
             },
             {
                 index: 207,
@@ -6319,7 +6515,8 @@
                 difficulty: 6,
                 hint: "This individual was influential in the 1900s period.",
                 location: "New York City, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 208,
@@ -6331,7 +6528,8 @@
                 difficulty: 6,
                 hint: "He was also a scientist who developed a theory of colors.",
                 location: "Weimar, Germany",
-                year: "1800s"
+                year: "1800s",
+                validated: true
             },
             {
                 index: 209,
@@ -6343,7 +6541,8 @@
                 difficulty: 8,
                 hint: "He reformed the Roman calendar; the Julian calendar bears his name.",
                 location: "Rome, Italy",
-                year: "50 BCE"
+                year: "50 BCE",
+                validated: true
             },
             {
                 index: 210,
@@ -6355,7 +6554,8 @@
                 difficulty: 9,
                 hint: "This Nobel laureate was also a goalkeeper for a racing football club in Algeria.",
                 location: "Algiers, Algeria",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 211,
@@ -6367,7 +6567,8 @@
                 difficulty: 7,
                 hint: "He wrote his 'Meditations' while commanding armies on Rome's frontiers.",
                 location: "Rome, Italy",
-                year: "170 CE"
+                year: "170 CE",
+                validated: true
             },
             {
                 index: 212,
@@ -6379,7 +6580,8 @@
                 difficulty: 7,
                 hint: "She was the first woman to take the agrégation exam in philosophy.",
                 location: "Paris, France",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 213,
@@ -6391,7 +6593,8 @@
                 difficulty: 8,
                 hint: "He wrote biographies comparing famous Greeks and Romans.",
                 location: "Delphi, Greece",
-                year: "100 CE"
+                year: "100 CE",
+                validated: true
             },
             {
                 index: 214,
@@ -6403,7 +6606,8 @@
                 difficulty: 5,
                 hint: "'The Art of War' is required reading at military academies worldwide.",
                 location: "Wu Kingdom, China",
-                year: "500 BCE"
+                year: "500 BCE",
+                validated: true
             },
             {
                 index: 215,
@@ -6415,7 +6619,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "New Hampshire, USA",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 216,
@@ -6427,7 +6632,8 @@
                 difficulty: 8,
                 hint: "He named the Jazz Age and became its chronicler.",
                 location: "St. Paul, Minnesota, USA",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 217,
@@ -6439,7 +6645,8 @@
                 difficulty: 8,
                 hint: "He worked as a librarian for the Faculty of Advocates in Edinburgh.",
                 location: "Edinburgh, Scotland",
-                year: "1750s"
+                year: "1750s",
+                validated: true
             },
             {
                 index: 218,
@@ -6451,7 +6658,8 @@
                 difficulty: 7,
                 hint: "She suffered from severe depression and took her own life.",
                 location: "London, England",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 219,
@@ -6463,7 +6671,8 @@
                 difficulty: 6,
                 hint: "He rewrote the ending of 'A Farewell to Arms' 39 times.",
                 location: "Key West, Florida, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 220,
@@ -6475,7 +6684,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Switzerland",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 221,
@@ -6487,7 +6697,8 @@
                 difficulty: 4,
                 hint: "His war machines defended Syracuse against Roman invasion for two years.",
                 location: "Syracuse, Sicily",
-                year: "250 BCE"
+                year: "250 BCE",
+                validated: true
             },
             {
                 index: 222,
@@ -6499,7 +6710,8 @@
                 difficulty: 7,
                 hint: "She discovered two elements: polonium and radium.",
                 location: "Paris, France",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 223,
@@ -6511,7 +6723,8 @@
                 difficulty: 8,
                 hint: "He became a British citizen and renounced his American citizenship.",
                 location: "London, England",
-                year: "1942"
+                year: "1942",
+                validated: true
             },
             {
                 index: 224,
@@ -6523,7 +6736,8 @@
                 difficulty: 6,
                 hint: "This individual was influential in the 1900s period.",
                 location: "Oxford, England",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 225,
@@ -6535,7 +6749,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Detroit, Michigan, USA",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 226,
@@ -6547,7 +6762,8 @@
                 difficulty: 8,
                 hint: "He suffered from depression, which he called 'melancholy,' throughout his life.",
                 location: "Springfield, Illinois, USA",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 227,
@@ -6559,7 +6775,8 @@
                 difficulty: 7,
                 hint: "She won both the Pulitzer Prize and National Book Award for 'The Color Purple.'",
                 location: "Eatonton, Georgia, USA",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 228,
@@ -6571,7 +6788,8 @@
                 difficulty: 6,
                 hint: "He was adopted and later found his biological sister was novelist Mona Simpson.",
                 location: "Cupertino, California, USA",
-                year: "2000s"
+                year: "2000s",
+                validated: true
             },
             {
                 index: 229,
@@ -6583,7 +6801,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the Ancient period.",
                 location: "Greece",
-                year: "600 BCE"
+                year: "600 BCE",
+                validated: true
             },
             {
                 index: 230,
@@ -6595,7 +6814,8 @@
                 difficulty: 8,
                 hint: "He worked as a schoolteacher, gardener, and hospital porter.",
                 location: "Vienna, Austria",
-                year: "1921"
+                year: "1921",
+                validated: true
             },
             {
                 index: 231,
@@ -6607,7 +6827,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "New York City, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 232,
@@ -6619,7 +6840,8 @@
                 difficulty: 7,
                 hint: "She trained as an anthropologist at Columbia University.",
                 location: "Florida, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 233,
@@ -6631,7 +6853,8 @@
                 difficulty: 7,
                 hint: "He never finished many projects, including several commissioned paintings.",
                 location: "Florence, Italy",
-                year: "1500s"
+                year: "1500s",
+                validated: true
             },
             {
                 index: 234,
@@ -6643,7 +6866,8 @@
                 difficulty: 8,
                 hint: "She was nominated for the Nobel Prize in Literature three times.",
                 location: "New York City, USA",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 235,
@@ -6655,7 +6879,8 @@
                 difficulty: 7,
                 hint: "He contracted polio at 39 but hid his disability throughout his presidency.",
                 location: "Hyde Park, New York, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 236,
@@ -6667,7 +6892,8 @@
                 difficulty: 7,
                 hint: "She and Jean-Paul Sartre had a lifelong partnership but never married.",
                 location: "Paris, France",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 237,
@@ -6679,7 +6905,8 @@
                 difficulty: 7,
                 hint: "'Common Sense' sold 500,000 copies when the population was only 2.5 million.",
                 location: "Philadelphia, Pennsylvania, USA",
-                year: "1770s"
+                year: "1770s",
+                validated: true
             },
             {
                 index: 238,
@@ -6691,7 +6918,8 @@
                 difficulty: 8,
                 hint: "He refused to allow a telephone in his home.",
                 location: "Dublin, Ireland",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 240,
@@ -6703,7 +6931,8 @@
                 difficulty: 7,
                 hint: "His name means 'Old Master' in Chinese.",
                 location: "Luoyang, China",
-                year: "600 BCE"
+                year: "600 BCE",
+                validated: true
             },
             {
                 index: 241,
@@ -6715,7 +6944,8 @@
                 difficulty: 5,
                 hint: "He worked as a diplomat, customs controller, and clerk of the King's works.",
                 location: "London, England",
-                year: "1390s"
+                year: "1390s",
+                validated: true
             },
             {
                 index: 242,
@@ -6727,7 +6957,8 @@
                 difficulty: 9,
                 hint: "He died believing himself a failure; his books are now classics.",
                 location: "St. Paul, Minnesota, USA",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 243,
@@ -6739,7 +6970,8 @@
                 difficulty: 8,
                 hint: "Seven years of his life are unaccounted for—the 'lost years.'",
                 location: "Stratford-upon-Avon, England",
-                year: "1600s"
+                year: "1600s",
+                validated: true
             },
             {
                 index: 244,
@@ -6751,7 +6983,8 @@
                 difficulty: 5,
                 hint: "This individual was influential in the 1900s period.",
                 location: "Oxford, England",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 245,
@@ -6763,7 +6996,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Princeton, New Jersey, USA",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 246,
@@ -6775,7 +7009,8 @@
                 difficulty: 8,
                 hint: "He proposed to Maud Gonne multiple times; she always refused.",
                 location: "Dublin, Ireland",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 247,
@@ -6787,7 +7022,8 @@
                 difficulty: 7,
                 hint: "He was captured during war and the King paid his ransom.",
                 location: "London, England",
-                year: "1390s"
+                year: "1390s",
+                validated: true
             },
             {
                 index: 248,
@@ -6799,7 +7035,8 @@
                 difficulty: 7,
                 hint: "He taught that we control only our own thoughts and actions.",
                 location: "Rome, Italy",
-                year: "100 CE"
+                year: "100 CE",
+                validated: true
             },
             {
                 index: 249,
@@ -6811,7 +7048,8 @@
                 difficulty: 7,
                 hint: "He left his wife his 'second best bed' in his will.",
                 location: "Stratford-upon-Avon, England",
-                year: "1600s"
+                year: "1600s",
+                validated: true
             },
             {
                 index: 250,
@@ -6823,7 +7061,8 @@
                 difficulty: 6,
                 hint: "The programming language Pascal was named after him.",
                 location: "Paris, France",
-                year: "1650s"
+                year: "1650s",
+                validated: true
             },
             {
                 index: 251,
@@ -6835,7 +7074,8 @@
                 difficulty: 7,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Los Angeles, California, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 252,
@@ -6847,7 +7087,8 @@
                 difficulty: 8,
                 hint: "He walked over 240 miles in the Salt March protest.",
                 location: "Gujarat, India",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 253,
@@ -6859,7 +7100,8 @@
                 difficulty: 6,
                 hint: "He escaped slavery by disguising himself as a sailor.",
                 location: "Rochester, New York, USA",
-                year: "1850s"
+                year: "1850s",
+                validated: true
             },
             {
                 index: 254,
@@ -6871,7 +7113,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Liverpool, England",
-                year: "1971"
+                year: "1971",
+                validated: true
             },
             {
                 index: 255,
@@ -6883,7 +7126,8 @@
                 difficulty: 6,
                 hint: "He served as a government minister in the Duchy of Weimar.",
                 location: "Weimar, Germany",
-                year: "1820s"
+                year: "1820s",
+                validated: true
             },
             {
                 index: 256,
@@ -6895,7 +7139,8 @@
                 difficulty: 7,
                 hint: "He was a mentor to Henry David Thoreau, who lived on his land.",
                 location: "Concord, Massachusetts, USA",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 257,
@@ -6907,7 +7152,8 @@
                 difficulty: 3,
                 hint: "He won the Nobel Peace Prize in 1993 with F.W. de Klerk.",
                 location: "South Africa",
-                year: "1990s"
+                year: "1990s",
+                validated: true
             },
             {
                 index: 258,
@@ -6919,7 +7165,8 @@
                 difficulty: 6,
                 hint: "His brother was the novelist Henry James.",
                 location: "Cambridge, Massachusetts, USA",
-                year: "1890s"
+                year: "1890s",
+                validated: true
             },
             {
                 index: 259,
@@ -6931,7 +7178,8 @@
                 difficulty: 7,
                 hint: "He had affairs with several prominent women, including Rebecca West.",
                 location: "London, England",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 260,
@@ -6943,7 +7191,8 @@
                 difficulty: 4,
                 hint: "He delivered his speeches from a wheelchair that was rarely photographed.",
                 location: "Hyde Park, New York, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 261,
@@ -6955,7 +7204,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Kolkata, India",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 262,
@@ -6967,7 +7217,8 @@
                 difficulty: 7,
                 hint: "She wrote her first story at age 13.",
                 location: "Yorkshire, England",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 263,
@@ -6979,7 +7230,8 @@
                 difficulty: 8,
                 hint: "He was a painter as well as a poet and writer.",
                 location: "Beirut, Lebanon",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 264,
@@ -6991,7 +7243,8 @@
                 difficulty: 9,
                 hint: "He suffered a mental breakdown at 44 and never recovered.",
                 location: "Basel, Switzerland",
-                year: "1880s"
+                year: "1880s",
+                validated: true
             },
             {
                 index: 265,
@@ -7003,7 +7256,8 @@
                 difficulty: 8,
                 hint: "He served as a priest at Delphi.",
                 location: "Delphi, Greece",
-                year: "100 CE"
+                year: "100 CE",
+                validated: true
             },
             {
                 index: 266,
@@ -7015,7 +7269,8 @@
                 difficulty: 3,
                 hint: "He led the American civil rights movement and won the Nobel Peace Prize.",
                 location: "Washington, D.C., USA",
-                year: "1963"
+                year: "1963",
+                validated: true
             },
             {
                 index: 267,
@@ -7027,7 +7282,8 @@
                 difficulty: 9,
                 hint: "He was called 'the Dumb Ox' by his classmates for his silence.",
                 location: "Naples, Italy",
-                year: "1260s"
+                year: "1260s",
+                validated: true
             },
             {
                 index: 268,
@@ -7039,7 +7295,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the Ancient period.",
                 location: "Greece",
-                year: "600 BCE"
+                year: "600 BCE",
+                validated: true
             },
             {
                 index: 269,
@@ -7051,7 +7308,8 @@
                 difficulty: 7,
                 hint: "He was the son of a freed slave who became one of Rome's greatest poets.",
                 location: "Rome, Italy",
-                year: "20 BCE"
+                year: "20 BCE",
+                validated: true
             },
             {
                 index: 270,
@@ -7063,7 +7321,8 @@
                 difficulty: 7,
                 hint: "He tutored Alexander the Great for several years.",
                 location: "Athens, Greece",
-                year: "350 BCE"
+                year: "350 BCE",
+                validated: true
             },
             {
                 index: 271,
@@ -7075,7 +7334,8 @@
                 difficulty: 6,
                 hint: "This individual was influential in the 1900s period.",
                 location: "New Jersey, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 272,
@@ -7087,7 +7347,8 @@
                 difficulty: 7,
                 hint: "He wrote 'Invictus' while recovering from having his leg amputated.",
                 location: "London, England",
-                year: "1880s"
+                year: "1880s",
+                validated: true
             },
             {
                 index: 273,
@@ -7099,7 +7360,8 @@
                 difficulty: 8,
                 hint: "Her Paris salon hosted Picasso, Hemingway, and other modernist artists.",
                 location: "Paris, France",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 274,
@@ -7111,7 +7373,8 @@
                 difficulty: 7,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Switzerland",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 275,
@@ -7123,7 +7386,8 @@
                 difficulty: 8,
                 hint: "She wrote 'Little Women' in just ten weeks.",
                 location: "Concord, Massachusetts, USA",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 276,
@@ -7135,7 +7399,8 @@
                 difficulty: 6,
                 hint: "He founded the Lyceum, one of the first great libraries.",
                 location: "Athens, Greece",
-                year: "350 BCE"
+                year: "350 BCE",
+                validated: false
             },
             {
                 index: 277,
@@ -7147,7 +7412,8 @@
                 difficulty: 6,
                 hint: "This individual was influential in the 1900s period.",
                 location: "Louisville, Kentucky, USA",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 278,
@@ -7159,7 +7425,8 @@
                 difficulty: 8,
                 hint: "His teachings were passed down by students—he never wrote books himself.",
                 location: "Lu State, China",
-                year: "500 BCE"
+                year: "500 BCE",
+                validated: false
             },
             {
                 index: 279,
@@ -7171,7 +7438,8 @@
                 difficulty: 7,
                 hint: "He refused the Nobel Prize in Literature in 1964.",
                 location: "Paris, France",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 280,
@@ -7183,7 +7451,8 @@
                 difficulty: 5,
                 hint: "His phrase 'carpe diem' (seize the day) is still widely quoted.",
                 location: "Rome, Italy",
-                year: "20 BCE"
+                year: "20 BCE",
+                validated: true
             },
             {
                 index: 281,
@@ -7195,7 +7464,8 @@
                 difficulty: 7,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Paris, France",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 282,
@@ -7207,7 +7477,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Princeton, New Jersey, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 283,
@@ -7219,7 +7490,8 @@
                 difficulty: 6,
                 hint: "He wrote the Tao Te Ching in just 5,000 characters.",
                 location: "Luoyang, China",
-                year: "600 BCE"
+                year: "600 BCE",
+                validated: true
             },
             {
                 index: 284,
@@ -7231,7 +7503,8 @@
                 difficulty: 7,
                 hint: "He was born when Halley's Comet appeared and died at its next appearance.",
                 location: "Hartford, Connecticut, USA",
-                year: "1880s"
+                year: "1880s",
+                validated: true
             },
             {
                 index: 285,
@@ -7243,7 +7516,8 @@
                 difficulty: 5,
                 hint: "This individual was influential in the 1900s period.",
                 location: "New York, USA",
-                year: "1990s"
+                year: "1990s",
+                validated: true
             },
             {
                 index: 286,
@@ -7255,7 +7529,8 @@
                 difficulty: 8,
                 hint: "He was exiled from Florence and never returned to his beloved city.",
                 location: "Florence, Italy",
-                year: "1310s"
+                year: "1310s",
+                validated: true
             },
             {
                 index: 287,
@@ -7267,7 +7542,8 @@
                 difficulty: 8,
                 hint: "He is considered the founder of modern conservative thought.",
                 location: "Dublin, Ireland",
-                year: "1790s"
+                year: "1790s",
+                validated: true
             },
             {
                 index: 288,
@@ -7279,7 +7555,8 @@
                 difficulty: 7,
                 hint: "She never married, despite receiving at least one proposal.",
                 location: "Hampshire, England",
-                year: "1810s"
+                year: "1810s",
+                validated: true
             },
             {
                 index: 290,
@@ -7291,7 +7568,8 @@
                 difficulty: 5,
                 hint: "Her diary was originally written in Dutch and has been translated into over 70 languages.",
                 location: "Amsterdam, Netherlands",
-                year: "1944"
+                year: "1944",
+                validated: true
             },
             {
                 index: 291,
@@ -7303,7 +7581,8 @@
                 difficulty: 6,
                 hint: "He trained as a surgeon before becoming a poet.",
                 location: "London, England",
-                year: "1820s"
+                year: "1820s",
+                validated: true
             },
             {
                 index: 292,
@@ -7315,7 +7594,8 @@
                 difficulty: 8,
                 hint: "He was considered Rome's greatest orator.",
                 location: "Rome, Italy",
-                year: "50 BCE"
+                year: "50 BCE",
+                validated: true
             },
             {
                 index: 293,
@@ -7327,7 +7607,8 @@
                 difficulty: 7,
                 hint: "Her real name was Mary Ann Evans; she used a male pen name to be taken seriously.",
                 location: "Warwickshire, England",
-                year: "1870s"
+                year: "1870s",
+                validated: true
             },
             {
                 index: 294,
@@ -7339,7 +7620,8 @@
                 difficulty: 7,
                 hint: "She rarely left her family home in her later years and often spoke to visitors through doors.",
                 location: "Amherst, Massachusetts, USA",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 295,
@@ -7351,7 +7633,8 @@
                 difficulty: 6,
                 hint: "This individual was influential in the 1900s period.",
                 location: "Oxford, England",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 296,
@@ -7363,7 +7646,8 @@
                 difficulty: 8,
                 hint: "He was tutor to the young Emperor Nero.",
                 location: "Rome, Italy",
-                year: "50 CE"
+                year: "50 CE",
+                validated: true
             },
             {
                 index: 297,
@@ -7375,7 +7659,8 @@
                 difficulty: 6,
                 hint: "This individual was influential in the 1900s period.",
                 location: "New York City, USA",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 298,
@@ -7387,7 +7672,8 @@
                 difficulty: 7,
                 hint: "This 16th US President was largely self-educated, reading by firelight.",
                 location: "Springfield, Illinois, USA",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 299,
@@ -7399,7 +7685,8 @@
                 difficulty: 7,
                 hint: "He arrived in America with a letter of introduction from Benjamin Franklin.",
                 location: "Philadelphia, Pennsylvania, USA",
-                year: "1770s"
+                year: "1770s",
+                validated: true
             },
             {
                 index: 300,
@@ -7411,7 +7698,8 @@
                 difficulty: 7,
                 hint: "His real name was Aristocles; 'Plato' means 'broad' (possibly his shoulders).",
                 location: "Athens, Greece",
-                year: "380 BCE"
+                year: "380 BCE",
+                validated: true
             },
             {
                 index: 301,
@@ -7423,7 +7711,8 @@
                 difficulty: 9,
                 hint: "His book 'The Wealth of Nations' took 10 years to write.",
                 location: "Edinburgh, Scotland",
-                year: "1770s"
+                year: "1770s",
+                validated: true
             },
             {
                 index: 302,
@@ -7435,7 +7724,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Los Angeles, California, USA",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 303,
@@ -7447,7 +7737,8 @@
                 difficulty: 9,
                 hint: "He compiled the first comprehensive English dictionary single-handedly.",
                 location: "London, England",
-                year: "1750s"
+                year: "1750s",
+                validated: true
             },
             {
                 index: 304,
@@ -7459,7 +7750,8 @@
                 difficulty: 7,
                 hint: "She wrote 'Frankenstein' when she was only 18 years old.",
                 location: "London, England",
-                year: "1818"
+                year: "1818",
+                validated: true
             },
             {
                 index: 305,
@@ -7471,7 +7763,8 @@
                 difficulty: 8,
                 hint: "He was a vegetarian for health reasons and lived to 94.",
                 location: "Dublin, Ireland",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 306,
@@ -7483,7 +7776,8 @@
                 difficulty: 7,
                 hint: "He worked on 'Faust' for over 60 years.",
                 location: "Weimar, Germany",
-                year: "1790s"
+                year: "1790s",
+                validated: true
             },
             {
                 index: 307,
@@ -7495,7 +7789,8 @@
                 difficulty: 8,
                 hint: "He wrote on nearly every subject—from biology to poetry to politics.",
                 location: "Athens, Greece",
-                year: "350 BCE"
+                year: "350 BCE",
+                validated: true
             },
             {
                 index: 308,
@@ -7507,7 +7802,8 @@
                 difficulty: 7,
                 hint: "He lived for two years in a cabin he built at Walden Pond.",
                 location: "Concord, Massachusetts, USA",
-                year: "1850s"
+                year: "1850s",
+                validated: true
             },
             {
                 index: 309,
@@ -7519,7 +7815,8 @@
                 difficulty: 7,
                 hint: "She and her sisters originally published under male pseudonyms.",
                 location: "Yorkshire, England",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 310,
@@ -7531,7 +7828,8 @@
                 difficulty: 9,
                 hint: "She and her husband founded the Hogarth Press in their home.",
                 location: "London, England",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 311,
@@ -7543,7 +7841,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Washington, D.C., USA",
-                year: "1963"
+                year: "1963",
+                validated: true
             },
             {
                 index: 312,
@@ -7555,7 +7854,8 @@
                 difficulty: 5,
                 hint: "He is considered the father of American psychology.",
                 location: "Cambridge, Massachusetts, USA",
-                year: "1890s"
+                year: "1890s",
+                validated: true
             },
             {
                 index: 313,
@@ -7567,7 +7867,8 @@
                 difficulty: 6,
                 hint: "She wanted to be a journalist or a famous writer when she grew up.",
                 location: "Amsterdam, Netherlands",
-                year: "1944"
+                year: "1944",
+                validated: true
             },
             {
                 index: 315,
@@ -7579,7 +7880,8 @@
                 difficulty: 7,
                 hint: "He predicted tanks, aerial warfare, and the atomic bomb in his fiction.",
                 location: "London, England",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 316,
@@ -7591,7 +7893,8 @@
                 difficulty: 9,
                 hint: "She was arrested for voting illegally in the 1872 presidential election.",
                 location: "Rochester, New York, USA",
-                year: "1870s"
+                year: "1870s",
+                validated: true
             },
             {
                 index: 317,
@@ -7603,7 +7906,8 @@
                 difficulty: 6,
                 hint: "This individual was influential in the 1900s period.",
                 location: "USA",
-                year: "1912"
+                year: "1912",
+                validated: true
             },
             {
                 index: 318,
@@ -7615,7 +7919,8 @@
                 difficulty: 6,
                 hint: "He was a professor at age 24, the youngest in his university's history.",
                 location: "Basel, Switzerland",
-                year: "1880s"
+                year: "1880s",
+                validated: true
             },
             {
                 index: 319,
@@ -7627,7 +7932,8 @@
                 difficulty: 7,
                 hint: "She published all her novels anonymously during her lifetime.",
                 location: "Hampshire, England",
-                year: "1810s"
+                year: "1810s",
+                validated: true
             },
             {
                 index: 320,
@@ -7639,7 +7945,8 @@
                 difficulty: 8,
                 hint: "He wrote the Divine Comedy in Italian, not Latin—revolutionary for his time.",
                 location: "Florence, Italy",
-                year: "1310s"
+                year: "1310s",
+                validated: true
             },
             {
                 index: 321,
@@ -7651,7 +7958,8 @@
                 difficulty: 9,
                 hint: "He left Ireland at 22 and never returned permanently.",
                 location: "Dublin, Ireland",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 322,
@@ -7663,7 +7971,8 @@
                 difficulty: 8,
                 hint: "He was nominated for the Nobel Prize in Literature four times.",
                 location: "London, England",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 323,
@@ -7675,7 +7984,8 @@
                 difficulty: 7,
                 hint: "He was imprisoned and tortured for conspiracy against the Medici.",
                 location: "Florence, Italy",
-                year: "1510s"
+                year: "1510s",
+                validated: true
             },
             {
                 index: 325,
@@ -7687,7 +7997,8 @@
                 difficulty: 7,
                 hint: "The musical 'Cats' is based on his poetry collection.",
                 location: "London, England",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 327,
@@ -7699,7 +8010,8 @@
                 difficulty: 6,
                 hint: "His first wife died of tuberculosis after only 17 months of marriage.",
                 location: "Concord, Massachusetts, USA",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 328,
@@ -7711,7 +8023,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Los Angeles, California, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 329,
@@ -7723,7 +8036,8 @@
                 difficulty: 5,
                 hint: "He was the first non-Italian pope in over 450 years.",
                 location: "Vatican City",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 330,
@@ -7735,7 +8049,8 @@
                 difficulty: 7,
                 hint: "He was the first editor to publish the Greek New Testament.",
                 location: "Rotterdam, Netherlands",
-                year: "1510s"
+                year: "1510s",
+                validated: true
             },
             {
                 index: 331,
@@ -7747,7 +8062,8 @@
                 difficulty: 8,
                 hint: "His letters provide an intimate view of Roman political life.",
                 location: "Rome, Italy",
-                year: "50 BCE"
+                year: "50 BCE",
+                validated: true
             },
             {
                 index: 332,
@@ -7759,7 +8075,8 @@
                 difficulty: 6,
                 hint: "He served as the first Governor of Virginia.",
                 location: "Virginia, USA",
-                year: "1775"
+                year: "1775",
+                validated: true
             },
             {
                 index: 334,
@@ -7771,7 +8088,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Princeton, New Jersey, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 335,
@@ -7783,7 +8101,8 @@
                 difficulty: 7,
                 hint: "He invented the modern detective story with 'The Murders in the Rue Morgue.'",
                 location: "Baltimore, Maryland, USA",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 336,
@@ -7795,7 +8114,8 @@
                 difficulty: 8,
                 hint: "He spent 11 years writing the Aeneid and still considered it unfinished.",
                 location: "Rome, Italy",
-                year: "30 BCE"
+                year: "30 BCE",
+                validated: true
             },
             {
                 index: 337,
@@ -7807,7 +8127,8 @@
                 difficulty: 8,
                 hint: "He was so paranoid he believed there was a universal conspiracy against him.",
                 location: "Geneva, Switzerland",
-                year: "1760s"
+                year: "1760s",
+                validated: true
             },
             {
                 index: 338,
@@ -7819,7 +8140,8 @@
                 difficulty: 8,
                 hint: "Only about a dozen of her 1,800 poems were published during her lifetime.",
                 location: "Amherst, Massachusetts, USA",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 339,
@@ -7831,7 +8153,8 @@
                 difficulty: 4,
                 hint: "He is considered one of the greatest physicists of all time.",
                 location: "Princeton, New Jersey, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: false
             },
             {
                 index: 340,
@@ -7843,7 +8166,8 @@
                 difficulty: 7,
                 hint: "She was the first woman to win the Pulitzer Prize for Fiction.",
                 location: "New York City, USA",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 341,
@@ -7855,7 +8179,8 @@
                 difficulty: 9,
                 hint: "He invented the personal essay as a literary form.",
                 location: "Bordeaux, France",
-                year: "1580s"
+                year: "1580s",
+                validated: true
             },
             {
                 index: 342,
@@ -7867,7 +8192,8 @@
                 difficulty: 8,
                 hint: "He and Zelda were the original celebrity couple of the 1920s.",
                 location: "St. Paul, Minnesota, USA",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 343,
@@ -7879,7 +8205,8 @@
                 difficulty: 8,
                 hint: "He went to jail for refusing to pay taxes that supported slavery.",
                 location: "Concord, Massachusetts, USA",
-                year: "1850s"
+                year: "1850s",
+                validated: true
             },
             {
                 index: 344,
@@ -7891,7 +8218,8 @@
                 difficulty: 6,
                 hint: "Only fragments of his writings survive today.",
                 location: "Ephesus, Greece",
-                year: "500 BCE"
+                year: "500 BCE",
+                validated: true
             },
             {
                 index: 345,
@@ -7903,7 +8231,8 @@
                 difficulty: 7,
                 hint: "He left money to found Ireland's first mental hospital.",
                 location: "Dublin, Ireland",
-                year: "1720s"
+                year: "1720s",
+                validated: true
             },
             {
                 index: 346,
@@ -7915,7 +8244,8 @@
                 difficulty: 7,
                 hint: "He left the ministry because he couldn't perform communion in good conscience.",
                 location: "Concord, Massachusetts, USA",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 347,
@@ -7927,7 +8257,8 @@
                 difficulty: 8,
                 hint: "He was partially deaf from childhood.",
                 location: "Menlo Park, New Jersey, USA",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 348,
@@ -7939,7 +8270,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the Ancient period.",
                 location: "Bodh Gaya, India",
-                year: "500 BCE"
+                year: "500 BCE",
+                validated: false
             },
             {
                 index: 349,
@@ -7951,7 +8283,8 @@
                 difficulty: 6,
                 hint: "This individual was known for their work in the Ancient period.",
                 location: "Bodh Gaya, India",
-                year: "500 BCE"
+                year: "500 BCE",
+                validated: false
             },
             {
                 index: 350,
@@ -7963,7 +8296,8 @@
                 difficulty: 7,
                 hint: "He won the Nobel Prize in Literature in 1923.",
                 location: "Dublin, Ireland",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 351,
@@ -7975,7 +8309,8 @@
                 difficulty: 8,
                 hint: "He gave away his entire inheritance to his siblings.",
                 location: "Vienna, Austria",
-                year: "1921"
+                year: "1921",
+                validated: true
             },
             {
                 index: 352,
@@ -7987,7 +8322,8 @@
                 difficulty: 8,
                 hint: "His opening line 'It was a dark and stormy night' inspired an annual bad writing contest.",
                 location: "London, England",
-                year: "1830s"
+                year: "1830s",
+                validated: true
             },
             {
                 index: 353,
@@ -7999,7 +8335,8 @@
                 difficulty: 7,
                 hint: "This individual was influential in the 1900s period.",
                 location: "New Jersey, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 354,
@@ -8011,7 +8348,8 @@
                 difficulty: 6,
                 hint: "He turned down early release because it required renouncing his beliefs.",
                 location: "Johannesburg, South Africa",
-                year: "1990s"
+                year: "1990s",
+                validated: true
             },
             {
                 index: 355,
@@ -8023,7 +8361,8 @@
                 difficulty: 7,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Colorado, USA",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 356,
@@ -8035,7 +8374,8 @@
                 difficulty: 7,
                 hint: "Her novel 'Jane Eyre' was initially rejected by publishers.",
                 location: "Yorkshire, England",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 357,
@@ -8047,7 +8387,8 @@
                 difficulty: 5,
                 hint: "This individual was influential in the 1900s period.",
                 location: "New Jersey, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 358,
@@ -8059,7 +8400,8 @@
                 difficulty: 7,
                 hint: "He invented the Cartesian coordinate system used in graphing.",
                 location: "Amsterdam, Netherlands",
-                year: "1640s"
+                year: "1640s",
+                validated: true
             },
             {
                 index: 359,
@@ -8071,7 +8413,8 @@
                 difficulty: 8,
                 hint: "He immigrated to America from Lebanon as a child.",
                 location: "Beirut, Lebanon",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 360,
@@ -8083,7 +8426,8 @@
                 difficulty: 7,
                 hint: "He was rejected for university positions due to his skeptical philosophy.",
                 location: "Edinburgh, Scotland",
-                year: "1750s"
+                year: "1750s",
+                validated: true
             },
             {
                 index: 361,
@@ -8095,7 +8439,8 @@
                 difficulty: 7,
                 hint: "He worked at a customs house in Salem and Boston.",
                 location: "Salem, Massachusetts, USA",
-                year: "1850s"
+                year: "1850s",
+                validated: true
             },
             {
                 index: 362,
@@ -8107,7 +8452,8 @@
                 difficulty: 8,
                 hint: "His followers founded the 'whirling dervishes' order.",
                 location: "Konya, Turkey",
-                year: "1250s"
+                year: "1250s",
+                validated: true
             },
             {
                 index: 363,
@@ -8119,7 +8465,8 @@
                 difficulty: 8,
                 hint: "He wrote in mirror script from right to left.",
                 location: "Florence, Italy",
-                year: "1500s"
+                year: "1500s",
+                validated: true
             },
             {
                 index: 364,
@@ -8131,7 +8478,8 @@
                 difficulty: 4,
                 hint: "He was stabbed 23 times in his assassination.",
                 location: "Rome, Italy",
-                year: "50 BCE"
+                year: "50 BCE",
+                validated: true
             },
             {
                 index: 365,
@@ -8143,7 +8491,8 @@
                 difficulty: 7,
                 hint: "She set her novel 'Mrs Dalloway' in a single day.",
                 location: "London, England",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 366,
@@ -8155,7 +8504,8 @@
                 difficulty: 5,
                 hint: "This individual was known for their work in the 1900s period.",
                 location: "Liverpool, England",
-                year: "1980"
+                year: "1980",
+                validated: true
             },
             {
                 index: 367,
@@ -8167,7 +8517,8 @@
                 difficulty: 9,
                 hint: "Augustus Caesar was his patron and friend.",
                 location: "Rome, Italy",
-                year: "20 BCE"
+                year: "20 BCE",
+                validated: true
             },
             {
                 index: 368,
@@ -8179,7 +8530,8 @@
                 difficulty: 8,
                 hint: "He retired at 38 to write in his tower library.",
                 location: "Bordeaux, France",
-                year: "1580s"
+                year: "1580s",
+                validated: true
             },
             {
                 index: 369,
@@ -8191,7 +8543,8 @@
                 difficulty: 6,
                 hint: "He dropped out of Reed College but kept auditing classes.",
                 location: "Cupertino, California, USA",
-                year: "2000s"
+                year: "2000s",
+                validated: true
             },
             {
                 index: 370,
@@ -8203,7 +8556,8 @@
                 difficulty: 6,
                 hint: "He was Rome's most celebrated poet, supported by the emperor.",
                 location: "Rome, Italy",
-                year: "30 BCE"
+                year: "30 BCE",
+                validated: true
             },
             {
                 index: 371,
@@ -8215,7 +8569,8 @@
                 difficulty: 6,
                 hint: "This individual was influential in the 1900s period.",
                 location: "New York, USA",
-                year: "2000s"
+                year: "2000s",
+                validated: true
             },
             {
                 index: 372,
@@ -8227,7 +8582,8 @@
                 difficulty: 6,
                 hint: "He served as an ambulance driver in World War I.",
                 location: "Key West, Florida, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 373,
@@ -8239,7 +8595,8 @@
                 difficulty: 6,
                 hint: "This individual was influential in the 1900s period.",
                 location: "Louisville, Kentucky, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 374,
@@ -8251,7 +8608,8 @@
                 difficulty: 3,
                 hint: "He delivered this challenge at the Brandenburg Gate in Berlin.",
                 location: "Berlin, Germany",
-                year: "1987"
+                year: "1987",
+                validated: true
             },
             {
                 index: 375,
@@ -8263,7 +8621,8 @@
                 difficulty: 5,
                 hint: "He was a Hollywood actor before becoming the 40th President.",
                 location: "Washington, D.C., USA",
-                year: "1961"
+                year: "1961",
+                validated: true
             },
             {
                 index: 376,
@@ -8275,7 +8634,8 @@
                 difficulty: 5,
                 hint: "He served as Governor of California before becoming President.",
                 location: "Washington, D.C., USA",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 377,
@@ -8287,7 +8647,8 @@
                 difficulty: 5,
                 hint: "He was known as 'The Great Communicator' for his speaking skills.",
                 location: "Washington, D.C., USA",
-                year: "1986"
+                year: "1986",
+                validated: true
             },
             {
                 index: 378,
@@ -8299,7 +8660,8 @@
                 difficulty: 4,
                 hint: "He served as Vice President under Reagan before becoming the 41st President.",
                 location: "New Orleans, Louisiana, USA",
-                year: "1988"
+                year: "1988",
+                validated: true
             },
             {
                 index: 379,
@@ -8311,7 +8673,8 @@
                 difficulty: 5,
                 hint: "He was the 42nd President and presided over the longest peacetime economic expansion.",
                 location: "Washington, D.C., USA",
-                year: "1993"
+                year: "1993",
+                validated: true
             },
             {
                 index: 380,
@@ -8323,7 +8686,8 @@
                 difficulty: 6,
                 hint: "He was Governor of Arkansas before becoming President.",
                 location: "Washington, D.C., USA",
-                year: "1990s"
+                year: "1990s",
+                validated: true
             },
             {
                 index: 381,
@@ -8335,7 +8699,8 @@
                 difficulty: 5,
                 hint: "He was a Rhodes Scholar at Oxford University.",
                 location: "Washington, D.C., USA",
-                year: "1990s"
+                year: "1990s",
+                validated: true
             },
             {
                 index: 382,
@@ -8347,7 +8712,8 @@
                 difficulty: 4,
                 hint: "He addressed Congress nine days after the September 11 attacks.",
                 location: "Washington, D.C., USA",
-                year: "2001"
+                year: "2001",
+                validated: true
             },
             {
                 index: 383,
@@ -8359,7 +8725,8 @@
                 difficulty: 5,
                 hint: "He spoke these words through a bullhorn at Ground Zero.",
                 location: "New York City, USA",
-                year: "2001"
+                year: "2001",
+                validated: true
             },
             {
                 index: 384,
@@ -8371,7 +8738,8 @@
                 difficulty: 2,
                 hint: "This three-word phrase became the rallying cry of his 2008 campaign.",
                 location: "New Hampshire, USA",
-                year: "2008"
+                year: "2008",
+                validated: true
             },
             {
                 index: 385,
@@ -8383,7 +8751,8 @@
                 difficulty: 4,
                 hint: "He was the first African American President of the United States.",
                 location: "Chicago, Illinois, USA",
-                year: "2008"
+                year: "2008",
+                validated: true
             },
             {
                 index: 386,
@@ -8395,7 +8764,8 @@
                 difficulty: 5,
                 hint: "He was a Senator from Illinois before becoming President.",
                 location: "Chicago, Illinois, USA",
-                year: "2008"
+                year: "2008",
+                validated: true
             },
             {
                 index: 387,
@@ -8407,7 +8777,8 @@
                 difficulty: 6,
                 hint: "He wrote a book titled 'The Audacity of Hope'.",
                 location: "Iowa, USA",
-                year: "2008"
+                year: "2008",
+                validated: true
             },
             {
                 index: 388,
@@ -8419,7 +8790,8 @@
                 difficulty: 6,
                 hint: "He won the Nobel Peace Prize in 2009.",
                 location: "Washington, D.C., USA",
-                year: "2011"
+                year: "2011",
+                validated: true
             },
             {
                 index: 389,
@@ -8431,7 +8803,8 @@
                 difficulty: 4,
                 hint: "He used this civil rights anthem in his address to Congress on voting rights.",
                 location: "Washington, D.C., USA",
-                year: "1965"
+                year: "1965",
+                validated: true
             },
             {
                 index: 390,
@@ -8443,7 +8816,8 @@
                 difficulty: 5,
                 hint: "He spoke these words while running for Senate in Illinois.",
                 location: "Illinois, USA",
-                year: "1858"
+                year: "1858",
+                validated: true
             },
             {
                 index: 391,
@@ -8455,7 +8829,8 @@
                 difficulty: 6,
                 hint: "A primatologist famous for her decades studying wild chimpanzees at Gombe.",
                 location: "Bournemouth, England",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 392,
@@ -8467,7 +8842,8 @@
                 difficulty: 8,
                 hint: "Her X-ray images were key to discovering the structure of DNA.",
                 location: "London, England",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 393,
@@ -8479,7 +8855,8 @@
                 difficulty: 8,
                 hint: "Often called the first computer programmer, she wrote about Babbage's Analytical Engine.",
                 location: "London, England",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 394,
@@ -8491,7 +8868,8 @@
                 difficulty: 7,
                 hint: "A computing pioneer and Navy admiral who helped develop early programming languages.",
                 location: "New York City, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 395,
@@ -8503,7 +8881,8 @@
                 difficulty: 7,
                 hint: "In 1983 she became the first American woman in space.",
                 location: "Los Angeles, California, USA",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 396,
@@ -8515,7 +8894,8 @@
                 difficulty: 6,
                 hint: "The founder of modern nursing, known as the Lady with the Lamp.",
                 location: "London, England",
-                year: "1860s"
+                year: "1860s",
+                validated: true
             },
             {
                 index: 397,
@@ -8527,7 +8907,8 @@
                 difficulty: 5,
                 hint: "His laws of motion and gravity reshaped physics.",
                 location: "Cambridge, England",
-                year: "1670s"
+                year: "1670s",
+                validated: true
             },
             {
                 index: 398,
@@ -8539,7 +8920,8 @@
                 difficulty: 6,
                 hint: "His voyage on the Beagle led to the theory of evolution by natural selection.",
                 location: "Kent, England",
-                year: "1830s"
+                year: "1830s",
+                validated: true
             },
             {
                 index: 399,
@@ -8551,7 +8933,8 @@
                 difficulty: 6,
                 hint: "His work on germs led to pasteurization and vaccines.",
                 location: "Paris, France",
-                year: "1850s"
+                year: "1850s",
+                validated: true
             },
             {
                 index: 400,
@@ -8563,7 +8946,8 @@
                 difficulty: 8,
                 hint: "A self-taught experimenter whose work founded electromagnetism.",
                 location: "London, England",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 401,
@@ -8575,7 +8959,8 @@
                 difficulty: 6,
                 hint: "An inventor whose work made alternating-current electricity practical.",
                 location: "New York City, USA",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 402,
@@ -8587,7 +8972,8 @@
                 difficulty: 7,
                 hint: "A Nobel physicist known for his playful lectures and work on quantum theory.",
                 location: "New York City, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 403,
@@ -8599,7 +8985,8 @@
                 difficulty: 6,
                 hint: "An astronomer who brought the cosmos to television audiences.",
                 location: "New York City, USA",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 404,
@@ -8611,7 +8998,8 @@
                 difficulty: 5,
                 hint: "A theoretical physicist known for his work on black holes.",
                 location: "Cambridge, England",
-                year: "2000s"
+                year: "2000s",
+                validated: true
             },
             {
                 index: 405,
@@ -8623,7 +9011,8 @@
                 difficulty: 5,
                 hint: "The youngest Nobel Peace Prize laureate, an advocate for girls' education.",
                 location: "Mingora, Pakistan",
-                year: "2010s"
+                year: "2010s",
+                validated: true
             },
             {
                 index: 406,
@@ -8635,7 +9024,8 @@
                 difficulty: 6,
                 hint: "A U.S. Supreme Court justice and champion of gender equality.",
                 location: "New York City, USA",
-                year: "1990s"
+                year: "1990s",
+                validated: true
             },
             {
                 index: 407,
@@ -8647,7 +9037,8 @@
                 difficulty: 7,
                 hint: "A former slave who became a powerful voice for abolition and women's rights.",
                 location: "New York, USA",
-                year: "1850s"
+                year: "1850s",
+                validated: true
             },
             {
                 index: 408,
@@ -8659,7 +9050,8 @@
                 difficulty: 6,
                 hint: "She led enslaved people to freedom on the Underground Railroad.",
                 location: "Maryland, USA",
-                year: "1850s"
+                year: "1850s",
+                validated: true
             },
             {
                 index: 409,
@@ -8671,7 +9063,8 @@
                 difficulty: 8,
                 hint: "A Civil War nurse who founded the American Red Cross.",
                 location: "Washington, D.C., USA",
-                year: "1880s"
+                year: "1880s",
+                validated: true
             },
             {
                 index: 410,
@@ -8683,7 +9076,8 @@
                 difficulty: 8,
                 hint: "She led the British suffragette movement for women's right to vote.",
                 location: "London, England",
-                year: "1900s"
+                year: "1900s",
+                validated: true
             },
             {
                 index: 411,
@@ -8695,7 +9089,8 @@
                 difficulty: 8,
                 hint: "A poet and activist who described herself as black, lesbian, mother, warrior, poet.",
                 location: "New York City, USA",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 412,
@@ -8707,7 +9102,8 @@
                 difficulty: 5,
                 hint: "A lawyer and former First Lady of the United States.",
                 location: "Chicago, Illinois, USA",
-                year: "2010s"
+                year: "2010s",
+                validated: true
             },
             {
                 index: 413,
@@ -8719,7 +9115,8 @@
                 difficulty: 6,
                 hint: "A Nobel Prize novelist who wrote Beloved.",
                 location: "Ohio, USA",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 414,
@@ -8731,7 +9128,8 @@
                 difficulty: 7,
                 hint: "A poet and author of the semi-autobiographical novel The Bell Jar.",
                 location: "Boston, Massachusetts, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 415,
@@ -8743,7 +9141,8 @@
                 difficulty: 6,
                 hint: "The best-selling novelist of all time, creator of Hercule Poirot.",
                 location: "Devon, England",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 416,
@@ -8755,7 +9154,8 @@
                 difficulty: 8,
                 hint: "Her novels, like My Antonia, captured life on the American prairie.",
                 location: "Nebraska, USA",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 417,
@@ -8767,7 +9167,8 @@
                 difficulty: 7,
                 hint: "The author of the single novel Wuthering Heights.",
                 location: "Yorkshire, England",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 418,
@@ -8779,7 +9180,8 @@
                 difficulty: 8,
                 hint: "A Nobel novelist who wrote The Good Earth about rural China.",
                 location: "West Virginia, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 419,
@@ -8791,7 +9193,8 @@
                 difficulty: 6,
                 hint: "An American painter known for large flowers and desert landscapes.",
                 location: "New Mexico, USA",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 420,
@@ -8803,7 +9206,8 @@
                 difficulty: 6,
                 hint: "A Mexican painter famous for her striking self-portraits.",
                 location: "Mexico City, Mexico",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 421,
@@ -8815,7 +9219,8 @@
                 difficulty: 6,
                 hint: "A designer who revolutionized women's fashion in Paris.",
                 location: "Paris, France",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 422,
@@ -8827,7 +9232,8 @@
                 difficulty: 6,
                 hint: "A four-time Oscar-winning film actress of Hollywood's golden age.",
                 location: "Connecticut, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 423,
@@ -8839,7 +9245,8 @@
                 difficulty: 6,
                 hint: "A film actress with a record number of Academy Award nominations.",
                 location: "New Jersey, USA",
-                year: "2000s"
+                year: "2000s",
+                validated: true
             },
             {
                 index: 424,
@@ -8851,7 +9258,8 @@
                 difficulty: 5,
                 hint: "A country music legend and songwriter from Tennessee.",
                 location: "Tennessee, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 425,
@@ -8863,7 +9271,8 @@
                 difficulty: 6,
                 hint: "The First Lady of Song, a jazz vocalist known for scat singing.",
                 location: "Virginia, USA",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 426,
@@ -8875,7 +9284,8 @@
                 difficulty: 7,
                 hint: "A singer and pianist whose music became an anthem of civil rights.",
                 location: "North Carolina, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 427,
@@ -8887,7 +9297,8 @@
                 difficulty: 6,
                 hint: "A tennis champion who won the Battle of the Sexes match.",
                 location: "California, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 428,
@@ -8899,7 +9310,8 @@
                 difficulty: 5,
                 hint: "One of the greatest tennis players, with 23 Grand Slam singles titles.",
                 location: "Michigan, USA",
-                year: "2010s"
+                year: "2010s",
+                validated: true
             },
             {
                 index: 429,
@@ -8911,7 +9323,8 @@
                 difficulty: 8,
                 hint: "She built a cosmetics empire famous for its pink Cadillacs.",
                 location: "Texas, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 430,
@@ -8923,7 +9336,8 @@
                 difficulty: 9,
                 hint: "A French philosopher and mystic known for her writings on affliction.",
                 location: "Paris, France",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 431,
@@ -8935,7 +9349,8 @@
                 difficulty: 8,
                 hint: "A political theorist who wrote about the banality of evil.",
                 location: "New York City, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 432,
@@ -8947,7 +9362,8 @@
                 difficulty: 8,
                 hint: "An early feminist who wrote A Vindication of the Rights of Woman.",
                 location: "London, England",
-                year: "1790s"
+                year: "1790s",
+                validated: true
             },
             {
                 index: 433,
@@ -8959,7 +9375,8 @@
                 difficulty: 6,
                 hint: "The first and only female Prime Minister of India.",
                 location: "New Delhi, India",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 434,
@@ -8971,7 +9388,8 @@
                 difficulty: 7,
                 hint: "The first and only female Prime Minister of Israel.",
                 location: "Jerusalem, Israel",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 435,
@@ -8983,7 +9401,8 @@
                 difficulty: 5,
                 hint: "A media mogul known for her long-running television talk show.",
                 location: "Chicago, Illinois, USA",
-                year: "2000s"
+                year: "2000s",
+                validated: true
             },
             {
                 index: 436,
@@ -8995,7 +9414,8 @@
                 difficulty: 6,
                 hint: "A composer who wrote symphonies even after losing his hearing.",
                 location: "Vienna, Austria",
-                year: "1810s"
+                year: "1810s",
+                validated: true
             },
             {
                 index: 437,
@@ -9007,7 +9427,8 @@
                 difficulty: 7,
                 hint: "A Baroque composer and organist from Germany.",
                 location: "Leipzig, Germany",
-                year: "1720s"
+                year: "1720s",
+                validated: true
             },
             {
                 index: 438,
@@ -9019,7 +9440,8 @@
                 difficulty: 6,
                 hint: "A trumpeter and singer who helped shape early jazz.",
                 location: "New Orleans, Louisiana, USA",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 439,
@@ -9031,7 +9453,8 @@
                 difficulty: 6,
                 hint: "A Brazilian footballer who won three World Cups.",
                 location: "São Paulo, Brazil",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 440,
@@ -9043,7 +9466,8 @@
                 difficulty: 5,
                 hint: "A basketball icon who won six NBA championships with the Bulls.",
                 location: "Chicago, Illinois, USA",
-                year: "1990s"
+                year: "1990s",
+                validated: true
             },
             {
                 index: 441,
@@ -9055,7 +9479,8 @@
                 difficulty: 6,
                 hint: "A baseball slugger who became the sport's first great home-run hitter.",
                 location: "New York City, USA",
-                year: "1920s"
+                year: "1920s",
+                validated: true
             },
             {
                 index: 442,
@@ -9067,7 +9492,8 @@
                 difficulty: 6,
                 hint: "The first black man to win the singles title at Wimbledon.",
                 location: "Virginia, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 443,
@@ -9079,7 +9505,8 @@
                 difficulty: 7,
                 hint: "A baseball catcher as famous for his tangled sayings as his championships.",
                 location: "New York City, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 444,
@@ -9091,7 +9518,8 @@
                 difficulty: 6,
                 hint: "A silent-film comedian famous for his Little Tramp character.",
                 location: "London, England",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 445,
@@ -9103,7 +9531,8 @@
                 difficulty: 7,
                 hint: "A director known as the Master of Suspense.",
                 location: "London, England",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 446,
@@ -9115,7 +9544,8 @@
                 difficulty: 6,
                 hint: "A South African archbishop who fought apartheid and won the Nobel Peace Prize.",
                 location: "Cape Town, South Africa",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 447,
@@ -9127,7 +9557,8 @@
                 difficulty: 7,
                 hint: "A Holocaust survivor whose memoir Night bore witness to the camps.",
                 location: "New York City, USA",
-                year: "1980s"
+                year: "1980s",
+                validated: true
             },
             {
                 index: 448,
@@ -9139,7 +9570,8 @@
                 difficulty: 7,
                 hint: "He organized farm workers and co-founded a major labor union.",
                 location: "California, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 449,
@@ -9151,7 +9583,8 @@
                 difficulty: 6,
                 hint: "A civil rights leader who marched at Selma and served decades in Congress.",
                 location: "Atlanta, Georgia, USA",
-                year: "2010s"
+                year: "2010s",
+                validated: true
             },
             {
                 index: 450,
@@ -9163,7 +9596,8 @@
                 difficulty: 8,
                 hint: "A Danish thinker often called the father of existentialism.",
                 location: "Copenhagen, Denmark",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 451,
@@ -9175,7 +9609,8 @@
                 difficulty: 8,
                 hint: "A German philosopher known for his pessimism and the concept of will.",
                 location: "Frankfurt, Germany",
-                year: "1840s"
+                year: "1840s",
+                validated: true
             },
             {
                 index: 452,
@@ -9187,7 +9622,8 @@
                 difficulty: 7,
                 hint: "A German philosopher who wrote the Critique of Pure Reason.",
                 location: "Königsberg, Prussia",
-                year: "1780s"
+                year: "1780s",
+                validated: true
             },
             {
                 index: 453,
@@ -9199,7 +9635,8 @@
                 difficulty: 7,
                 hint: "A British logician and Nobel laureate in Literature.",
                 location: "Cambridge, England",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 454,
@@ -9211,7 +9648,8 @@
                 difficulty: 8,
                 hint: "A writer who popularized Eastern philosophy for Western audiences.",
                 location: "California, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 455,
@@ -9223,7 +9661,8 @@
                 difficulty: 6,
                 hint: "A Russian novelist who wrote War and Peace.",
                 location: "Tula, Russia",
-                year: "1880s"
+                year: "1880s",
+                validated: true
             },
             {
                 index: 456,
@@ -9235,7 +9674,8 @@
                 difficulty: 7,
                 hint: "A Russian novelist who wrote Crime and Punishment.",
                 location: "St. Petersburg, Russia",
-                year: "1870s"
+                year: "1870s",
+                validated: true
             },
             {
                 index: 457,
@@ -9247,7 +9687,8 @@
                 difficulty: 8,
                 hint: "A writer whose surreal stories gave us the word Kafkaesque.",
                 location: "Prague, Czech Republic",
-                year: "1910s"
+                year: "1910s",
+                validated: true
             },
             {
                 index: 458,
@@ -9259,7 +9700,8 @@
                 difficulty: 5,
                 hint: "The author of The Lord of the Rings.",
                 location: "Oxford, England",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 459,
@@ -9271,7 +9713,8 @@
                 difficulty: 7,
                 hint: "An essayist and novelist who wrote The Fire Next Time.",
                 location: "New York City, USA",
-                year: "1960s"
+                year: "1960s",
+                validated: true
             },
             {
                 index: 460,
@@ -9283,7 +9726,8 @@
                 difficulty: 7,
                 hint: "A poet of the Harlem Renaissance.",
                 location: "New York City, USA",
-                year: "1930s"
+                year: "1930s",
+                validated: true
             },
             {
                 index: 461,
@@ -9295,7 +9739,8 @@
                 difficulty: 6,
                 hint: "An aviator who wrote The Little Prince.",
                 location: "Lyon, France",
-                year: "1940s"
+                year: "1940s",
+                validated: true
             },
             {
                 index: 462,
@@ -9307,7 +9752,8 @@
                 difficulty: 8,
                 hint: "A Nigerian novelist who wrote Things Fall Apart.",
                 location: "Lagos, Nigeria",
-                year: "1950s"
+                year: "1950s",
+                validated: true
             },
             {
                 index: 463,
@@ -9319,7 +9765,8 @@
                 difficulty: 7,
                 hint: "A journalist and a leading voice of the women's movement.",
                 location: "New York City, USA",
-                year: "1970s"
+                year: "1970s",
+                validated: true
             },
             {
                 index: 464,
@@ -9331,9 +9778,9 @@
                 difficulty: 8,
                 hint: "A jazz singer whose voice defined songs like Strange Fruit.",
                 location: "New York City, USA",
-                year: "1940s"
-            }
-        ];
+                year: "1940s",
+                validated: true
+            }];
         // Get all unique authors for dropdown
         const authors = [...new Set(quotes.map(q => q.author))].sort();
         

@@ -1,10 +1,10 @@
 /**
  * Quotle PWA Service Worker
- * Version: 1.5.1
+ * Version: 1.5.2
  *
  * ⚠️ IMPORTANT: CACHE_VERSION must match app version!
  */
-const CACHE_VERSION = 'v1.5.1';
+const CACHE_VERSION = 'v1.5.2';
 const CACHE_NAME = `quotle-pwa-${CACHE_VERSION}`;
 
 const CACHE_FILES = ['./', './index.html', './manifest.json'];
