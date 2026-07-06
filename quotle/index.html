@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.2.9">
+    <meta name="version" content="1.3.0">
     <title>Quotle - Daily Quote Puzzle</title>
     
     <!-- Early initialization: Set defaults and apply dark mode BEFORE any CSS renders -->
@@ -93,6 +93,8 @@
         html {
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
+            /* Match the theme so overscroll / tall screens don't flash white */
+            background: var(--card-bg);
         }
         
         body {
@@ -3603,7 +3605,7 @@
                     <p><strong>Quote #:</strong> <span id="current-quote-number">Loading...</span></p>
                     <p><strong>Total Quotes:</strong> 365</p>
                     <p><strong>Days Live:</strong> <span id="days-since-launch">Loading...</span></p>
-                    <p><strong>Version:</strong> v1.2.9</p>
+                    <p><strong>Version:</strong> v1.3.0</p>
                 </div>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--slate); line-height: 1.5;">
                     A daily quote guessing game featuring wisdom from ancient philosophers to modern thinkers - spanning over 2,500 years of human thought.
@@ -8698,7 +8700,7 @@
         let isPracticeMode = false;
         let practiceDate = null;
         let currentPickerMonth = new Date();
-        const LAUNCH_DATE = new Date('2026-01-26');
+        const LAUNCH_DATE = new Date(2026, 0, 26);
         
         // Modal functions
         function openDifficultyModal() {
@@ -9436,7 +9438,7 @@
         }
         
         function updateGameInfo() {
-            const launchDate = new Date('2026-01-26');
+            const launchDate = new Date(2026, 0, 26);
             const today = new Date();
             const daysSinceLaunch = Math.floor((today - launchDate) / (1000 * 60 * 60 * 24));
             const quoteIndex = getDailyQuoteIndex();
@@ -9772,7 +9774,8 @@
         }
         
         function getDailyQuoteIndex() {
-            // Use UTC midnight to avoid timezone issues
+            // Local midnight for both today and launch date (constructed as local),
+            // so the puzzle rolls over at the player's local midnight consistently.
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
@@ -10283,6 +10286,58 @@
             input.style.cursor = 'text';
         }
         
+        // ---- In-progress game persistence (survives refresh / accidental nav) ----
+        function saveInProgressState() {
+            if (gameOver || isPracticeMode) return;
+            try {
+                localStorage.setItem('quotleGameState', JSON.stringify({
+                    date: getTodayString(),
+                    quoteIndex: dailyQuoteIndex,
+                    guesses: guesses,
+                    attemptsLeft: attemptsLeft,
+                    eligibleAuthors: eligibleAuthors,
+                    hintShown: document.getElementById('hint-section').style.display === 'block',
+                    locationHintShown: document.getElementById('location-hint-section').style.display === 'block'
+                }));
+            } catch (e) {}
+        }
+
+        function clearInProgressState() {
+            try { localStorage.removeItem('quotleGameState'); } catch (e) {}
+        }
+
+        function restoreInProgressState() {
+            let saved;
+            try { saved = JSON.parse(localStorage.getItem('quotleGameState')); } catch (e) { return false; }
+            if (!saved || saved.date !== getTodayString() || saved.quoteIndex !== dailyQuoteIndex) return false;
+            if (!Array.isArray(saved.guesses) || saved.guesses.length === 0) return false;
+
+            guesses = saved.guesses;
+            attemptsLeft = typeof saved.attemptsLeft === 'number' ? saved.attemptsLeft : (4 - guesses.length);
+            if (Array.isArray(saved.eligibleAuthors) && saved.eligibleAuthors.length) {
+                eligibleAuthors = saved.eligibleAuthors;
+                currentAuthors = [...eligibleAuthors];
+            }
+
+            // Replay feedback rows (array is oldest-first; showFeedback prepends → newest on top)
+            guesses.forEach(g => {
+                const gq = quotes.find(q => q.author === g.author);
+                if (gq) showFeedback(g.author, gq, g.correct);
+            });
+            updateAttempts();
+
+            if (saved.hintShown) showHint();
+            if (saved.locationHintShown) showLocationHint();
+
+            // Restore give-up button + filtered-count placeholder
+            showGiveUpButton();
+            const input = document.getElementById('author-input');
+            const count = eligibleAuthors.length;
+            input.placeholder = `🔍 Filtered: ${count} author${count === 1 ? '' : 's'} remaining`;
+            input.classList.add('filtered');
+            return true;
+        }
+
         function initGame() {
             debugLog('initGame() called');
             
@@ -10372,8 +10427,12 @@
             resetTokenHints();
             showTokenHintsSection();
             
+            // Restore an in-progress game (guesses/attempts/hints) if the player
+            // refreshed or navigated away before finishing today's puzzle.
+            restoreInProgressState();
+
             debugLog('Game initialized successfully!');
-            
+
             // Check if first-time player (show tutorial)
             checkFirstTimePlayer();
         }
@@ -11103,10 +11162,21 @@
         
         function submitGuess() {
             if (gameOver) return;
-            
+
             const select = document.getElementById('author-select');
+            // Auto-select when the typed text unambiguously identifies an author,
+            // so players can type a full name and submit without clicking the dropdown.
+            if (!select.value) {
+                const typed = document.getElementById('author-input').value.trim().toLowerCase();
+                if (typed) {
+                    const exact = authors.find(a => a.toLowerCase() === typed);
+                    const partial = authors.filter(a => a.toLowerCase().includes(typed));
+                    if (exact) select.value = exact;
+                    else if (partial.length === 1) select.value = partial[0];
+                }
+            }
             const guessedAuthor = select.value;
-            
+
             if (!guessedAuthor) {
                 showShareConfirmation('⚠️ Please type and select an author!');
                 return;
@@ -11172,9 +11242,12 @@
             } else if (attemptsLeft === 0) {
                 endGame(false);
             }
-            
+
             // Reset autocomplete
             resetAutocomplete();
+
+            // Persist progress (no-op once the game is over)
+            saveInProgressState();
         }
         
         function filterByPeriod() {
@@ -11237,28 +11310,30 @@
         function filterAuthorDropdown(guessedQuote) {
             const matchingAuthors = [];
             
-            // Find matching criteria
+            // Find matching criteria (category via ANY quote by the guessed author,
+            // so multi-category authors like MLK/Einstein compare correctly)
             const genderMatch = guessedQuote.gender === currentQuote.gender;
-            const categoryMatch = guessedQuote.category === currentQuote.category;
+            const categoryMatch = quotes.some(q => q.author === guessedQuote.author && q.category === currentQuote.category);
             const periodMatch = guessedQuote.period === currentQuote.period;
-            
+
             // Filter from current eligible authors (cumulative filtering)
             eligibleAuthors.forEach(author => {
                 const authorQuote = quotes.find(q => q.author === author);
-                
+
                 // Safety check - skip if no quote found for author
                 if (!authorQuote) {
                     console.warn('No quote found for author: ' + author);
                     return;
                 }
-                
+
                 let matches = true;
-                
+
                 // Must match ALL correct criteria
                 if (genderMatch && authorQuote.gender !== currentQuote.gender) {
                     matches = false;
                 }
-                if (categoryMatch && authorQuote.category !== currentQuote.category) {
+                // Keep an author if ANY of their quotes is in the target's category
+                if (categoryMatch && !quotes.some(q => q.author === author && q.category === currentQuote.category)) {
                     matches = false;
                 }
                 if (periodMatch && authorQuote.period !== currentQuote.period) {
@@ -11296,15 +11371,18 @@
                 if (gameDifficulty === 'easy') {
                     // Show all hints in easy mode
                     const genderMatch = guessedQuote.gender === currentQuote.gender;
-                    const categoryMatch = guessedQuote.category === currentQuote.category;
+                    // An author can have quotes in multiple categories (e.g. MLK, Einstein);
+                    // count it a match if ANY of their quotes shares the target's category.
+                    const categoryMatch = quotes.some(q => q.author === guessedAuthor && q.category === currentQuote.category);
+                    const displayCategory = categoryMatch ? currentQuote.category : guessedQuote.category;
                     const periodMatch = guessedQuote.period === currentQuote.period;
-                    
+
                     hintsHTML = `
                         <span class="hint-tag ${genderMatch ? 'correct' : 'incorrect'}">
                             Gender: ${guessedQuote.gender} ${genderMatch ? '✓' : '✗'}
                         </span>
                         <span class="hint-tag ${categoryMatch ? 'correct' : 'incorrect'}">
-                            Category: ${guessedQuote.category} ${categoryMatch ? '✓' : '✗'}
+                            Category: ${displayCategory} ${categoryMatch ? '✓' : '✗'}
                         </span>
                         <span class="hint-tag ${periodMatch ? 'correct' : 'incorrect'}">
                             Period: ${guessedQuote.period} ${periodMatch ? '✓' : '✗'}
@@ -11381,6 +11459,7 @@
         
         function endGame(won, gaveUp = false) {
             gameOver = true;
+            clearInProgressState(); // completed game — drop the in-progress snapshot
             document.getElementById('submit-btn').disabled = true;
             hideGiveUpButton();
             
