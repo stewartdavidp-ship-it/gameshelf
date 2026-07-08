@@ -12560,6 +12560,44 @@
             }
         }
         
+        // --- quotle.info "Who really said it?" provenance link ---------------------------
+        // The finished quote may have a verified-provenance page at quotle.info/who-said/{slug}.
+        // We resolve currentQuote.index -> slug via quotle.info's published manifest (CORS *),
+        // cached in localStorage, so the link auto-appears/updates as pages are published.
+        let quotleInfoPages = null; // { [dayNumber]: { slug, confidence } }
+        (function initQuotleInfoCache(){
+            try {
+                const c = JSON.parse(localStorage.getItem('quotleInfoPages') || 'null');
+                if (c && c.t && (Date.now() - c.t) < 86400000) quotleInfoPages = c.m;
+            } catch (e) {}
+        })();
+        function loadQuotleInfoPages(){
+            fetch('https://quotle.info/data/manifest.json', { cache: 'no-cache' })
+                .then(function(r){ return r.ok ? r.json() : null; })
+                .then(function(list){
+                    if (!Array.isArray(list)) return;
+                    const m = {};
+                    list.forEach(function(x){ if (x && x.dayNumber != null) m[x.dayNumber] = { slug: x.quoteSlug, confidence: x.confidence }; });
+                    quotleInfoPages = m;
+                    try { localStorage.setItem('quotleInfoPages', JSON.stringify({ t: Date.now(), m: m })); } catch (e) {}
+                    renderWhoSaidLink();
+                })
+                .catch(function(){});
+        }
+        function renderWhoSaidLink(){
+            const slot = document.getElementById('who-said-slot');
+            if (!slot || typeof currentQuote === 'undefined' || !currentQuote) return;
+            const entry = quotleInfoPages && quotleInfoPages[currentQuote.index];
+            if (!entry) { slot.innerHTML = ''; return; }
+            slot.innerHTML =
+                '<a href="https://quotle.info/who-said/' + entry.slug + '/" target="_blank" rel="noopener" '
+                + 'style="display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:11px 22px;'
+                + 'background:linear-gradient(135deg,var(--burgundy) 0%,#6d1f2b 100%);color:#fff;text-decoration:none;'
+                + 'border-radius:22px;font-family:\'Source Serif 4\',serif;font-size:0.92rem;font-weight:600;'
+                + 'box-shadow:0 4px 14px rgba(139,38,53,0.35);">🔍 Who really said it? &rarr;</a>'
+                + '<div style="font-size:0.72rem;color:var(--slate);margin-top:6px;">Verified provenance &amp; sources on quotle.info</div>';
+        }
+
         function endGame(won, gaveUp = false) {
             gameOver = true;
             clearInProgressState(); // completed game — drop the in-progress snapshot
@@ -12767,6 +12805,7 @@
                                style="color: var(--burgundy); text-decoration: none; font-size: 0.85rem; margin-top: 6px; display: inline-block;">
                                📚 Learn more →
                             </a>
+                            <div id="who-said-slot" style="text-align:center;"></div>
                         </div>
                         
                         <!-- Action buttons - mobile optimized -->
@@ -12821,6 +12860,7 @@
                                style="color: var(--burgundy); text-decoration: none; font-size: 0.85rem; margin-top: 6px; display: inline-block;">
                                📚 Learn more →
                             </a>
+                            <div id="who-said-slot" style="text-align:center;"></div>
                         </div>
                         
                         <!-- Action buttons - mobile optimized -->
@@ -12862,7 +12902,8 @@
                     </div>
                 `;
             }
-            
+            renderWhoSaidLink();
+
             // Smooth scroll to game-over screen
             setTimeout(() => {
                 const gameOverScreen = document.getElementById('game-over-screen');
@@ -12894,6 +12935,9 @@
         debugLog('Authors: ' + authors.length);
         debugLog('Launch date: 2026-01-08');
         debugLog('Today: ' + new Date().toISOString().split('T')[0]);
+
+        // Preload quotle.info provenance manifest so the "Who really said it?" link is ready at game end
+        loadQuotleInfoPages();
         
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
