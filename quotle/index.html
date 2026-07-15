@@ -3995,7 +3995,12 @@
         // `validated`: true = attribution reviewed with no concern; false = flagged as
         // apocryphal / paraphrase / debated attribution (kept in play, but tracked so
         // future audits can target them). Not surfaced in gameplay.
-        const quotes = [
+        // The full corpus. `verified` is sourced from quotle.info: true only where that site has
+// traced the attribution to a primary source. Unverified quotes stay here rather than being
+// deleted — they are queued for research in quotle-info's data/harvest-queue.json and flip to
+// true once a page exists. Only verified quotes are ever played (see the filter below the array).
+// NOTE: the older `validated` field is legacy and unused by any game logic; `verified` is the gate.
+const allQuotes = [
             {
                 index: 1,
                 text: "Few things help an individual more than to place responsibility upon them.",
@@ -4007,11 +4012,12 @@
                 hint: "He founded the Tuskegee Institute with just 30 students.",
                 location: "Tuskegee, Alabama, USA",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 2,
-                text: "If you wish to be loved, love",
+                text: "If you wish to be loved, love.",
                 author: "Seneca",
                 gender: "Male",
                 category: "Literature",
@@ -4020,7 +4026,8 @@
                 hint: "He was one of the wealthiest men in Rome despite preaching simplicity.",
                 location: "Rome, Italy",
                 year: "64 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 3,
@@ -4033,7 +4040,8 @@
                 hint: "He voiced Mickey Mouse himself in the early cartoons.",
                 location: "Los Angeles, California, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 4,
@@ -4046,7 +4054,8 @@
                 hint: "He made this speech at Rice University about the space program.",
                 location: "Washington, D.C., USA",
                 year: "1961",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 5,
@@ -4059,7 +4068,8 @@
                 hint: "He taught himself five languages: French, Italian, Spanish, Latin, and German.",
                 location: "Philadelphia, Pennsylvania, USA",
                 year: "1750s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 6,
@@ -4072,7 +4082,8 @@
                 hint: "She chaired the UN committee that drafted the Universal Declaration of Human Rights.",
                 location: "New York City, USA",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 7,
@@ -4085,11 +4096,12 @@
                 hint: "He was the first person to walk on the Moon.",
                 location: "The Moon",
                 year: "1969",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 9,
-                text: "Confine yourself to the present",
+                text: "Confine yourself to the present.",
                 author: "Marcus Aurelius",
                 gender: "Male",
                 category: "Literature",
@@ -4098,11 +4110,12 @@
                 hint: "He never intended his private journals to be published.",
                 location: "Rome, Italy",
                 year: "170s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 10,
-                text: "Every artist was first an amateur",
+                text: "Every artist was first an amateur.",
                 author: "Ralph Waldo Emerson",
                 gender: "Male",
                 category: "Literature",
@@ -4111,11 +4124,12 @@
                 hint: "He was a mentor to Henry David Thoreau, who lived on his land.",
                 location: "Concord, Massachusetts, USA",
                 year: "1870s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 11,
-                text: "Hope is the dream of a waking man",
+                text: "Hope is the dream of a waking man.",
                 author: "Aristotle",
                 gender: "Male",
                 category: "Literature",
@@ -4124,7 +4138,8 @@
                 hint: "He tutored Alexander the Great for several years.",
                 location: "Athens, Greece",
                 year: "Ancient",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 13,
@@ -4137,11 +4152,12 @@
                 hint: "He was a sickly child who built himself up through exercise.",
                 location: "New York City, USA",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 14,
-                text: "What does not kill me makes me stronger",
+                text: "What does not kill me makes me stronger.",
                 author: "Friedrich Nietzsche",
                 gender: "Male",
                 category: "Literature",
@@ -4150,11 +4166,12 @@
                 hint: "He suffered a mental breakdown at 44 and never recovered.",
                 location: "Basel, Switzerland",
                 year: "1880s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 15,
-                text: "Very little is needed to make a happy life",
+                text: "Very little is needed to make a happy life.",
                 author: "Marcus Aurelius",
                 gender: "Male",
                 category: "Literature",
@@ -4163,11 +4180,12 @@
                 hint: "He never intended his private journals to be published.",
                 location: "Rome, Italy",
                 year: "170 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 18,
-                text: "A true friend is, as it were, a second self",
+                text: "A true friend is, as it were, a second self.",
                 author: "Marcus Tullius Cicero",
                 gender: "Male",
                 category: "Literature",
@@ -4176,7 +4194,8 @@
                 hint: "He was executed for his speeches against Mark Antony.",
                 location: "Rome, Italy",
                 year: "40s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 19,
@@ -4189,11 +4208,12 @@
                 hint: "He claimed to know only that he knew nothing.",
                 location: "Athens, Greece",
                 year: "400 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 20,
-                text: "This world is but canvas to our imaginations",
+                text: "This world is but canvas to our imaginations.",
                 author: "Henry David Thoreau",
                 gender: "Male",
                 category: "Literature",
@@ -4202,7 +4222,8 @@
                 hint: "His essay on civil disobedience influenced Gandhi and Martin Luther King Jr.",
                 location: "Concord, Massachusetts, USA",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 21,
@@ -4215,7 +4236,8 @@
                 hint: "He never wrote anything—his ideas survive through his students.",
                 location: "Athens, Greece",
                 year: "400 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 22,
@@ -4228,7 +4250,8 @@
                 hint: "He was born into slavery and later became an advisor to presidents.",
                 location: "Tuskegee, Alabama, USA",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 23,
@@ -4241,7 +4264,8 @@
                 hint: "She was the first woman to fly solo across the Atlantic Ocean.",
                 location: "Atchison, Kansas, USA",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 24,
@@ -4254,11 +4278,12 @@
                 hint: "Her poems were discovered by her sister after her death, tied in neat bundles.",
                 location: "Amherst, Massachusetts, USA",
                 year: "1860s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 25,
-                text: "They muddy the waters to make them look deep",
+                text: "They muddy the waters to make them look deep.",
                 author: "Friedrich Nietzsche",
                 gender: "Male",
                 category: "Literature",
@@ -4267,7 +4292,8 @@
                 hint: "He suffered a mental breakdown at 44 and never recovered.",
                 location: "Basel, Switzerland",
                 year: "1880s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 26,
@@ -4280,7 +4306,8 @@
                 hint: "A New Thought writer whose optimist creed was adopted by Optimist International.",
                 location: "USA",
                 year: "1912",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 27,
@@ -4293,7 +4320,8 @@
                 hint: "He co-founded Cubism and painted Guernica after the bombing of a Basque town.",
                 location: "Paris, France",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 28,
@@ -4306,7 +4334,8 @@
                 hint: "'Ulysses' was banned in the US and UK for over a decade for obscenity.",
                 location: "Dublin, Ireland",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 29,
@@ -4319,7 +4348,8 @@
                 hint: "Her refusal to give up a bus seat in Montgomery set off a 381-day boycott.",
                 location: "Montgomery, Alabama, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 30,
@@ -4332,7 +4362,8 @@
                 hint: "He went to prison for 'gross indecency' and died three years after release.",
                 location: "Dublin, Ireland",
                 year: "1890s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 31,
@@ -4345,7 +4376,8 @@
                 hint: "She appeared on the US dollar coin—the first woman so honored.",
                 location: "Rochester, New York, USA",
                 year: "1870s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 32,
@@ -4358,7 +4390,8 @@
                 hint: "His essay on civil disobedience influenced Gandhi and Martin Luther King Jr.",
                 location: "Concord, Massachusetts, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 33,
@@ -4371,7 +4404,8 @@
                 hint: "He served as a chaplain during the English Civil War.",
                 location: "London, England",
                 year: "1650s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 34,
@@ -4384,7 +4418,8 @@
                 hint: "A vaudeville-bred wit who was jailed over a Broadway play she wrote called Sex.",
                 location: "Los Angeles, California, USA",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 35,
@@ -4397,7 +4432,8 @@
                 hint: "He coined phrases like 'the pen is mightier than the sword' and 'the great unwashed.'",
                 location: "London, England",
                 year: "1830s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 36,
@@ -4410,7 +4446,8 @@
                 hint: "He invented an early calculator at age 19 to help his tax-collector father.",
                 location: "Paris, France",
                 year: "1650s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 37,
@@ -4423,11 +4460,12 @@
                 hint: "He was so absent-minded he once sent his wife a telegram asking where he should be.",
                 location: "London, England",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 38,
-                text: "When you have faults, do not fear to abandon them",
+                text: "When you have faults, do not fear to abandon them.",
                 author: "Confucius",
                 gender: "Male",
                 category: "Literature",
@@ -4436,7 +4474,8 @@
                 hint: "He held only minor government positions during his lifetime.",
                 location: "Lu State, China",
                 year: "Ancient",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 39,
@@ -4449,7 +4488,8 @@
                 hint: "A seamstress and NAACP secretary whose arrest launched a bus boycott.",
                 location: "Montgomery, Alabama, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 40,
@@ -4462,7 +4502,8 @@
                 hint: "He won four Pulitzer Prizes and read a poem at Kennedy's inauguration.",
                 location: "New Hampshire, USA",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 41,
@@ -4475,7 +4516,8 @@
                 hint: "The circumstances of his mysterious death remain unsolved.",
                 location: "Baltimore, Maryland, USA",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 42,
@@ -4488,7 +4530,8 @@
                 hint: "He was kidnapped by pirates and later returned to crucify them.",
                 location: "Rome, Italy",
                 year: "50 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 44,
@@ -4501,11 +4544,12 @@
                 hint: "He was so absent-minded he once walked 15 miles in his nightgown while deep in thought.",
                 location: "Edinburgh, Scotland",
                 year: "1770s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 45,
-                text: "There is nothing on this earth more to be prized than true friendship.",
+                text: "Among all worldly things there is nothing which seems worthy to be preferred to friendship.",
                 author: "Thomas Aquinas",
                 gender: "Male",
                 category: "Literature",
@@ -4514,7 +4558,8 @@
                 hint: "He wrote over 8 million words in his lifetime.",
                 location: "Naples, Italy",
                 year: "1260s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 46,
@@ -4527,7 +4572,8 @@
                 hint: "He lived in India seeking spiritual enlightenment before founding Apple.",
                 location: "Cupertino, California, USA",
                 year: "2000s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 47,
@@ -4540,7 +4586,8 @@
                 hint: "He also wrote comedies, poems, and a history of Florence.",
                 location: "Florence, Italy",
                 year: "1510s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 48,
@@ -4553,11 +4600,12 @@
                 hint: "He narrowly escaped execution during the French Revolution.",
                 location: "Philadelphia, Pennsylvania, USA",
                 year: "1770s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 49,
-                text: "A man, Sir, should keep his friendship in constant repair",
+                text: "A man, Sir, should keep his friendship in constant repair.",
                 author: "Samuel Johnson",
                 gender: "Male",
                 category: "Literature",
@@ -4566,7 +4614,8 @@
                 hint: "He suffered from what is now believed to be Tourette syndrome.",
                 location: "London, England",
                 year: "1790s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 50,
@@ -4579,7 +4628,8 @@
                 hint: "She was the first woman to win a Nobel Prize—and the first person to win two.",
                 location: "Paris, France",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 51,
@@ -4592,7 +4642,8 @@
                 hint: "He reportedly discovered his famous principle while taking a bath and ran naked through the streets shouting 'Eureka!'",
                 location: "Syracuse, Sicily",
                 year: "250 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 52,
@@ -4605,11 +4656,12 @@
                 hint: "He co-founded the Beatles and staged a bed-in for peace on his honeymoon.",
                 location: "Liverpool, England",
                 year: "1971",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 53,
-                text: "Hope is the thing with feathers - that perches in the soul",
+                text: "Hope is the thing with feathers - that perches in the soul.",
                 author: "Emily Dickinson",
                 gender: "Female",
                 category: "Literature",
@@ -4618,7 +4670,8 @@
                 hint: "Her poems were discovered by her sister after her death, tied in neat bundles.",
                 location: "Amherst, Massachusetts, USA",
                 year: "1860s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 54,
@@ -4631,11 +4684,12 @@
                 hint: "He is considered the father of modern management.",
                 location: "Claremont, California, USA",
                 year: "1960s",
-                validated: false
+                validated: false,
+                verified: false
             },
             {
                 index: 55,
-                text: "Seize the day, trusting as little as possible in the future",
+                text: "Seize the day, trusting as little as possible in the future.",
                 author: "Horace",
                 gender: "Male",
                 category: "Literature",
@@ -4644,7 +4698,8 @@
                 hint: "He was the son of a freed slave who became one of Rome's greatest poets.",
                 location: "Rome, Italy",
                 year: "23 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 56,
@@ -4657,7 +4712,8 @@
                 hint: "A Scottish-born naturalist who founded the Sierra Club.",
                 location: "California, USA",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 57,
@@ -4670,7 +4726,8 @@
                 hint: "He made this speech at Rice University about the space program.",
                 location: "Houston, Texas, USA",
                 year: "1962",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 58,
@@ -4683,11 +4740,12 @@
                 hint: "He was a Baptist minister who advocated for nonviolent resistance.",
                 location: "Atlanta, Georgia, USA",
                 year: "1963",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 59,
-                text: "Happiness is an activity of the soul in accordance with virtue",
+                text: "Happiness is an activity of the soul in accordance with virtue.",
                 author: "Aristotle",
                 gender: "Male",
                 category: "Literature",
@@ -4696,7 +4754,8 @@
                 hint: "He tutored Alexander the Great for several years.",
                 location: "Athens, Greece",
                 year: "340s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 60,
@@ -4709,7 +4768,8 @@
                 hint: "He swapped his surname for a letter, rejecting a name imposed by slavery.",
                 location: "New York City, USA",
                 year: "1964",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 61,
@@ -4722,7 +4782,8 @@
                 hint: "'The Prophet' has never been out of print since 1923.",
                 location: "Beirut, Lebanon",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 62,
@@ -4735,7 +4796,8 @@
                 hint: "She eloped with Percy Bysshe Shelley when she was 16.",
                 location: "London, England",
                 year: "1831",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 63,
@@ -4748,7 +4810,8 @@
                 hint: "She wrote her novels on small pieces of paper she could hide if interrupted.",
                 location: "Hampshire, England",
                 year: "1810s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 64,
@@ -4761,7 +4824,8 @@
                 hint: "His prisoner number 46664 became a symbol of the anti-apartheid movement.",
                 location: "Johannesburg, South Africa",
                 year: "1990s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 65,
@@ -4774,7 +4838,8 @@
                 hint: "He crossed the Atlantic in 1492 still convinced he was sailing to Asia.",
                 location: "Spain",
                 year: "1490s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 66,
@@ -4787,7 +4852,8 @@
                 hint: "His novel 'Lady Chatterley's Lover' was banned for obscenity for decades.",
                 location: "Nottinghamshire, England",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 67,
@@ -4800,7 +4866,8 @@
                 hint: "He had over 1,000 books in his personal library.",
                 location: "Bordeaux, France",
                 year: "1580s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 68,
@@ -4813,7 +4880,8 @@
                 hint: "'Gulliver's Travels' was so popular it was pirated within weeks.",
                 location: "Dublin, Ireland",
                 year: "1720s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 69,
@@ -4826,7 +4894,8 @@
                 hint: "She kept a diary from age 11 until her death—spanning over 60 years.",
                 location: "Paris, France",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 70,
@@ -4839,7 +4908,8 @@
                 hint: "The father of modern economics was also a professor of moral philosophy.",
                 location: "Edinburgh, Scotland",
                 year: "1770s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 71,
@@ -4852,7 +4922,8 @@
                 hint: "She was the first Black woman to have a screenplay produced.",
                 location: "St. Louis, Missouri, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 73,
@@ -4865,7 +4936,8 @@
                 hint: "He was one of the Founding Fathers of the United States.",
                 location: "Virginia, USA",
                 year: "1775",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 74,
@@ -4878,7 +4950,8 @@
                 hint: "His last words reportedly were about the ugly wallpaper in his room.",
                 location: "Dublin, Ireland",
                 year: "1890s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 75,
@@ -4891,7 +4964,8 @@
                 hint: "He died in New York at age 39 after reportedly drinking 18 straight whiskeys.",
                 location: "Swansea, Wales",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 76,
@@ -4904,7 +4978,8 @@
                 hint: "He was Dean of St. Patrick's Cathedral in Dublin.",
                 location: "Dublin, Ireland",
                 year: "1720s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 77,
@@ -4917,7 +4992,8 @@
                 hint: "He crowned himself Emperor of France in 1804.",
                 location: "Paris, France",
                 year: "1800s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 78,
@@ -4930,7 +5006,8 @@
                 hint: "Deaf and blind from 19 months old, she became the first deafblind person to earn a BA degree.",
                 location: "Alabama, USA",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 79,
@@ -4943,7 +5020,8 @@
                 hint: "He designed the Chupa Chups lollipop logo.",
                 location: "Catalonia, Spain",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 80,
@@ -4956,11 +5034,12 @@
                 hint: "He was the inspiration for Long John Silver in 'Treasure Island.'",
                 location: "London, England",
                 year: "1880s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 81,
-                text: "Doubt is not a pleasant condition, but certainty is an absurd one",
+                text: "Doubt is not a pleasant condition, but certainty is an absurd one.",
                 author: "Voltaire",
                 gender: "Male",
                 category: "Literature",
@@ -4969,11 +5048,12 @@
                 hint: "He was imprisoned in the Bastille twice.",
                 location: "Paris, France",
                 year: "1770s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 82,
-                text: "It takes two to speak the truth, — one to speak, and another to hear",
+                text: "It takes two to speak the truth, — one to speak, and another to hear.",
                 author: "Henry David Thoreau",
                 gender: "Male",
                 category: "Literature",
@@ -4982,7 +5062,8 @@
                 hint: "His essay on civil disobedience influenced Gandhi and Martin Luther King Jr.",
                 location: "Concord, Massachusetts, USA",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 83,
@@ -4995,7 +5076,8 @@
                 hint: "He invented over 1,700 words still used in English today.",
                 location: "Stratford-upon-Avon, England",
                 year: "1600s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 84,
@@ -5008,7 +5090,8 @@
                 hint: "He married his 13-year-old cousin when he was 27.",
                 location: "Baltimore, Maryland, USA",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 85,
@@ -5021,7 +5104,8 @@
                 hint: "Her diaries fill over 35,000 handwritten pages.",
                 location: "Paris, France",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 86,
@@ -5034,7 +5118,8 @@
                 hint: "He was imprisoned in the Bastille twice.",
                 location: "Paris, France",
                 year: "1760s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 87,
@@ -5047,11 +5132,12 @@
                 hint: "He was executed for his speeches against Mark Antony.",
                 location: "Rome, Italy",
                 year: "50 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 88,
-                text: "You do not know where death awaits you; so be ready for it everywhere",
+                text: "You do not know where death awaits you; so be ready for it everywhere.",
                 author: "Seneca",
                 gender: "Male",
                 category: "Literature",
@@ -5060,11 +5146,12 @@
                 hint: "He was one of the wealthiest men in Rome despite preaching simplicity.",
                 location: "Rome, Italy",
                 year: "60s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 89,
-                text: "He who overcomes others is strong; he who overcomes himself is mighty",
+                text: "He who overcomes others is strong; he who overcomes himself is mighty.",
                 author: "Lao Tzu",
                 gender: "Male",
                 category: "Literature",
@@ -5073,11 +5160,12 @@
                 hint: "Legend says he was born as an old man with white hair.",
                 location: "Luoyang, China",
                 year: "Ancient",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 90,
-                text: "If we have our own why in life, we shall get along with almost any how",
+                text: "If we have our own why in life, we shall get along with almost any how.",
                 author: "Friedrich Nietzsche",
                 gender: "Male",
                 category: "Literature",
@@ -5086,7 +5174,8 @@
                 hint: "He suffered a mental breakdown at 44 and never recovered.",
                 location: "Basel, Switzerland",
                 year: "1880s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 91,
@@ -5099,7 +5188,8 @@
                 hint: "He secretly married a 17-year-old, which ruined his career for years.",
                 location: "London, England",
                 year: "1620s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 92,
@@ -5112,7 +5202,8 @@
                 hint: "He is considered one of the greatest philosophers of the 20th century.",
                 location: "Cambridge, England",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 94,
@@ -5125,7 +5216,8 @@
                 hint: "He dissected over 30 human corpses to study anatomy.",
                 location: "Florence, Italy",
                 year: "1500s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 95,
@@ -5138,7 +5230,8 @@
                 hint: "He sold the Louisiana Territory to the United States.",
                 location: "Paris, France",
                 year: "1800s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 96,
@@ -5151,7 +5244,8 @@
                 hint: "He died of tuberculosis at only 25 years old.",
                 location: "London, England",
                 year: "1820s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 97,
@@ -5164,7 +5258,8 @@
                 hint: "He won the Nobel Prize in Literature in 1948.",
                 location: "London, England",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 98,
@@ -5177,11 +5272,12 @@
                 hint: "He corresponded with kings, popes, and scholars across Europe.",
                 location: "Rotterdam, Netherlands",
                 year: "1510s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 99,
-                text: "Power concedes nothing without a demand. It never did and it never will",
+                text: "Power concedes nothing without a demand. It never did and it never will.",
                 author: "Frederick Douglass",
                 gender: "Male",
                 category: "Speech",
@@ -5190,7 +5286,8 @@
                 hint: "He was the most photographed American of the 19th century.",
                 location: "Rochester, New York, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 100,
@@ -5203,11 +5300,12 @@
                 hint: "He posed for his portrait in his funeral shroud before death.",
                 location: "London, England",
                 year: "1620s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 101,
-                text: "It is not that we have a short time to live, but that we waste much of it",
+                text: "It is not that we have a short time to live, but that we waste much of it.",
                 author: "Seneca",
                 gender: "Male",
                 category: "Literature",
@@ -5216,7 +5314,8 @@
                 hint: "He was one of the wealthiest men in Rome despite preaching simplicity.",
                 location: "Rome, Italy",
                 year: "49 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 102,
@@ -5229,7 +5328,8 @@
                 hint: "He could compose witty remarks as quickly as he could speak.",
                 location: "Dublin, Ireland",
                 year: "1890s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 103,
@@ -5242,7 +5342,8 @@
                 hint: "She was a central figure of the Harlem Renaissance.",
                 location: "Florida, USA",
                 year: "1937",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 104,
@@ -5255,7 +5356,8 @@
                 hint: "He made major contributions to probability theory through gambling problems.",
                 location: "Paris, France",
                 year: "1650s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 105,
@@ -5268,7 +5370,8 @@
                 hint: "He served only 200 days as president before being assassinated.",
                 location: "Ohio, USA",
                 year: "1870s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 106,
@@ -5281,7 +5384,8 @@
                 hint: "He tested thousands of materials before finding the right light bulb filament.",
                 location: "Menlo Park, New Jersey, USA",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 107,
@@ -5294,7 +5398,8 @@
                 hint: "He was one of the wealthiest men in Rome despite preaching simplicity.",
                 location: "Rome, Italy",
                 year: "50 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 108,
@@ -5307,7 +5412,8 @@
                 hint: "He never intended his private journals to be published.",
                 location: "Rome, Italy",
                 year: "170 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 109,
@@ -5320,7 +5426,8 @@
                 hint: "He and Simone de Beauvoir had a lifelong partnership but never married.",
                 location: "Paris, France",
                 year: "1944",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 110,
@@ -5333,7 +5440,8 @@
                 hint: "He was the most photographed American of the 19th century.",
                 location: "Rochester, New York, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 111,
@@ -5346,7 +5454,8 @@
                 hint: "He founded his school in a garden, which became known as 'The Garden.'",
                 location: "Athens, Greece",
                 year: "300 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 112,
@@ -5359,7 +5468,8 @@
                 hint: "He went blind in his 40s and dictated 'Paradise Lost' to his daughters.",
                 location: "London, England",
                 year: "1660s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 113,
@@ -5372,7 +5482,8 @@
                 hint: "She was mute for five years after a childhood trauma.",
                 location: "St. Louis, Missouri, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 114,
@@ -5385,7 +5496,8 @@
                 hint: "He could write in Latin with one hand and Greek with the other simultaneously.",
                 location: "Ohio, USA",
                 year: "1870s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 115,
@@ -5398,7 +5510,8 @@
                 hint: "His empiricist philosophy influenced Kant to 'wake from his dogmatic slumber.'",
                 location: "Edinburgh, Scotland",
                 year: "1750s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 116,
@@ -5411,7 +5524,8 @@
                 hint: "He was a successful novelist, playwright, and politician.",
                 location: "London, England",
                 year: "1830s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 117,
@@ -5424,11 +5538,12 @@
                 hint: "He served as a propagandist for the English Commonwealth.",
                 location: "London, England",
                 year: "1660s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 118,
-                text: "Death hangs over thee: whilst yet thou livest, whilst thou mayest, be good",
+                text: "Death hangs over thee: whilst yet thou livest, whilst thou mayest, be good.",
                 author: "Marcus Aurelius",
                 gender: "Male",
                 category: "Literature",
@@ -5437,7 +5552,8 @@
                 hint: "He never intended his private journals to be published.",
                 location: "Rome, Italy",
                 year: "170 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 119,
@@ -5450,7 +5566,8 @@
                 hint: "He invented a new system of musical notation.",
                 location: "Geneva, Switzerland",
                 year: "1760s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 120,
@@ -5463,7 +5580,8 @@
                 hint: "He wrote over 20,000 letters that survive today.",
                 location: "Paris, France",
                 year: "1760s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 121,
@@ -5476,7 +5594,8 @@
                 hint: "He won both a Nobel Prize and an Oscar—the only person to do so.",
                 location: "Dublin, Ireland",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 122,
@@ -5489,7 +5608,8 @@
                 hint: "He wrote this from a jail cell in Alabama.",
                 location: "Birmingham, Alabama, USA",
                 year: "1963",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 123,
@@ -5502,7 +5622,8 @@
                 hint: "He held only minor government positions during his lifetime.",
                 location: "Lu State, China",
                 year: "500 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 125,
@@ -5515,11 +5636,12 @@
                 hint: "His school was revolutionary for accepting women and slaves as equals.",
                 location: "Athens, Greece",
                 year: "300 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 126,
-                text: "As a well-spent day brings happy sleep, so life well used brings happy death",
+                text: "As a well-spent day brings happy sleep, so life well used brings happy death.",
                 author: "Leonardo da Vinci",
                 gender: "Male",
                 category: "Literature",
@@ -5528,11 +5650,12 @@
                 hint: "He dissected over 30 human corpses to study anatomy.",
                 location: "Florence, Italy",
                 year: "1490s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 127,
-                text: "Fan Ch'ih asked about benevolence. The Master said, 'It is to love all men.'",
+                text: "Fan Ch'ih asked about benevolence. The Master said, 'It is to love all men.'.",
                 author: "Confucius",
                 gender: "Male",
                 category: "Literature",
@@ -5541,7 +5664,8 @@
                 hint: "He held only minor government positions during his lifetime.",
                 location: "Lu State, China",
                 year: "Ancient",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 128,
@@ -5554,11 +5678,12 @@
                 hint: "She ran her own printing press to publish her early works.",
                 location: "Paris, France",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 129,
-                text: "Learning without thought is labour lost; thought without learning is perilous",
+                text: "Learning without thought is labour lost; thought without learning is perilous.",
                 author: "Confucius",
                 gender: "Male",
                 category: "Literature",
@@ -5567,11 +5692,12 @@
                 hint: "He held only minor government positions during his lifetime.",
                 location: "Lu State, China",
                 year: "470s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 130,
-                text: "It is much safer to be feared than loved, if one of the two has to be wanting",
+                text: "It is much safer to be feared than loved, if one of the two has to be wanting.",
                 author: "Niccolò Machiavelli",
                 gender: "Male",
                 category: "Literature",
@@ -5580,7 +5706,8 @@
                 hint: "He also wrote comedies, poems, and a history of Florence.",
                 location: "Florence, Italy",
                 year: "1510s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 131,
@@ -5593,11 +5720,12 @@
                 hint: "A Spanish painter whose melancholy Blue Period came before he broke form apart.",
                 location: "Paris, France",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 132,
-                text: "The impediment to action advances action. What stands in the way becomes the way",
+                text: "The impediment to action advances action. What stands in the way becomes the way.",
                 author: "Marcus Aurelius",
                 gender: "Male",
                 category: "Literature",
@@ -5606,7 +5734,8 @@
                 hint: "He never intended his private journals to be published.",
                 location: "Rome, Italy",
                 year: "170s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 133,
@@ -5619,7 +5748,8 @@
                 hint: "He and his wife spent four decades writing an eleven-volume Story of Civilization.",
                 location: "Los Angeles, California, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 135,
@@ -5632,7 +5762,8 @@
                 hint: "She served as a Civil War nurse until typhoid fever nearly killed her.",
                 location: "Concord, Massachusetts, USA",
                 year: "1860s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 136,
@@ -5645,11 +5776,12 @@
                 hint: "The fables credited to this storyteller gave us the tortoise and the hare.",
                 location: "Greece",
                 year: "600 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 137,
-                text: "He knows nothing, and thinks that he knows; I neither know nor think that I know",
+                text: "He knows nothing, and thinks that he knows; I neither know nor think that I know.",
                 author: "Socrates",
                 gender: "Male",
                 category: "Speech",
@@ -5658,11 +5790,12 @@
                 hint: "He claimed to know only that he knew nothing.",
                 location: "Athens, Greece",
                 year: "390s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 139,
-                text: "When a man does not know what harbour he is making for, no wind is the right wind",
+                text: "When a man does not know what harbour he is making for, no wind is the right wind.",
                 author: "Seneca",
                 gender: "Male",
                 category: "Literature",
@@ -5671,7 +5804,8 @@
                 hint: "He was one of the wealthiest men in Rome despite preaching simplicity.",
                 location: "Rome, Italy",
                 year: "63 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 140,
@@ -5684,7 +5818,8 @@
                 hint: "He moved to Sweden to tutor Queen Christina—and died from the early hours she demanded.",
                 location: "Amsterdam, Netherlands",
                 year: "1640s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 141,
@@ -5697,11 +5832,12 @@
                 hint: "Her writing style influenced the Lost Generation of American writers.",
                 location: "Paris, France",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 142,
-                text: "Optimism is the faith that leads to achievement; nothing can be done without hope",
+                text: "Optimism is the faith that leads to achievement; nothing can be done without hope.",
                 author: "Helen Keller",
                 gender: "Female",
                 category: "Speech",
@@ -5710,7 +5846,8 @@
                 hint: "Deaf and blind from 19 months old, she became the first deafblind person to earn a BA degree.",
                 location: "Alabama, USA",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 143,
@@ -5723,11 +5860,12 @@
                 hint: "He taught psychology and philosophy at Harvard for 35 years.",
                 location: "Cambridge, Massachusetts, USA",
                 year: "1890s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 144,
-                text: "No longer talk at all about the kind of man that a good man ought to be, but be such",
+                text: "No longer talk at all about the kind of man that a good man ought to be, but be such.",
                 author: "Marcus Aurelius",
                 gender: "Male",
                 category: "Literature",
@@ -5736,7 +5874,8 @@
                 hint: "He never intended his private journals to be published.",
                 location: "Rome, Italy",
                 year: "180s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 145,
@@ -5749,7 +5888,8 @@
                 hint: "He abandoned all five of his children to foundling homes.",
                 location: "Geneva, Switzerland",
                 year: "1760s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 146,
@@ -5762,7 +5902,8 @@
                 hint: "He camped in Yosemite with Theodore Roosevelt and helped win it federal protection.",
                 location: "California, USA",
                 year: "1890s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 147,
@@ -5775,7 +5916,8 @@
                 hint: "He asked for the poem to be burned at his death; Augustus refused.",
                 location: "Rome, Italy",
                 year: "30 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 148,
@@ -5788,7 +5930,8 @@
                 hint: "She and Elizabeth Cady Stanton worked together for 50 years.",
                 location: "Rochester, New York, USA",
                 year: "1870s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 149,
@@ -5801,7 +5944,8 @@
                 hint: "His transformative friendship with a wandering mystic changed his life and poetry.",
                 location: "Konya, Turkey",
                 year: "1250s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 151,
@@ -5814,7 +5958,8 @@
                 hint: "He suffered from what is now believed to be Tourette syndrome.",
                 location: "London, England",
                 year: "1750s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 152,
@@ -5827,7 +5972,8 @@
                 hint: "He was a leader of the existentialist movement in philosophy.",
                 location: "Paris, France",
                 year: "1946",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 153,
@@ -5840,7 +5986,8 @@
                 hint: "Her personal effects are still radioactive and kept in lead-lined boxes.",
                 location: "Paris, France",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 154,
@@ -5853,7 +6000,8 @@
                 hint: "She collected avant-garde art before anyone else recognized its value.",
                 location: "Paris, France",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 155,
@@ -5866,7 +6014,8 @@
                 hint: "He worked as a nurse during the Civil War.",
                 location: "Brooklyn, New York, USA",
                 year: "1860s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 156,
@@ -5879,11 +6028,12 @@
                 hint: "He was the first non-European to win the Nobel Prize in Literature.",
                 location: "Kolkata, India",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 157,
-                text: "Dost thou love life? Then do not squander time, for that's the stuff life is made of",
+                text: "Dost thou love life? Then do not squander time, for that's the stuff life is made of.",
                 author: "Benjamin Franklin",
                 gender: "Male",
                 category: "Speech",
@@ -5892,7 +6042,8 @@
                 hint: "He invented the lightning rod and bifocals, and signed both the Declaration and the Constitution.",
                 location: "Philadelphia, Pennsylvania, USA",
                 year: "1740s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 158,
@@ -5905,11 +6056,12 @@
                 hint: "She designed her own house and gardens at The Mount in Massachusetts.",
                 location: "New York City, USA",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 159,
-                text: "Far and away the best prize that life offers is the chance to work hard at work worth doing",
+                text: "Far and away the best prize that life offers is the chance to work hard at work worth doing.",
                 author: "Theodore Roosevelt",
                 gender: "Male",
                 category: "Speech",
@@ -5918,7 +6070,8 @@
                 hint: "He was a sickly child who built himself up through exercise.",
                 location: "New York City, USA",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 160,
@@ -5931,7 +6084,8 @@
                 hint: "Her mother was the feminist philosopher Mary Wollstonecraft.",
                 location: "London, England",
                 year: "1818",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 161,
@@ -5944,11 +6098,12 @@
                 hint: "He's credited with establishing Tuscan as the literary language of Italy.",
                 location: "Florence, Italy",
                 year: "1310s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 162,
-                text: "A grateful mind is not only the greatest of virtues, but the parent of all the other virtues",
+                text: "A grateful mind is not only the greatest of virtues, but the parent of all the other virtues.",
                 author: "Marcus Tullius Cicero",
                 gender: "Male",
                 category: "Literature",
@@ -5957,7 +6112,8 @@
                 hint: "He was executed for his speeches against Mark Antony.",
                 location: "Rome, Italy",
                 year: "50s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 163,
@@ -5970,7 +6126,8 @@
                 hint: "His name means 'acquired' in Greek, reflecting his slave origins.",
                 location: "Rome, Italy",
                 year: "100 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 164,
@@ -5983,7 +6140,8 @@
                 hint: "She is widely called the mother of the civil rights movement.",
                 location: "Montgomery, Alabama, USA",
                 year: "1980s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 165,
@@ -5996,7 +6154,8 @@
                 hint: "He founded the Academy, which lasted for over 900 years.",
                 location: "Athens, Greece",
                 year: "380 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 166,
@@ -6009,7 +6168,8 @@
                 hint: "'The Second Sex' was placed on the Vatican's list of forbidden books.",
                 location: "Paris, France",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 167,
@@ -6022,7 +6182,8 @@
                 hint: "He refused the Vietnam draft and was stripped of his title for it.",
                 location: "Louisville, Kentucky, USA",
                 year: "1964",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 168,
@@ -6035,7 +6196,8 @@
                 hint: "He composed the national anthems of two countries: India and Bangladesh.",
                 location: "Kolkata, India",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 169,
@@ -6048,11 +6210,12 @@
                 hint: "His philosophy shaped Chinese civilization for over 2,000 years.",
                 location: "Lu State, China",
                 year: "500 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 170,
-                text: "Not all of us can do great things. But we can do small things with great love.",
+                text: "Don't look for big things, just do small things with great love.",
                 author: "Mother Teresa",
                 gender: "Female",
                 category: "Speech",
@@ -6061,7 +6224,8 @@
                 hint: "An Albanian-born nun who founded the Missionaries of Charity in Calcutta.",
                 location: "Kolkata, India",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 171,
@@ -6074,7 +6238,8 @@
                 hint: "He was known for his witty proverbs and historical writings.",
                 location: "London, England",
                 year: "1650s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 172,
@@ -6087,7 +6252,8 @@
                 hint: "Her most famous novel is 'Their Eyes Were Watching God.'",
                 location: "Florida, USA",
                 year: "1937",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 173,
@@ -6100,7 +6266,8 @@
                 hint: "His Story of Philosophy turned philosophy into a 1920s bestseller.",
                 location: "Los Angeles, California, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 174,
@@ -6113,7 +6280,8 @@
                 hint: "Business executives now study his strategies for corporate competition.",
                 location: "Wu Kingdom, China",
                 year: "500 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 176,
@@ -6126,7 +6294,8 @@
                 hint: "He was the oldest signer of the Declaration of Independence at age 70.",
                 location: "Philadelphia, Pennsylvania, USA",
                 year: "1750s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 177,
@@ -6139,7 +6308,8 @@
                 hint: "This wilderness writer is often called the father of the national parks.",
                 location: "California, USA",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 178,
@@ -6152,7 +6322,8 @@
                 hint: "He was the first African American invited to dine at the White House.",
                 location: "Tuskegee, Alabama, USA",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 179,
@@ -6165,7 +6336,8 @@
                 hint: "'The Prince' was written to win favor with the rulers who imprisoned him.",
                 location: "Florence, Italy",
                 year: "1510s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 180,
@@ -6178,7 +6350,8 @@
                 hint: "His moving assembly line put America on wheels with the Model T.",
                 location: "Detroit, Michigan, USA",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 181,
@@ -6191,7 +6364,8 @@
                 hint: "He and George Bernard Shaw were intellectual rivals but close friends.",
                 location: "London, England",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 182,
@@ -6204,7 +6378,8 @@
                 hint: "Deaf and blind from 19 months old, she became the first deafblind person to earn a BA degree.",
                 location: "Alabama, USA",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 183,
@@ -6217,7 +6392,8 @@
                 hint: "He taught himself to read while enslaved, despite laws forbidding it.",
                 location: "Rochester, New York, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 184,
@@ -6230,7 +6406,8 @@
                 hint: "He was nominated for the Nobel Peace Prize five times but never won.",
                 location: "Gujarat, India",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 185,
@@ -6243,7 +6420,8 @@
                 hint: "He eloped with a married woman, the mother of his professor's wife.",
                 location: "Nottinghamshire, England",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 186,
@@ -6256,7 +6434,8 @@
                 hint: "He later became Dean of St. Paul's Cathedral.",
                 location: "London, England",
                 year: "1620s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 187,
@@ -6269,7 +6448,8 @@
                 hint: "He's called the Father of English Literature.",
                 location: "London, England",
                 year: "1390s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 188,
@@ -6282,7 +6462,8 @@
                 hint: "He held over 1,000 patents.",
                 location: "Menlo Park, New Jersey, USA",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 189,
@@ -6295,11 +6476,12 @@
                 hint: "He was so poor in early life he had to leave Oxford.",
                 location: "London, England",
                 year: "1750s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 190,
-                text: "Hope is itself a species of happiness, and, perhaps, the chief happiness which this world affords",
+                text: "Hope is itself a species of happiness, and, perhaps, the chief happiness which this world affords.",
                 author: "Samuel Johnson",
                 gender: "Male",
                 category: "Literature",
@@ -6308,7 +6490,8 @@
                 hint: "He suffered from what is now believed to be Tourette syndrome.",
                 location: "London, England",
                 year: "1760s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 191,
@@ -6321,7 +6504,8 @@
                 hint: "A New England farmer-poet best known for a road not taken.",
                 location: "New Hampshire, USA",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 192,
@@ -6334,7 +6518,8 @@
                 hint: "He refused to take sides in the Protestant Reformation despite pressure.",
                 location: "Rotterdam, Netherlands",
                 year: "1510s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 193,
@@ -6347,11 +6532,12 @@
                 hint: "His teacher predicted his bellowing would be heard throughout the world.",
                 location: "Naples, Italy",
                 year: "1260s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 195,
-                text: "The world breaks everyone, and afterward, some are strong at the broken places.",
+                text: "The world breaks every one and afterward many are strong at the broken places.",
                 author: "Ernest Hemingway",
                 gender: "Male",
                 category: "Literature",
@@ -6360,7 +6546,8 @@
                 hint: "He won both the Pulitzer Prize and Nobel Prize in Literature.",
                 location: "Key West, Florida, USA",
                 year: "1929",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 196,
@@ -6373,7 +6560,8 @@
                 hint: "His famous melting clocks painting took only a few hours to complete.",
                 location: "Catalonia, Spain",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 197,
@@ -6386,7 +6574,8 @@
                 hint: "He was exiled twice: to Elba and then to Saint Helena.",
                 location: "Paris, France",
                 year: "1800s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 198,
@@ -6399,7 +6588,8 @@
                 hint: "She won a Pulitzer Prize for 'A Midwife's Tale.'",
                 location: "New Hampshire, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 199,
@@ -6412,7 +6602,8 @@
                 hint: "Legend says he was born as an old man with white hair.",
                 location: "Luoyang, China",
                 year: "600 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 200,
@@ -6425,7 +6616,8 @@
                 hint: "He spent much of his life in bed, doing his best thinking there.",
                 location: "Amsterdam, Netherlands",
                 year: "1640s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 201,
@@ -6438,7 +6630,8 @@
                 hint: "She named her diary 'Kitty' and wrote to it as if writing to a friend.",
                 location: "Amsterdam, Netherlands",
                 year: "1944",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 202,
@@ -6451,7 +6644,8 @@
                 hint: "He deposited his book in the temple of Artemis for safekeeping.",
                 location: "Ephesus, Greece",
                 year: "500 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 203,
@@ -6464,7 +6658,8 @@
                 hint: "He and his wife were expelled from England during WWI due to her German heritage.",
                 location: "Nottinghamshire, England",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 204,
@@ -6477,7 +6672,8 @@
                 hint: "He initially opposed the Constitution for lacking a Bill of Rights.",
                 location: "Virginia, USA",
                 year: "1788",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 205,
@@ -6490,7 +6686,8 @@
                 hint: "He founded an experimental school that became a university.",
                 location: "Kolkata, India",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 206,
@@ -6503,7 +6700,8 @@
                 hint: "He made a fortune by exploiting a flaw in the French lottery.",
                 location: "Paris, France",
                 year: "1760s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 207,
@@ -6516,7 +6714,8 @@
                 hint: "Nicknamed Mr. Television, his variety show sold America its first TV sets.",
                 location: "New York City, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 208,
@@ -6529,7 +6728,8 @@
                 hint: "He was also a scientist who developed a theory of colors.",
                 location: "Weimar, Germany",
                 year: "1800s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 209,
@@ -6542,7 +6742,8 @@
                 hint: "He reformed the Roman calendar; the Julian calendar bears his name.",
                 location: "Rome, Italy",
                 year: "50 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 210,
@@ -6555,7 +6756,8 @@
                 hint: "This Nobel laureate was also a goalkeeper for a racing football club in Algeria.",
                 location: "Algiers, Algeria",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 211,
@@ -6568,7 +6770,8 @@
                 hint: "He wrote his 'Meditations' while commanding armies on Rome's frontiers.",
                 location: "Rome, Italy",
                 year: "170 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 212,
@@ -6581,11 +6784,12 @@
                 hint: "She was the first woman to take the agrégation exam in philosophy.",
                 location: "Paris, France",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 213,
-                text: "No race can prosper till it learns that there is as much dignity in tilling a field as in writing a poem",
+                text: "No race can prosper till it learns that there is as much dignity in tilling a field as in writing a poem.",
                 author: "Booker T. Washington",
                 gender: "Male",
                 category: "Speech",
@@ -6594,7 +6798,8 @@
                 hint: "He founded the Tuskegee Institute with just 30 students.",
                 location: "Tuskegee, Alabama, USA",
                 year: "1890s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 214,
@@ -6607,7 +6812,8 @@
                 hint: "'The Art of War' is required reading at military academies worldwide.",
                 location: "Wu Kingdom, China",
                 year: "500 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 215,
@@ -6620,7 +6826,8 @@
                 hint: "He wrote of stopping by woods on a snowy evening, with miles to go before sleeping.",
                 location: "New Hampshire, USA",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 216,
@@ -6633,7 +6840,8 @@
                 hint: "He named the Jazz Age and became its chronicler.",
                 location: "St. Paul, Minnesota, USA",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 217,
@@ -6646,7 +6854,8 @@
                 hint: "He worked as a librarian for the Faculty of Advocates in Edinburgh.",
                 location: "Edinburgh, Scotland",
                 year: "1750s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 218,
@@ -6659,11 +6868,12 @@
                 hint: "She suffered from severe depression and took her own life.",
                 location: "London, England",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 219,
-                text: "The first draft of anything is garbage.",
+                text: "The first draft of anything is shit.",
                 author: "Ernest Hemingway",
                 gender: "Male",
                 category: "Literature",
@@ -6672,7 +6882,8 @@
                 hint: "He rewrote the ending of 'A Farewell to Arms' 39 times.",
                 location: "Key West, Florida, USA",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 220,
@@ -6685,7 +6896,8 @@
                 hint: "She won an Oscar for Roman Holiday and spent her last years working for UNICEF.",
                 location: "Switzerland",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 221,
@@ -6698,7 +6910,8 @@
                 hint: "His war machines defended Syracuse against Roman invasion for two years.",
                 location: "Syracuse, Sicily",
                 year: "250 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 222,
@@ -6711,7 +6924,8 @@
                 hint: "She discovered two elements: polonium and radium.",
                 location: "Paris, France",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 223,
@@ -6724,11 +6938,12 @@
                 hint: "He became a British citizen and renounced his American citizenship.",
                 location: "London, England",
                 year: "1942",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 224,
-                text: "Those who deny freedom to others deserve it not for themselves, and, under a just God, cannot long retain it",
+                text: "Those who deny freedom to others deserve it not for themselves, and, under a just God, cannot long retain it.",
                 author: "Abraham Lincoln",
                 gender: "Male",
                 category: "Speech",
@@ -6737,11 +6952,12 @@
                 hint: "He suffered from depression, which he called 'melancholy,' throughout his life.",
                 location: "Springfield, Illinois, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 225,
-                text: "I would maintain that thanks are the highest form of thought; and that gratitude is happiness doubled by wonder",
+                text: "I would maintain that thanks are the highest form of thought; and that gratitude is happiness doubled by wonder.",
                 author: "G.K. Chesterton",
                 gender: "Male",
                 category: "Literature",
@@ -6750,11 +6966,12 @@
                 hint: "He was so absent-minded he once sent his wife a telegram asking where he should be.",
                 location: "London, England",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 226,
-                text: "Simplicity, simplicity, simplicity! I say, let your affairs be as two or three, and not a hundred or a thousand",
+                text: "Simplicity, simplicity, simplicity! I say, let your affairs be as two or three, and not a hundred or a thousand.",
                 author: "Henry David Thoreau",
                 gender: "Male",
                 category: "Literature",
@@ -6763,7 +6980,8 @@
                 hint: "His essay on civil disobedience influenced Gandhi and Martin Luther King Jr.",
                 location: "Concord, Massachusetts, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 227,
@@ -6776,11 +6994,12 @@
                 hint: "She won both the Pulitzer Prize and National Book Award for 'The Color Purple.'",
                 location: "Eatonton, Georgia, USA",
                 year: "1980s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 228,
-                text: "For man, when perfected, is the best of animals, but, when separated from law and justice, he is the worst of all",
+                text: "For man, when perfected, is the best of animals, but, when separated from law and justice, he is the worst of all.",
                 author: "Aristotle",
                 gender: "Male",
                 category: "Literature",
@@ -6789,11 +7008,12 @@
                 hint: "He tutored Alexander the Great for several years.",
                 location: "Athens, Greece",
                 year: "Ancient",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 229,
-                text: "If you would be a real seeker after truth, it is necessary that at least once in your life you doubt, as far as possible, all things",
+                text: "If you would be a real seeker after truth, it is necessary that at least once in your life you doubt, as far as possible, all things.",
                 author: "René Descartes",
                 gender: "Male",
                 category: "Literature",
@@ -6802,7 +7022,8 @@
                 hint: "He moved to Sweden to tutor Queen Christina—and died from the early hours she demanded.",
                 location: "Amsterdam, Netherlands",
                 year: "1640s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 230,
@@ -6815,11 +7036,12 @@
                 hint: "He worked as a schoolteacher, gardener, and hospital porter.",
                 location: "Vienna, Austria",
                 year: "1921",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 231,
-                text: "The future belongs to those who prepare for it today.",
+                text: "Education is our passport to the future, for tomorrow belongs only to the people who prepare for it today.",
                 author: "Malcolm X",
                 gender: "Male",
                 category: "Speech",
@@ -6828,7 +7050,8 @@
                 hint: "A Nation of Islam minister who broke with the movement after a pilgrimage to Mecca.",
                 location: "New York City, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 232,
@@ -6841,7 +7064,8 @@
                 hint: "She trained as an anthropologist at Columbia University.",
                 location: "Florida, USA",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 233,
@@ -6854,7 +7078,8 @@
                 hint: "He never finished many projects, including several commissioned paintings.",
                 location: "Florence, Italy",
                 year: "1500s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 234,
@@ -6867,7 +7092,8 @@
                 hint: "She was nominated for the Nobel Prize in Literature three times.",
                 location: "New York City, USA",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 235,
@@ -6880,11 +7106,12 @@
                 hint: "He contracted polio at 39 but hid his disability throughout his presidency.",
                 location: "Hyde Park, New York, USA",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 236,
-                text: "When you know a thing, to hold that you know it; and when you do not know a thing, to allow that you do not know it — this is knowledge",
+                text: "When you know a thing, to hold that you know it; and when you do not know a thing, to allow that you do not know it — this is knowledge.",
                 author: "Confucius",
                 gender: "Male",
                 category: "Literature",
@@ -6893,7 +7120,8 @@
                 hint: "He held only minor government positions during his lifetime.",
                 location: "Lu State, China",
                 year: "500 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 237,
@@ -6906,11 +7134,12 @@
                 hint: "'Common Sense' sold 500,000 copies when the population was only 2.5 million.",
                 location: "Philadelphia, Pennsylvania, USA",
                 year: "1770s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 238,
-                text: "any man's death diminishes me, because I am involved in mankind; and therefore never send to know for whom the bell tolls; it tolls for thee",
+                text: "any man's death diminishes me, because I am involved in mankind; and therefore never send to know for whom the bell tolls; it tolls for thee.",
                 author: "John Donne",
                 gender: "Male",
                 category: "Literature",
@@ -6919,11 +7148,12 @@
                 hint: "He secretly married a 17-year-old, which ruined his career for years.",
                 location: "London, England",
                 year: "1620s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 240,
-                text: "I have learned that success is to be measured not so much by the position that one has reached in life as by the obstacles which he has overcome while trying to succeed",
+                text: "I have learned that success is to be measured not so much by the position that one has reached in life as by the obstacles which he has overcome while trying to succeed.",
                 author: "Booker T. Washington",
                 gender: "Male",
                 category: "Speech",
@@ -6932,7 +7162,8 @@
                 hint: "He founded the Tuskegee Institute with just 30 students.",
                 location: "Tuskegee, Alabama, USA",
                 year: "1800s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 241,
@@ -6945,7 +7176,8 @@
                 hint: "He worked as a diplomat, customs controller, and clerk of the King's works.",
                 location: "London, England",
                 year: "1390s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 242,
@@ -6958,7 +7190,8 @@
                 hint: "He died believing himself a failure; his books are now classics.",
                 location: "St. Paul, Minnesota, USA",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 243,
@@ -6971,11 +7204,12 @@
                 hint: "Seven years of his life are unaccounted for—the 'lost years.'",
                 location: "Stratford-upon-Avon, England",
                 year: "1600s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 244,
-                text: "If one advances confidently in the direction of his dreams, and endeavors to live the life which he has imagined, he will meet with a success unexpected in common hours",
+                text: "If one advances confidently in the direction of his dreams, and endeavors to live the life which he has imagined, he will meet with a success unexpected in common hours.",
                 author: "Henry David Thoreau",
                 gender: "Male",
                 category: "Literature",
@@ -6984,11 +7218,12 @@
                 hint: "His essay on civil disobedience influenced Gandhi and Martin Luther King Jr.",
                 location: "Concord, Massachusetts, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 245,
-                text: "The general who advances without coveting fame and retreats without fearing disgrace, whose only thought is to protect his country and do good service for his sovereign, is the jewel of the kingdom",
+                text: "The general who advances without coveting fame and retreats without fearing disgrace, whose only thought is to protect his country and do good service for his sovereign, is the jewel of the kingdom.",
                 author: "Sun Tzu",
                 gender: "Male",
                 category: "Literature",
@@ -6997,11 +7232,12 @@
                 hint: "His existence is debated by historians—he may be a legendary figure.",
                 location: "Wu Kingdom, China",
                 year: "Ancient",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 246,
-                text: "I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach, and not, when I came to die, discover that I had not lived",
+                text: "I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach, and not, when I came to die, discover that I had not lived.",
                 author: "Henry David Thoreau",
                 gender: "Male",
                 category: "Literature",
@@ -7010,7 +7246,8 @@
                 hint: "His essay on civil disobedience influenced Gandhi and Martin Luther King Jr.",
                 location: "Concord, Massachusetts, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 247,
@@ -7023,7 +7260,8 @@
                 hint: "He was captured during war and the King paid his ransom.",
                 location: "London, England",
                 year: "1390s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 248,
@@ -7036,7 +7274,8 @@
                 hint: "He taught that we control only our own thoughts and actions.",
                 location: "Rome, Italy",
                 year: "100 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 249,
@@ -7049,7 +7288,8 @@
                 hint: "He left his wife his 'second best bed' in his will.",
                 location: "Stratford-upon-Avon, England",
                 year: "1600s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 250,
@@ -7062,7 +7302,8 @@
                 hint: "The programming language Pascal was named after him.",
                 location: "Paris, France",
                 year: "1650s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 251,
@@ -7075,7 +7316,8 @@
                 hint: "This historian shared a Pulitzer with his wife for a volume on Rousseau and Revolution.",
                 location: "Los Angeles, California, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 252,
@@ -7088,11 +7330,12 @@
                 hint: "He walked over 240 miles in the Salt March protest.",
                 location: "Gujarat, India",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 253,
-                text: "Knowledge itself is power",
+                text: "Knowledge itself is power.",
                 author: "Francis Bacon",
                 gender: "Male",
                 category: "Philosophy",
@@ -7101,7 +7344,8 @@
                 hint: "A Lord Chancellor of England, he laid out the scientific method before there was a word for it.",
                 location: "London, England",
                 year: "1590s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 254,
@@ -7114,7 +7358,8 @@
                 hint: "This Liverpool musician wrote Imagine and was shot outside his New York home in 1980.",
                 location: "Liverpool, England",
                 year: "1971",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 255,
@@ -7127,11 +7372,12 @@
                 hint: "He served as a government minister in the Duchy of Weimar.",
                 location: "Weimar, Germany",
                 year: "1820s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 256,
-                text: "A little learning is a dangerous thing",
+                text: "A little learning is a dangerous thing.",
                 author: "Alexander Pope",
                 gender: "Male",
                 category: "Literature",
@@ -7140,11 +7386,12 @@
                 hint: "This poet gave English 'to err is human' and got rich translating Homer into rhyming couplets.",
                 location: "London, England",
                 year: "1710s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 257,
-                text: "Hope springs eternal in the human breast",
+                text: "Hope springs eternal in the human breast.",
                 author: "Alexander Pope",
                 gender: "Male",
                 category: "Literature",
@@ -7153,7 +7400,8 @@
                 hint: "This poet gave English 'to err is human' and got rich translating Homer into rhyming couplets.",
                 location: "London, England",
                 year: "1730s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 258,
@@ -7166,7 +7414,8 @@
                 hint: "His brother was the novelist Henry James.",
                 location: "Cambridge, Massachusetts, USA",
                 year: "1890s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 259,
@@ -7179,7 +7428,8 @@
                 hint: "He had affairs with several prominent women, including Rebecca West.",
                 location: "London, England",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 260,
@@ -7192,7 +7442,8 @@
                 hint: "He delivered his speeches from a wheelchair that was rarely photographed.",
                 location: "Hyde Park, New York, USA",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 261,
@@ -7205,7 +7456,8 @@
                 hint: "She was awarded the Nobel Peace Prize in 1979 for her work with Calcutta's poor.",
                 location: "Kolkata, India",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 262,
@@ -7218,11 +7470,12 @@
                 hint: "She wrote her first story at age 13.",
                 location: "Yorkshire, England",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 263,
-                text: "What is now proved was once only imagined",
+                text: "What is now proved was once only imagined.",
                 author: "William Blake",
                 gender: "Male",
                 category: "Literature",
@@ -7231,7 +7484,8 @@
                 hint: "He engraved and hand-coloured his own books, and said he saw visions from childhood.",
                 location: "London, England",
                 year: "1790s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 264,
@@ -7244,7 +7498,8 @@
                 hint: "He suffered a mental breakdown at 44 and never recovered.",
                 location: "Basel, Switzerland",
                 year: "1880s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 265,
@@ -7257,7 +7512,8 @@
                 hint: "He served as a priest at Delphi.",
                 location: "Delphi, Greece",
                 year: "100 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 266,
@@ -7270,11 +7526,12 @@
                 hint: "He led the American civil rights movement and won the Nobel Peace Prize.",
                 location: "Washington, D.C., USA",
                 year: "1963",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 267,
-                text: "How do I love thee? Let me count the ways",
+                text: "How do I love thee? Let me count the ways.",
                 author: "Elizabeth Barrett Browning",
                 gender: "Female",
                 category: "Literature",
@@ -7283,11 +7540,12 @@
                 hint: "She wrote 'How do I love thee? Let me count the ways', then eloped to Italy with a fellow poet.",
                 location: "London, England",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 268,
-                text: "No act of kindness, no matter how small, is ever wasted.",
+                text: "A kindness is never wasted.",
                 author: "Aesop",
                 gender: "Male",
                 category: "Literature",
@@ -7296,7 +7554,8 @@
                 hint: "By tradition a slave in ancient Greece, his animal fables became moral shorthand.",
                 location: "Greece",
                 year: "600 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 269,
@@ -7309,11 +7568,12 @@
                 hint: "He was the son of a freed slave who became one of Rome's greatest poets.",
                 location: "Rome, Italy",
                 year: "20 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 270,
-                text: "Ask yourself whether you are happy, and you cease to be so",
+                text: "Ask yourself whether you are happy, and you cease to be so.",
                 author: "John Stuart Mill",
                 gender: "Male",
                 category: "Philosophy",
@@ -7322,7 +7582,8 @@
                 hint: "He wrote On Liberty and was one of the first MPs to argue for women's right to vote.",
                 location: "London, England",
                 year: "1870s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 271,
@@ -7335,7 +7596,8 @@
                 hint: "A Hoboken-born singer whose Rat Pack ran Las Vegas.",
                 location: "New Jersey, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 272,
@@ -7348,7 +7610,8 @@
                 hint: "He wrote 'Invictus' while recovering from having his leg amputated.",
                 location: "London, England",
                 year: "1880s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 273,
@@ -7361,11 +7624,12 @@
                 hint: "Her Paris salon hosted Picasso, Hemingway, and other modernist artists.",
                 location: "Paris, France",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 274,
-                text: "Power tends to corrupt, and absolute power corrupts absolutely",
+                text: "Power tends to corrupt, and absolute power corrupts absolutely.",
                 author: "Lord Acton",
                 gender: "Male",
                 category: "Philosophy",
@@ -7374,7 +7638,8 @@
                 hint: "This historian's famous warning about power corrupting came from a private letter to a bishop.",
                 location: "London, England",
                 year: "1880s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 275,
@@ -7387,11 +7652,12 @@
                 hint: "She wrote 'Little Women' in just ten weeks.",
                 location: "Concord, Massachusetts, USA",
                 year: "1860s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 276,
-                text: "There is no duty we so much underrate as the duty of being happy",
+                text: "There is no duty we so much underrate as the duty of being happy.",
                 author: "Robert Louis Stevenson",
                 gender: "Male",
                 category: "Literature",
@@ -7400,7 +7666,8 @@
                 hint: "He wrote Treasure Island and Jekyll and Hyde, and died in Samoa at just 44.",
                 location: "Edinburgh, Scotland",
                 year: "1870s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 277,
@@ -7413,11 +7680,12 @@
                 hint: "He won the heavyweight title back in Zaire using the rope-a-dope.",
                 location: "Louisville, Kentucky, USA",
                 year: "1980s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 278,
-                text: "To live is to change, and to be perfect is to have changed often",
+                text: "To live is to change, and to be perfect is to have changed often.",
                 author: "John Henry Newman",
                 gender: "Male",
                 category: "Philosophy",
@@ -7426,7 +7694,8 @@
                 hint: "He left the Church of England for Rome, became a cardinal, and was made a saint in 2019.",
                 location: "Oxford, England",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 279,
@@ -7439,7 +7708,8 @@
                 hint: "He refused the Nobel Prize in Literature in 1964.",
                 location: "Paris, France",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 280,
@@ -7452,11 +7722,12 @@
                 hint: "His phrase 'carpe diem' (seize the day) is still widely quoted.",
                 location: "Rome, Italy",
                 year: "20 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 281,
-                text: "I like work: it fascinates me. I can sit and look at it for hours",
+                text: "I like work: it fascinates me. I can sit and look at it for hours.",
                 author: "Jerome K. Jerome",
                 gender: "Male",
                 category: "Literature",
@@ -7465,7 +7736,8 @@
                 hint: "His comic novel about three men and a dog rowing up the Thames has never been out of print.",
                 location: "London, England",
                 year: "1800s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 282,
@@ -7478,11 +7750,12 @@
                 hint: "His 1905 'miracle year' produced four papers that upended physics.",
                 location: "Princeton, New Jersey, USA",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 283,
-                text: "'Tis better to have loved and lost than never to have loved at all",
+                text: "'Tis better to have loved and lost than never to have loved at all.",
                 author: "Alfred Lord Tennyson",
                 gender: "Male",
                 category: "Literature",
@@ -7491,7 +7764,8 @@
                 hint: "He was Britain's Poet Laureate for 42 years and wrote 'The Charge of the Light Brigade'.",
                 location: "Lincolnshire, England",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 284,
@@ -7504,7 +7778,8 @@
                 hint: "He was born when Halley's Comet appeared and died at its next appearance.",
                 location: "Hartford, Connecticut, USA",
                 year: "1880s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 285,
@@ -7517,7 +7792,8 @@
                 hint: "He played Superman, then campaigned for spinal-cord research after a riding accident.",
                 location: "New York, USA",
                 year: "1990s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 286,
@@ -7530,7 +7806,8 @@
                 hint: "He was exiled from Florence and never returned to his beloved city.",
                 location: "Florence, Italy",
                 year: "1310s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 287,
@@ -7543,7 +7820,8 @@
                 hint: "He is considered the founder of modern conservative thought.",
                 location: "Dublin, Ireland",
                 year: "1790s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 288,
@@ -7556,7 +7834,8 @@
                 hint: "She never married, despite receiving at least one proposal.",
                 location: "Hampshire, England",
                 year: "1810s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 290,
@@ -7569,7 +7848,8 @@
                 hint: "Her diary was originally written in Dutch and has been translated into over 70 languages.",
                 location: "Amsterdam, Netherlands",
                 year: "1944",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 291,
@@ -7582,7 +7862,8 @@
                 hint: "He trained as a surgeon before becoming a poet.",
                 location: "London, England",
                 year: "1820s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 292,
@@ -7595,11 +7876,12 @@
                 hint: "He was considered Rome's greatest orator.",
                 location: "Rome, Italy",
                 year: "50 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 293,
-                text: "Unlimited power is apt to corrupt the minds of those who possess it",
+                text: "Unlimited power is apt to corrupt the minds of those who possess it.",
                 author: "William Pitt the Elder",
                 gender: "Male",
                 category: "Speech",
@@ -7608,7 +7890,8 @@
                 hint: "He steered Britain through the Seven Years' War; a US city is named after him.",
                 location: "London, England",
                 year: "1770s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 294,
@@ -7621,7 +7904,8 @@
                 hint: "She rarely left her family home in her later years and often spoke to visitors through doors.",
                 location: "Amherst, Massachusetts, USA",
                 year: "1860s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 295,
@@ -7634,7 +7918,8 @@
                 hint: "An Oxford don who wrote Narnia and argued about faith with his friend Tolkien.",
                 location: "Oxford, England",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 296,
@@ -7647,7 +7932,8 @@
                 hint: "He was tutor to the young Emperor Nero.",
                 location: "Rome, Italy",
                 year: "50 CE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 297,
@@ -7660,7 +7946,8 @@
                 hint: "A comedian who turned up in a dress on live television and made it a running gag.",
                 location: "New York City, USA",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 298,
@@ -7673,7 +7960,8 @@
                 hint: "This 16th US President was largely self-educated, reading by firelight.",
                 location: "Springfield, Illinois, USA",
                 year: "1860s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 299,
@@ -7686,11 +7974,12 @@
                 hint: "He arrived in America with a letter of introduction from Benjamin Franklin.",
                 location: "Philadelphia, Pennsylvania, USA",
                 year: "1770s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 300,
-                text: "Blessed is he who has found his work; let him ask no other blessedness",
+                text: "Blessed is he who has found his work; let him ask no other blessedness.",
                 author: "Thomas Carlyle",
                 gender: "Male",
                 category: "Literature",
@@ -7699,7 +7988,8 @@
                 hint: "He rewrote his history of the French Revolution from scratch after a maid burned the manuscript.",
                 location: "Edinburgh, Scotland",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 301,
@@ -7712,7 +8002,8 @@
                 hint: "His book 'The Wealth of Nations' took 10 years to write.",
                 location: "Edinburgh, Scotland",
                 year: "1770s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 302,
@@ -7725,7 +8016,8 @@
                 hint: "He won 22 competitive Oscars — more than any other individual in history.",
                 location: "Los Angeles, California, USA",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 303,
@@ -7738,7 +8030,8 @@
                 hint: "He compiled the first comprehensive English dictionary single-handedly.",
                 location: "London, England",
                 year: "1750s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 304,
@@ -7751,7 +8044,8 @@
                 hint: "She wrote 'Frankenstein' when she was only 18 years old.",
                 location: "London, England",
                 year: "1818",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 305,
@@ -7764,7 +8058,8 @@
                 hint: "He was a vegetarian for health reasons and lived to 94.",
                 location: "Dublin, Ireland",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 306,
@@ -7777,11 +8072,12 @@
                 hint: "He worked on 'Faust' for over 60 years.",
                 location: "Weimar, Germany",
                 year: "1790s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 307,
-                text: "There is a certain relief in change, even though it be from bad to worse",
+                text: "There is a certain relief in change, even though it be from bad to worse.",
                 author: "Washington Irving",
                 gender: "Male",
                 category: "Literature",
@@ -7790,11 +8086,12 @@
                 hint: "He gave America Rip Van Winkle and the Headless Horseman.",
                 location: "New York, New York, USA",
                 year: "1820s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 308,
-                text: "It's not what you look at that matters, it's what you see.",
+                text: "The question is not what you look at, but what you see.",
                 author: "Henry David Thoreau",
                 gender: "Male",
                 category: "Literature",
@@ -7803,7 +8100,8 @@
                 hint: "He lived for two years in a cabin he built at Walden Pond.",
                 location: "Concord, Massachusetts, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 309,
@@ -7816,7 +8114,8 @@
                 hint: "She and her sisters originally published under male pseudonyms.",
                 location: "Yorkshire, England",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 310,
@@ -7829,7 +8128,8 @@
                 hint: "She and her husband founded the Hogarth Press in their home.",
                 location: "London, England",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 311,
@@ -7842,7 +8142,8 @@
                 hint: "He made this speech at Rice University about the space program.",
                 location: "Washington, D.C., USA",
                 year: "1963",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 312,
@@ -7855,7 +8156,8 @@
                 hint: "He is considered the father of American psychology.",
                 location: "Cambridge, Massachusetts, USA",
                 year: "1890s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 313,
@@ -7868,7 +8170,8 @@
                 hint: "She wanted to be a journalist or a famous writer when she grew up.",
                 location: "Amsterdam, Netherlands",
                 year: "1944",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 315,
@@ -7881,7 +8184,8 @@
                 hint: "He predicted tanks, aerial warfare, and the atomic bomb in his fiction.",
                 location: "London, England",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 316,
@@ -7894,7 +8198,8 @@
                 hint: "She was arrested for voting illegally in the 1872 presidential election.",
                 location: "Rochester, New York, USA",
                 year: "1870s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 317,
@@ -7907,7 +8212,8 @@
                 hint: "He wrote self-improvement books in the early-1900s New Thought movement.",
                 location: "USA",
                 year: "1912",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 318,
@@ -7920,7 +8226,8 @@
                 hint: "He was a professor at age 24, the youngest in his university's history.",
                 location: "Basel, Switzerland",
                 year: "1880s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 319,
@@ -7933,7 +8240,8 @@
                 hint: "She published all her novels anonymously during her lifetime.",
                 location: "Hampshire, England",
                 year: "1810s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 320,
@@ -7946,7 +8254,8 @@
                 hint: "He wrote the Divine Comedy in Italian, not Latin—revolutionary for his time.",
                 location: "Florence, Italy",
                 year: "1310s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 321,
@@ -7959,7 +8268,8 @@
                 hint: "He left Ireland at 22 and never returned permanently.",
                 location: "Dublin, Ireland",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 322,
@@ -7972,7 +8282,8 @@
                 hint: "He was nominated for the Nobel Prize in Literature four times.",
                 location: "London, England",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 323,
@@ -7985,7 +8296,8 @@
                 hint: "He was imprisoned and tortured for conspiracy against the Medici.",
                 location: "Florence, Italy",
                 year: "1510s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 325,
@@ -7998,7 +8310,8 @@
                 hint: "The musical 'Cats' is based on his poetry collection.",
                 location: "London, England",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 327,
@@ -8011,7 +8324,8 @@
                 hint: "His first wife died of tuberculosis after only 17 months of marriage.",
                 location: "Concord, Massachusetts, USA",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 328,
@@ -8024,7 +8338,8 @@
                 hint: "She wrote her own risqué lines — and helped provoke Hollywood's censorship code.",
                 location: "Los Angeles, California, USA",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 329,
@@ -8037,7 +8352,8 @@
                 hint: "He was the first non-Italian pope in over 450 years.",
                 location: "Vatican City",
                 year: "1980s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 330,
@@ -8050,7 +8366,8 @@
                 hint: "He was the first editor to publish the Greek New Testament.",
                 location: "Rotterdam, Netherlands",
                 year: "1510s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 331,
@@ -8063,7 +8380,8 @@
                 hint: "His letters provide an intimate view of Roman political life.",
                 location: "Rome, Italy",
                 year: "50 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 332,
@@ -8076,7 +8394,8 @@
                 hint: "He served as the first Governor of Virginia.",
                 location: "Virginia, USA",
                 year: "1775",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 334,
@@ -8089,7 +8408,8 @@
                 hint: "He won the Nobel Prize for the photoelectric effect — not for relativity.",
                 location: "Princeton, New Jersey, USA",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 335,
@@ -8102,7 +8422,8 @@
                 hint: "He invented the modern detective story with 'The Murders in the Rue Morgue.'",
                 location: "Baltimore, Maryland, USA",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 336,
@@ -8115,7 +8436,8 @@
                 hint: "He spent 11 years writing the Aeneid and still considered it unfinished.",
                 location: "Rome, Italy",
                 year: "30 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 337,
@@ -8128,7 +8450,8 @@
                 hint: "He was so paranoid he believed there was a universal conspiracy against him.",
                 location: "Geneva, Switzerland",
                 year: "1760s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 338,
@@ -8141,11 +8464,12 @@
                 hint: "Only about a dozen of her 1,800 poems were published during her lifetime.",
                 location: "Amherst, Massachusetts, USA",
                 year: "1860s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 339,
-                text: "The time to be happy is now. The place to be happy is here. The way to be happy is to make others so",
+                text: "The time to be happy is now. The place to be happy is here. The way to be happy is to make others so.",
                 author: "Robert G. Ingersoll",
                 gender: "Male",
                 category: "Speech",
@@ -8154,7 +8478,8 @@
                 hint: "Billed as 'The Great Agnostic', he was the most sought-after orator in 19th-century America.",
                 location: "Peoria, Illinois, USA",
                 year: "1890s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 340,
@@ -8167,7 +8492,8 @@
                 hint: "She was the first woman to win the Pulitzer Prize for Fiction.",
                 location: "New York City, USA",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 341,
@@ -8180,7 +8506,8 @@
                 hint: "He invented the personal essay as a literary form.",
                 location: "Bordeaux, France",
                 year: "1580s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 342,
@@ -8193,7 +8520,8 @@
                 hint: "He and Zelda were the original celebrity couple of the 1920s.",
                 location: "St. Paul, Minnesota, USA",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 343,
@@ -8206,7 +8534,8 @@
                 hint: "He went to jail for refusing to pay taxes that supported slavery.",
                 location: "Concord, Massachusetts, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 344,
@@ -8219,7 +8548,8 @@
                 hint: "Only fragments of his writings survive today.",
                 location: "Ephesus, Greece",
                 year: "500 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 345,
@@ -8232,7 +8562,8 @@
                 hint: "He left money to found Ireland's first mental hospital.",
                 location: "Dublin, Ireland",
                 year: "1720s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 346,
@@ -8245,7 +8576,8 @@
                 hint: "He invented Peter Pan and signed the copyright over to a children's hospital.",
                 location: "London, England",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 347,
@@ -8258,7 +8590,8 @@
                 hint: "He was partially deaf from childhood.",
                 location: "Menlo Park, New Jersey, USA",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 348,
@@ -8271,11 +8604,12 @@
                 hint: "Born a prince, he left the palace and taught a middle way between indulgence and denial.",
                 location: "Bodh Gaya, India",
                 year: "500 BCE",
-                validated: false
+                validated: false,
+                verified: false
             },
             {
                 index: 349,
-                text: "Reflect upon your present blessings, of which every man has many; not on your past misfortunes, of which all men have some",
+                text: "Reflect upon your present blessings, of which every man has many; not on your past misfortunes, of which all men have some.",
                 author: "Charles Dickens",
                 gender: "Male",
                 category: "Literature",
@@ -8284,11 +8618,12 @@
                 hint: "Sent to work in a blacking factory as a boy, he turned that childhood into David Copperfield.",
                 location: "London, England",
                 year: "1830s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 350,
-                text: "If a man will begin with certainties, he shall end in doubts; but if he will be content to begin with doubts he shall end in certainties",
+                text: "If a man will begin with certainties, he shall end in doubts; but if he will be content to begin with doubts he shall end in certainties.",
                 author: "Francis Bacon",
                 gender: "Male",
                 category: "Philosophy",
@@ -8297,7 +8632,8 @@
                 hint: "A Lord Chancellor of England, he laid out the scientific method before there was a word for it.",
                 location: "London, England",
                 year: "1600s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 351,
@@ -8310,7 +8646,8 @@
                 hint: "He gave away his entire inheritance to his siblings.",
                 location: "Vienna, Austria",
                 year: "1921",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 352,
@@ -8323,7 +8660,8 @@
                 hint: "His opening line 'It was a dark and stormy night' inspired an annual bad writing contest.",
                 location: "London, England",
                 year: "1830s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 353,
@@ -8336,7 +8674,8 @@
                 hint: "He won an acting Oscar for From Here to Eternity, and answered to 'Ol' Blue Eyes'.",
                 location: "New Jersey, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 354,
@@ -8349,7 +8688,8 @@
                 hint: "He turned down early release because it required renouncing his beliefs.",
                 location: "Johannesburg, South Africa",
                 year: "1990s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 355,
@@ -8362,7 +8702,8 @@
                 hint: "A 1920s heavyweight champion billed as the Manassa Mauler.",
                 location: "Colorado, USA",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 356,
@@ -8375,11 +8716,12 @@
                 hint: "Her novel 'Jane Eyre' was initially rejected by publishers.",
                 location: "Yorkshire, England",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 357,
-                text: "The only freedom which deserves the name, is that of pursuing our own good in our own way, so long as we do not attempt to deprive others of theirs",
+                text: "The only freedom which deserves the name, is that of pursuing our own good in our own way, so long as we do not attempt to deprive others of theirs.",
                 author: "John Stuart Mill",
                 gender: "Male",
                 category: "Philosophy",
@@ -8388,7 +8730,8 @@
                 hint: "He wrote On Liberty and was one of the first MPs to argue for women's right to vote.",
                 location: "London, England",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 358,
@@ -8401,7 +8744,8 @@
                 hint: "He invented the Cartesian coordinate system used in graphing.",
                 location: "Amsterdam, Netherlands",
                 year: "1640s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 359,
@@ -8414,7 +8758,8 @@
                 hint: "He immigrated to America from Lebanon as a child.",
                 location: "Beirut, Lebanon",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 360,
@@ -8427,7 +8772,8 @@
                 hint: "He was rejected for university positions due to his skeptical philosophy.",
                 location: "Edinburgh, Scotland",
                 year: "1750s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 361,
@@ -8440,7 +8786,8 @@
                 hint: "He worked at a customs house in Salem and Boston.",
                 location: "Salem, Massachusetts, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 362,
@@ -8453,7 +8800,8 @@
                 hint: "His followers founded the 'whirling dervishes' order.",
                 location: "Konya, Turkey",
                 year: "1250s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 363,
@@ -8466,7 +8814,8 @@
                 hint: "He wrote in mirror script from right to left.",
                 location: "Florence, Italy",
                 year: "1500s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 364,
@@ -8479,11 +8828,12 @@
                 hint: "He was stabbed 23 times in his assassination.",
                 location: "Rome, Italy",
                 year: "50 BCE",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 365,
-                text: "Question with boldness even the existence of a God; because, if there be one, he must more approve the homage of reason, than that of blindfolded fear",
+                text: "Question with boldness even the existence of a God; because, if there be one, he must more approve the homage of reason, than that of blindfolded fear.",
                 author: "Thomas Jefferson",
                 gender: "Male",
                 category: "Speech",
@@ -8492,11 +8842,12 @@
                 hint: "He drafted the Declaration of Independence and founded the University of Virginia.",
                 location: "Monticello, Virginia, USA",
                 year: "1780s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 366,
-                text: "We learn wisdom from failure much more than from success. We often discover what will do, by finding out what will not do; and probably he who never made a mistake never made a discovery",
+                text: "We learn wisdom from failure much more than from success. We often discover what will do, by finding out what will not do; and probably he who never made a mistake never made a discovery.",
                 author: "Samuel Smiles",
                 gender: "Male",
                 category: "Literature",
@@ -8505,7 +8856,8 @@
                 hint: "His 1859 book Self-Help essentially invented the self-improvement shelf.",
                 location: "Haddington, Scotland",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 368,
@@ -8518,7 +8870,8 @@
                 hint: "He retired at 38 to write in his tower library.",
                 location: "Bordeaux, France",
                 year: "1580s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 369,
@@ -8531,7 +8884,8 @@
                 hint: "He dropped out of Reed College but kept auditing classes.",
                 location: "Cupertino, California, USA",
                 year: "2000s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 370,
@@ -8544,7 +8898,8 @@
                 hint: "He was Rome's most celebrated poet, supported by the emperor.",
                 location: "Rome, Italy",
                 year: "30 BCE",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 371,
@@ -8557,7 +8912,8 @@
                 hint: "Paralysed in a 1995 equestrian fall, he became the face of stem-cell research advocacy.",
                 location: "New York, USA",
                 year: "2000s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 373,
@@ -8570,7 +8926,8 @@
                 hint: "This boxer lit the Olympic flame in Atlanta in 1996 while living with Parkinson's.",
                 location: "Louisville, Kentucky, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 374,
@@ -8583,7 +8940,8 @@
                 hint: "He delivered this challenge at the Brandenburg Gate in Berlin.",
                 location: "Berlin, Germany",
                 year: "1987",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 375,
@@ -8596,7 +8954,8 @@
                 hint: "He was a Hollywood actor before becoming the 40th President.",
                 location: "Washington, D.C., USA",
                 year: "1961",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 376,
@@ -8609,7 +8968,8 @@
                 hint: "He served as Governor of California before becoming President.",
                 location: "Washington, D.C., USA",
                 year: "1980s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 377,
@@ -8622,7 +8982,8 @@
                 hint: "He was known as 'The Great Communicator' for his speaking skills.",
                 location: "Washington, D.C., USA",
                 year: "1986",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 378,
@@ -8635,7 +8996,8 @@
                 hint: "He served as Vice President under Reagan before becoming the 41st President.",
                 location: "New Orleans, Louisiana, USA",
                 year: "1988",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 379,
@@ -8648,7 +9010,8 @@
                 hint: "He was the 42nd President and presided over the longest peacetime economic expansion.",
                 location: "Washington, D.C., USA",
                 year: "1993",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 380,
@@ -8661,7 +9024,8 @@
                 hint: "He was Governor of Arkansas before becoming President.",
                 location: "Washington, D.C., USA",
                 year: "1990s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 381,
@@ -8674,7 +9038,8 @@
                 hint: "He was a Rhodes Scholar at Oxford University.",
                 location: "Washington, D.C., USA",
                 year: "1990s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 382,
@@ -8687,7 +9052,8 @@
                 hint: "He addressed Congress nine days after the September 11 attacks.",
                 location: "Washington, D.C., USA",
                 year: "2001",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 383,
@@ -8700,7 +9066,8 @@
                 hint: "He spoke these words through a bullhorn at Ground Zero.",
                 location: "New York City, USA",
                 year: "2001",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 384,
@@ -8713,7 +9080,8 @@
                 hint: "This three-word phrase became the rallying cry of his 2008 campaign.",
                 location: "New Hampshire, USA",
                 year: "2008",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 385,
@@ -8726,7 +9094,8 @@
                 hint: "He was the first African American President of the United States.",
                 location: "Chicago, Illinois, USA",
                 year: "2008",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 386,
@@ -8739,7 +9108,8 @@
                 hint: "He was a Senator from Illinois before becoming President.",
                 location: "Chicago, Illinois, USA",
                 year: "2008",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 387,
@@ -8752,7 +9122,8 @@
                 hint: "He wrote a book titled 'The Audacity of Hope'.",
                 location: "Iowa, USA",
                 year: "2008",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 388,
@@ -8765,7 +9136,8 @@
                 hint: "He won the Nobel Peace Prize in 2009.",
                 location: "Washington, D.C., USA",
                 year: "2011",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 389,
@@ -8778,7 +9150,8 @@
                 hint: "He used this civil rights anthem in his address to Congress on voting rights.",
                 location: "Washington, D.C., USA",
                 year: "1965",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 390,
@@ -8791,7 +9164,8 @@
                 hint: "He spoke these words while running for Senate in Illinois.",
                 location: "Illinois, USA",
                 year: "1858",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 391,
@@ -8804,7 +9178,8 @@
                 hint: "A primatologist famous for her decades studying wild chimpanzees at Gombe.",
                 location: "Bournemouth, England",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 392,
@@ -8817,7 +9192,8 @@
                 hint: "Her X-ray images were key to discovering the structure of DNA.",
                 location: "London, England",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 393,
@@ -8830,7 +9206,8 @@
                 hint: "Often called the first computer programmer, she wrote about Babbage's Analytical Engine.",
                 location: "London, England",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 394,
@@ -8843,7 +9220,8 @@
                 hint: "A computing pioneer and Navy admiral who helped develop early programming languages.",
                 location: "New York City, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 395,
@@ -8856,7 +9234,8 @@
                 hint: "In 1983 she became the first American woman in space.",
                 location: "Los Angeles, California, USA",
                 year: "1980s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 396,
@@ -8869,7 +9248,8 @@
                 hint: "The founder of modern nursing, known as the Lady with the Lamp.",
                 location: "London, England",
                 year: "1860s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 397,
@@ -8882,7 +9262,8 @@
                 hint: "His laws of motion and gravity reshaped physics.",
                 location: "Cambridge, England",
                 year: "1670s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 398,
@@ -8895,7 +9276,8 @@
                 hint: "His voyage on the Beagle led to the theory of evolution by natural selection.",
                 location: "Kent, England",
                 year: "1830s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 399,
@@ -8908,7 +9290,8 @@
                 hint: "His work on germs led to pasteurization and vaccines.",
                 location: "Paris, France",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 400,
@@ -8921,7 +9304,8 @@
                 hint: "A self-taught experimenter whose work founded electromagnetism.",
                 location: "London, England",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 401,
@@ -8934,7 +9318,8 @@
                 hint: "An inventor whose work made alternating-current electricity practical.",
                 location: "New York City, USA",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 402,
@@ -8947,7 +9332,8 @@
                 hint: "A Nobel physicist known for his playful lectures and work on quantum theory.",
                 location: "New York City, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 403,
@@ -8960,7 +9346,8 @@
                 hint: "An astronomer who brought the cosmos to television audiences.",
                 location: "New York City, USA",
                 year: "1980s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 404,
@@ -8973,7 +9360,8 @@
                 hint: "A theoretical physicist known for his work on black holes.",
                 location: "Cambridge, England",
                 year: "2000s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 405,
@@ -8986,7 +9374,8 @@
                 hint: "The youngest Nobel Peace Prize laureate, an advocate for girls' education.",
                 location: "Mingora, Pakistan",
                 year: "2010s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 406,
@@ -8999,7 +9388,8 @@
                 hint: "A U.S. Supreme Court justice and champion of gender equality.",
                 location: "New York City, USA",
                 year: "1990s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 407,
@@ -9012,7 +9402,8 @@
                 hint: "A former slave who became a powerful voice for abolition and women's rights.",
                 location: "New York, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 408,
@@ -9025,7 +9416,8 @@
                 hint: "She led enslaved people to freedom on the Underground Railroad.",
                 location: "Maryland, USA",
                 year: "1850s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 409,
@@ -9038,7 +9430,8 @@
                 hint: "A Civil War nurse who founded the American Red Cross.",
                 location: "Washington, D.C., USA",
                 year: "1880s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 410,
@@ -9051,7 +9444,8 @@
                 hint: "She led the British suffragette movement for women's right to vote.",
                 location: "London, England",
                 year: "1900s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 411,
@@ -9064,7 +9458,8 @@
                 hint: "A poet and activist who described herself as black, lesbian, mother, warrior, poet.",
                 location: "New York City, USA",
                 year: "1980s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 412,
@@ -9077,7 +9472,8 @@
                 hint: "A lawyer and former First Lady of the United States.",
                 location: "Chicago, Illinois, USA",
                 year: "2010s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 413,
@@ -9090,7 +9486,8 @@
                 hint: "A Nobel Prize novelist who wrote Beloved.",
                 location: "Ohio, USA",
                 year: "1980s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 414,
@@ -9103,7 +9500,8 @@
                 hint: "A poet and author of the semi-autobiographical novel The Bell Jar.",
                 location: "Boston, Massachusetts, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 415,
@@ -9116,7 +9514,8 @@
                 hint: "The best-selling novelist of all time, creator of Hercule Poirot.",
                 location: "Devon, England",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 416,
@@ -9129,7 +9528,8 @@
                 hint: "Her novels, like My Antonia, captured life on the American prairie.",
                 location: "Nebraska, USA",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 417,
@@ -9142,7 +9542,8 @@
                 hint: "The author of the single novel Wuthering Heights.",
                 location: "Yorkshire, England",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 418,
@@ -9155,7 +9556,8 @@
                 hint: "A Nobel novelist who wrote The Good Earth about rural China.",
                 location: "West Virginia, USA",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 419,
@@ -9168,7 +9570,8 @@
                 hint: "An American painter known for large flowers and desert landscapes.",
                 location: "New Mexico, USA",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 420,
@@ -9181,7 +9584,8 @@
                 hint: "A Mexican painter famous for her striking self-portraits.",
                 location: "Mexico City, Mexico",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 421,
@@ -9194,7 +9598,8 @@
                 hint: "A designer who revolutionized women's fashion in Paris.",
                 location: "Paris, France",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 422,
@@ -9207,7 +9612,8 @@
                 hint: "A four-time Oscar-winning film actress of Hollywood's golden age.",
                 location: "Connecticut, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 423,
@@ -9220,7 +9626,8 @@
                 hint: "A film actress with a record number of Academy Award nominations.",
                 location: "New Jersey, USA",
                 year: "2000s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 424,
@@ -9233,7 +9640,8 @@
                 hint: "A country music legend and songwriter from Tennessee.",
                 location: "Tennessee, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 425,
@@ -9246,7 +9654,8 @@
                 hint: "The First Lady of Song, a jazz vocalist known for scat singing.",
                 location: "Virginia, USA",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 426,
@@ -9259,7 +9668,8 @@
                 hint: "A singer and pianist whose music became an anthem of civil rights.",
                 location: "North Carolina, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 427,
@@ -9272,7 +9682,8 @@
                 hint: "A tennis champion who won the Battle of the Sexes match.",
                 location: "California, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 428,
@@ -9285,7 +9696,8 @@
                 hint: "One of the greatest tennis players, with 23 Grand Slam singles titles.",
                 location: "Michigan, USA",
                 year: "2010s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 429,
@@ -9298,7 +9710,8 @@
                 hint: "She built a cosmetics empire famous for its pink Cadillacs.",
                 location: "Texas, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 430,
@@ -9311,7 +9724,8 @@
                 hint: "A French philosopher and mystic known for her writings on affliction.",
                 location: "Paris, France",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 431,
@@ -9324,7 +9738,8 @@
                 hint: "A political theorist who wrote about the banality of evil.",
                 location: "New York City, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 432,
@@ -9337,7 +9752,8 @@
                 hint: "An early feminist who wrote A Vindication of the Rights of Woman.",
                 location: "London, England",
                 year: "1790s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 433,
@@ -9350,7 +9766,8 @@
                 hint: "The first and only female Prime Minister of India.",
                 location: "New Delhi, India",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 434,
@@ -9363,7 +9780,8 @@
                 hint: "The first and only female Prime Minister of Israel.",
                 location: "Jerusalem, Israel",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 435,
@@ -9376,7 +9794,8 @@
                 hint: "A media mogul known for her long-running television talk show.",
                 location: "Chicago, Illinois, USA",
                 year: "2000s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 436,
@@ -9389,7 +9808,8 @@
                 hint: "A composer who wrote symphonies even after losing his hearing.",
                 location: "Vienna, Austria",
                 year: "1810s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 437,
@@ -9402,7 +9822,8 @@
                 hint: "A Baroque composer and organist from Germany.",
                 location: "Leipzig, Germany",
                 year: "1720s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 438,
@@ -9415,7 +9836,8 @@
                 hint: "A trumpeter and singer who helped shape early jazz.",
                 location: "New Orleans, Louisiana, USA",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 439,
@@ -9428,7 +9850,8 @@
                 hint: "A Brazilian footballer who won three World Cups.",
                 location: "São Paulo, Brazil",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 440,
@@ -9441,7 +9864,8 @@
                 hint: "A basketball icon who won six NBA championships with the Bulls.",
                 location: "Chicago, Illinois, USA",
                 year: "1990s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 441,
@@ -9454,7 +9878,8 @@
                 hint: "A baseball slugger who became the sport's first great home-run hitter.",
                 location: "New York City, USA",
                 year: "1920s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 442,
@@ -9467,7 +9892,8 @@
                 hint: "The first black man to win the singles title at Wimbledon.",
                 location: "Virginia, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 443,
@@ -9480,7 +9906,8 @@
                 hint: "A baseball catcher as famous for his tangled sayings as his championships.",
                 location: "New York City, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 444,
@@ -9493,7 +9920,8 @@
                 hint: "A silent-film comedian famous for his Little Tramp character.",
                 location: "London, England",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 445,
@@ -9506,7 +9934,8 @@
                 hint: "A director known as the Master of Suspense.",
                 location: "London, England",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 446,
@@ -9519,7 +9948,8 @@
                 hint: "A South African archbishop who fought apartheid and won the Nobel Peace Prize.",
                 location: "Cape Town, South Africa",
                 year: "1980s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 447,
@@ -9532,7 +9962,8 @@
                 hint: "A Holocaust survivor whose memoir Night bore witness to the camps.",
                 location: "New York City, USA",
                 year: "1980s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 448,
@@ -9545,7 +9976,8 @@
                 hint: "He organized farm workers and co-founded a major labor union.",
                 location: "California, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 449,
@@ -9558,7 +9990,8 @@
                 hint: "A civil rights leader who marched at Selma and served decades in Congress.",
                 location: "Atlanta, Georgia, USA",
                 year: "2010s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 450,
@@ -9571,7 +10004,8 @@
                 hint: "A Danish thinker often called the father of existentialism.",
                 location: "Copenhagen, Denmark",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 451,
@@ -9584,7 +10018,8 @@
                 hint: "A German philosopher known for his pessimism and the concept of will.",
                 location: "Frankfurt, Germany",
                 year: "1840s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 452,
@@ -9597,7 +10032,8 @@
                 hint: "A German philosopher who wrote the Critique of Pure Reason.",
                 location: "Königsberg, Prussia",
                 year: "1780s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 453,
@@ -9610,7 +10046,8 @@
                 hint: "A British logician and Nobel laureate in Literature.",
                 location: "Cambridge, England",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 454,
@@ -9623,11 +10060,12 @@
                 hint: "A writer who popularized Eastern philosophy for Western audiences.",
                 location: "California, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 455,
-                text: "Everyone thinks of changing the world, but no one thinks of changing himself.",
+                text: "Everybody thinks of changing humanity, and nobody thinks of changing himself.",
                 author: "Leo Tolstoy",
                 gender: "Male",
                 category: "Literature",
@@ -9636,7 +10074,8 @@
                 hint: "A Russian novelist who wrote War and Peace.",
                 location: "Tula, Russia",
                 year: "1880s",
-                validated: true
+                validated: true,
+                verified: true
             },
             {
                 index: 456,
@@ -9649,7 +10088,8 @@
                 hint: "A Russian novelist who wrote Crime and Punishment.",
                 location: "St. Petersburg, Russia",
                 year: "1870s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 457,
@@ -9662,7 +10102,8 @@
                 hint: "A writer whose surreal stories gave us the word Kafkaesque.",
                 location: "Prague, Czech Republic",
                 year: "1910s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 458,
@@ -9675,7 +10116,8 @@
                 hint: "The author of The Lord of the Rings.",
                 location: "Oxford, England",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 459,
@@ -9688,7 +10130,8 @@
                 hint: "An essayist and novelist who wrote The Fire Next Time.",
                 location: "New York City, USA",
                 year: "1960s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 460,
@@ -9701,7 +10144,8 @@
                 hint: "A poet of the Harlem Renaissance.",
                 location: "New York City, USA",
                 year: "1930s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 461,
@@ -9714,7 +10158,8 @@
                 hint: "An aviator who wrote The Little Prince.",
                 location: "Lyon, France",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 462,
@@ -9727,7 +10172,8 @@
                 hint: "A Nigerian novelist who wrote Things Fall Apart.",
                 location: "Lagos, Nigeria",
                 year: "1950s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 463,
@@ -9740,7 +10186,8 @@
                 hint: "A journalist and a leading voice of the women's movement.",
                 location: "New York City, USA",
                 year: "1970s",
-                validated: true
+                validated: true,
+                verified: false
             },
             {
                 index: 464,
@@ -9753,8 +10200,112 @@
                 hint: "A jazz singer whose voice defined songs like Strange Fruit.",
                 location: "New York City, USA",
                 year: "1940s",
-                validated: true
+                validated: true,
+                verified: false
+            },
+            {
+                index: 465,
+                text: "Trust, but verify.",
+                author: "Ronald Reagan",
+                gender: "Male",
+                category: "Speech",
+                period: "1900s",
+                difficulty: 5,
+                hint: "He delivered this challenge at the Brandenburg Gate in Berlin.",
+                location: "Berlin, Germany",
+                year: "1980s",
+                validated: true,
+                verified: true
+            },
+            {
+                index: 466,
+                text: "If a man does not know to what port he is steering, no wind is favourable to him.",
+                author: "Seneca",
+                gender: "Male",
+                category: "Literature",
+                period: "Ancient",
+                difficulty: 7,
+                hint: "He was one of the wealthiest men in Rome despite preaching simplicity.",
+                location: "Rome, Italy",
+                year: "60s",
+                validated: true,
+                verified: true
+            },
+            {
+                index: 467,
+                text: "All of us are creatures of a day; the rememberer and the remembered alike.",
+                author: "Marcus Aurelius",
+                gender: "Male",
+                category: "Literature",
+                period: "Ancient",
+                difficulty: 8,
+                hint: "He never intended his private journals to be published.",
+                location: "Rome, Italy",
+                year: "160s",
+                validated: true,
+                verified: true
+            },
+            {
+                index: 468,
+                text: "I am always doing what I can't do yet in order to learn how to do it.",
+                author: "Vincent van Gogh",
+                gender: "Male",
+                category: "Art",
+                period: "1800s",
+                difficulty: 6,
+                hint: "He sold almost nothing in his lifetime and wrote hundreds of letters to his brother Theo.",
+                location: "Arles, France",
+                year: "1880s",
+                validated: true,
+                verified: true
+            },
+            {
+                index: 469,
+                text: "Every society honors its live conformists, and its dead troublemakers.",
+                author: "Mignon McLaughlin",
+                gender: "Female",
+                category: "Literature",
+                period: "1900s",
+                difficulty: 9,
+                hint: "A magazine editor at Vogue and Glamour who published her aphorisms as The Neurotic's Notebook.",
+                location: "New York, New York, USA",
+                year: "1960s",
+                validated: true,
+                verified: true
+            },
+            {
+                index: 470,
+                text: "Think not so much of what thou hast not as of what thou hast: but of the things which thou hast select the best, and then reflect how eagerly they would have been sought, if thou hadst them not.",
+                author: "Marcus Aurelius",
+                gender: "Male",
+                category: "Literature",
+                period: "Ancient",
+                difficulty: 8,
+                hint: "He never intended his private journals to be published.",
+                location: "Rome, Italy",
+                year: "170s",
+                validated: true,
+                verified: true
+            },
+            {
+                index: 471,
+                text: "Observe always that everything is the result of a change, and get used to thinking that there is nothing Nature loves so well as to change existing forms and to make new ones like them.",
+                author: "Marcus Aurelius",
+                gender: "Male",
+                category: "Literature",
+                period: "Ancient",
+                difficulty: 8,
+                hint: "He never intended his private journals to be published.",
+                location: "Rome, Italy",
+                year: "170s",
+                validated: true,
+                verified: true
             }];
+
+        // The game never shows an unverified attribution. Everything downstream — the daily
+        // rotation (daysSinceLaunch % quotes.length), the author dropdown, the clue feedback —
+        // reads `quotes`, so gating here gates the whole game.
+        const quotes = allQuotes.filter(q => q.verified);
         // Get all unique authors for dropdown
         const authors = [...new Set(quotes.map(q => q.author))].sort();
         
