@@ -13115,7 +13115,7 @@ const allQuotes = [
             const entry = quotleInfoPages && quotleInfoPages[currentQuote.index];
             if (!entry) { slot.innerHTML = ''; return; }
             slot.innerHTML =
-                '<a href="https://quotle.info/who-said/' + entry.slug + '/" target="_blank" rel="noopener" '
+                '<a href="https://quotle.info/who-said/' + entry.slug + '/?from=game" target="_blank" rel="noopener" '
                 + 'style="display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:11px 22px;'
                 + 'background:linear-gradient(135deg,var(--burgundy) 0%,#6d1f2b 100%);color:#fff;text-decoration:none;'
                 + 'border-radius:22px;font-family:\'Source Serif 4\',serif;font-size:0.92rem;font-weight:600;'
