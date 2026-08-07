@@ -3469,8 +3469,22 @@
         </div>
         
         <div id="game-over-screen" style="display: none;"></div>
+
+        <!-- Static provenance footer — the crawlable link to quotle.info.
+             Every other quotle.info reference on this page is assembled by JS after a puzzle
+             completes, so search engines never see a single link between the game and the
+             companion site (GSC external links for quotle.info: 0, measured 2026-08-07).
+             This footer is that link. Keep it static HTML; do NOT convert it to a
+             JS-rendered element or fold it into the game-over screen. -->
+        <footer style="text-align: center; margin: 28px 0 10px; font-size: 0.75rem; color: var(--slate);">
+            <small>
+                Every answer verified &bull; sources &amp; provenance at
+                <a href="https://quotle.info/" style="color: var(--burgundy);">quotle.info</a>
+                &bull; <a href="https://quotle.info/who-said/" style="color: var(--burgundy);">Who really said it?</a>
+            </small>
+        </footer>
     </div>
-    
+
     <!-- Mobile dropdown backdrop -->
     <div id="dropdown-backdrop" class="dropdown-backdrop"></div>
 
