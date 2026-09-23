@@ -544,6 +544,66 @@
       "platform": "browser",
       "addedAt": null,
       "source": "seed"
+    },
+    {
+      "id": "the-loop",
+      "name": "The Loop",
+      "icon": "\ud83d\udd17",
+      "url": "https://www.britannica.com/games/loop",
+      "publisher": "Britannica",
+      "hasApp": false,
+      "category": "Entertainment",
+      "description": "Britannica's daily picture puzzle, built on the idea that everything is connected.",
+      "cadence": "daily",
+      "minutes": null,
+      "platform": "browser",
+      "addedAt": "2026-09-23T12:16:16Z",
+      "source": "puzzle-index.com, description verified against publisher page"
+    },
+    {
+      "id": "blossom",
+      "name": "Blossom",
+      "icon": "\ud83c\udf38",
+      "url": "https://www.merriam-webster.com/games/blossom-word-game/",
+      "publisher": "Merriam-Webster",
+      "hasApp": false,
+      "category": "Word Games",
+      "description": "A daily word game from Merriam-Webster that asks you to solve four words at once.",
+      "cadence": "daily",
+      "minutes": null,
+      "platform": "browser",
+      "addedAt": "2026-09-23T12:16:16Z",
+      "source": "puzzle-index.com, description verified against publisher page"
+    },
+    {
+      "id": "missing-letter",
+      "name": "The Missing Letter",
+      "icon": "\ud83d\udd24",
+      "url": "https://www.merriam-webster.com/games/missing-letter",
+      "publisher": "Merriam-Webster",
+      "hasApp": false,
+      "category": "Word Games",
+      "description": "A daily crossword whose clues are dictionary definitions, each answer starting with a different letter; the one letter left unused is the missing letter.",
+      "cadence": "daily",
+      "minutes": null,
+      "platform": "browser",
+      "addedAt": "2026-09-23T12:16:16Z",
+      "source": "puzzle-index.com, description verified against publisher page"
+    },
+    {
+      "id": "twofer-goofer",
+      "name": "Twofer Goofer",
+      "icon": "\ud83c\udfa4",
+      "url": "https://www.merriam-webster.com/games/twofer-goofer",
+      "publisher": "Merriam-Webster",
+      "hasApp": false,
+      "category": "Word Games",
+      "description": "A daily rhyming word game: read a clue and find the pair of rhyming words it describes.",
+      "cadence": "daily",
+      "minutes": null,
+      "platform": "browser",
+      "addedAt": "2026-09-23T12:16:16Z",
+      "source": "puzzle-index.com, description verified against publisher page"
     }
   ]
 }

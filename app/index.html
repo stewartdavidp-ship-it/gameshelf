@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.14.0">
+    <meta name="version" content="1.14.1">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -11466,7 +11466,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.14.0</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.14.1</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -19626,9 +19626,12 @@
         }
         
         // ============ WHAT'S NEW SYSTEM ============
-        const APP_VERSION = '1.14.0';
+        const APP_VERSION = '1.14.1';
 
         const RELEASE_NOTES = {
+            '1.14.1': [
+                { icon: '✨', title: '4 new games', desc: 'The Loop from Britannica, plus Blossom, The Missing Letter and Twofer Goofer from Merriam-Webster' }
+            ],
             '1.14.0': [
                 { icon: '📚', title: 'The catalog moved out of the app', desc: 'Games now live in a data file the app loads, so the catalog can grow without shipping a new version' }
             ],
@@ -30356,7 +30359,17 @@
                     if (GAMES[g.id]) { Object.assign(GAMES[g.id], g); updated++; }
                     else { GAMES[g.id] = g; added++; }
                 });
+                // Browse categories are hardcoded id lists, so a catalog addition would
+                // otherwise be invisible. Slot each new game into its category.
+                let placed = 0;
+                data.games.forEach(g => {
+                    if (!g.category) return;
+                    const cat = GAME_CATEGORIES.find(c => c.name === g.category);
+                    if (cat && !cat.games.includes(g.id)) { cat.games.push(g.id); placed++; }
+                });
+
                 catalogMeta = { schemaVersion: data.schemaVersion, generatedAt: data.generatedAt, loaded: true };
+                if (placed) console.log(`📚 Catalog: placed ${placed} game(s) into browse categories`);
                 console.log(`📚 Catalog: ${data.games.length} games (${added} new to this build, ${updated} updated)`);
                 return true;
             } catch (e) {
@@ -30614,7 +30627,7 @@
             // v1.10.0: Start day-change detection interval
             startDayCheckInterval();
             
-            console.log('🧩 Game Shelf PWA v1.14.0 initialized');
+            console.log('🧩 Game Shelf PWA v1.14.1 initialized');
             console.log('🌅 Day-change engine active. Current day:', _lastKnownDay);
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());

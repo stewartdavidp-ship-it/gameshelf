@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-09-23",
+  "note": "Candidates that failed a gate. Nothing here has been published to the catalog.",
+  "entries": [
+    {
+      "name": "Pilfer",
+      "url": "https://www.merriam-webster.com/games/pilfer",
+      "publisher": "Merriam-Webster",
+      "foundVia": "puzzle-index.com",
+      "failedGate": "description and cadence unverifiable",
+      "detail": "The publisher's own page says only \"a delightfully ruthless word game\" \u2014 it states neither what the player does nor that it is daily. The directory claimed \"steal letters strategically to complete target words\" and daily, and the directory was demonstrably wrong about three other games in the same list, so its claim is not sufficient here.",
+      "checkedAt": "2026-09-23T12:16:16Z"
+    }
+  ]
+}
