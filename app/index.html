@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.13.2">
+    <meta name="version" content="1.13.3">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -11466,7 +11466,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.13.2</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.13.3</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -19626,9 +19626,12 @@
         }
         
         // ============ WHAT'S NEW SYSTEM ============
-        const APP_VERSION = '1.13.2';
+        const APP_VERSION = '1.13.3';
 
         const RELEASE_NOTES = {
+            '1.13.3': [
+                { icon: '📱', title: 'Games stay in the app', desc: 'Opening a Game Shelf original from your home-screen app no longer bounces you out to the browser' }
+            ],
             '1.13.2': [
                 { icon: '🔢', title: 'Parity joins the shelf', desc: 'A new Game Shelf original — nine tiles, three rules. Odd tiles slide sideways, even tiles move up and down, and partners that sum to 10 trade places' },
                 { icon: '⚡', title: 'Lighter and quicker', desc: 'Removed features that were switched off, cutting a third of the app. Less to download and less to load every time you open it' },
@@ -23535,6 +23538,15 @@
                 return;
             }
             
+            // Game Shelf Originals are same-origin and inside our manifest scope.
+            // window.open('_blank') asks for a NEW browsing context, which iOS
+            // satisfies by kicking you out to Safari. A plain navigation keeps you
+            // in the standalone window, and the game's back arrow brings you home.
+            if (isStandalone && !isExternal) {
+                window.location.href = launchUrl;
+                return;
+            }
+
             if (launchUrl.startsWith('http')) {
                 window.open(launchUrl, '_blank');
             } else {
@@ -30533,7 +30545,7 @@
             // v1.10.0: Start day-change detection interval
             startDayCheckInterval();
             
-            console.log('🧩 Game Shelf PWA v1.13.2 initialized');
+            console.log('🧩 Game Shelf PWA v1.13.3 initialized');
             console.log('🌅 Day-change engine active. Current day:', _lastKnownDay);
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());
