@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.0.2">
+    <meta name="version" content="1.0.3">
     <meta name="gs-app-id" content="parity">
     <title>Parity - Daily Puzzle</title>
     <meta name="description" content="Nine tiles, three rules. Odd tiles slide sideways, even tiles move up and down, and partners that sum to 10 trade places. A new board every day.">
@@ -56,7 +56,7 @@
     margin:0; background:var(--paper); color:var(--ink); overflow:hidden;
     font-family:"IBM Plex Sans", system-ui, sans-serif; font-size:15px; line-height:1.5;
   }
-  .app{height:100%; padding-bottom:env(safe-area-inset-bottom,0px); max-width:480px; margin:0 auto; padding-inline:14px; display:flex; flex-direction:column; gap:10px}
+  .app{height:100%; padding-bottom:calc(12px + env(safe-area-inset-bottom,0px)); max-width:480px; margin:0 auto; padding-inline:14px; display:flex; flex-direction:column; gap:10px}
 
   /* ---- top bar ---- */
   .bar{display:flex; align-items:center; gap:10px; padding-top:calc(10px + env(safe-area-inset-top,0px))}
@@ -78,8 +78,8 @@
   .stat.adrift.clear dd{color:var(--ok)}
 
   /* ---- board ---- */
-  .stage{flex:1; min-height:0; display:grid; place-items:center}
-  .board{width:min(100%,58vh); aspect-ratio:1; display:grid; grid-template-columns:repeat(3,1fr); gap:3%}
+  .stage{flex:1 1 0; min-height:40px; display:grid; place-items:center; overflow:hidden}
+  .board{height:100%; width:auto; max-width:100%; aspect-ratio:1; display:grid; grid-template-columns:repeat(3,1fr); gap:3%}
   .tile{
     appearance:none; position:relative; touch-action:manipulation; cursor:pointer;
     background:var(--tile); color:var(--ink); font:inherit; padding:0;
@@ -102,7 +102,7 @@
   .msg.warn{color:var(--accent)}
 
   /* ---- dock ---- */
-  .dock{display:grid; grid-template-columns:repeat(4,1fr); gap:7px; padding-bottom:12px}
+  .dock{display:grid; grid-template-columns:repeat(4,1fr); gap:7px}
   .dock button{
     appearance:none; font:inherit; font-size:11.5px; font-weight:500; cursor:pointer; touch-action:manipulation;
     background:var(--paper-2); color:var(--ink); border:1px solid var(--rule); border-radius:3px;
@@ -114,8 +114,10 @@
 
   /* ---- end-of-game panel ---- */
   .result{
-    border:1px solid var(--ok); border-radius:4px; background:var(--ok-tint);
-    padding:14px 16px 16px; margin-bottom:12px; display:grid; gap:2px;
+    flex:0 0 auto; position:relative; z-index:2;
+    border:1px solid var(--ok); border-left-width:4px; border-radius:4px; background:var(--paper-2);
+    box-shadow:0 -6px 18px var(--tile-shadow);
+    padding:14px 16px 16px; display:grid; gap:2px;
     animation:rise .32s cubic-bezier(.2,.7,.3,1) both;
   }
   .result .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em;
@@ -341,7 +343,7 @@
         })();
         // ============ END GAME SHELF INTEGRATION ============
 
-    const VERSION = '1.0.2';
+    const VERSION = '1.0.3';
 (function(){
   "use strict";
   var GOAL=[1,2,3,4,5,6,7,8,9];
