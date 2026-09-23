@@ -5,7 +5,7 @@
     {
       "id": "wordle",
       "name": "Wordle",
-      "icon": "\ud83d\udfe9",
+      "icon": "🟩",
       "url": "https://www.nytimes.com/games/wordle",
       "publisher": "nyt",
       "hasApp": true,
@@ -20,7 +20,7 @@
     {
       "id": "connections",
       "name": "Connections",
-      "icon": "\ud83d\udd17",
+      "icon": "🔗",
       "url": "https://www.nytimes.com/games/connections",
       "publisher": "nyt",
       "hasApp": true,
@@ -35,7 +35,7 @@
     {
       "id": "strands",
       "name": "Strands",
-      "icon": "\ud83e\uddf5",
+      "icon": "🧵",
       "url": "https://www.nytimes.com/games/strands",
       "publisher": "nyt",
       "hasApp": true,
@@ -50,7 +50,7 @@
     {
       "id": "mini",
       "name": "Mini",
-      "icon": "\ud83d\udcdd",
+      "icon": "📝",
       "url": "https://www.nytimes.com/crosswords/game/mini",
       "publisher": "nyt",
       "hasApp": true,
@@ -65,7 +65,7 @@
     {
       "id": "spelling-bee",
       "name": "Spelling Bee",
-      "icon": "\ud83d\udc1d",
+      "icon": "🐝",
       "url": "https://www.nytimes.com/puzzles/spelling-bee",
       "publisher": "nyt",
       "hasApp": true,
@@ -80,7 +80,7 @@
     {
       "id": "letterboxed",
       "name": "Letterboxed",
-      "icon": "\ud83d\udce6",
+      "icon": "📦",
       "url": "https://www.nytimes.com/puzzles/letter-boxed",
       "publisher": "nyt",
       "hasApp": true,
@@ -95,7 +95,7 @@
     {
       "id": "queens",
       "name": "Queens",
-      "icon": "\ud83d\udc51",
+      "icon": "👑",
       "url": "https://www.linkedin.com/games/queens",
       "publisher": "linkedin",
       "hasApp": true,
@@ -110,7 +110,7 @@
     {
       "id": "tango",
       "name": "Tango",
-      "icon": "\ud83d\udc83",
+      "icon": "💃",
       "url": "https://www.linkedin.com/games/tango",
       "publisher": "linkedin",
       "hasApp": true,
@@ -125,7 +125,7 @@
     {
       "id": "pinpoint",
       "name": "Pinpoint",
-      "icon": "\ud83d\udccd",
+      "icon": "📍",
       "url": "https://www.linkedin.com/games/pinpoint",
       "publisher": "linkedin",
       "hasApp": true,
@@ -140,7 +140,7 @@
     {
       "id": "crossclimb",
       "name": "Crossclimb",
-      "icon": "\ud83e\uddd7",
+      "icon": "🧗",
       "url": "https://www.linkedin.com/games/crossclimb",
       "publisher": "linkedin",
       "hasApp": true,
@@ -155,7 +155,7 @@
     {
       "id": "zip",
       "name": "Zip",
-      "icon": "\u26a1",
+      "icon": "⚡",
       "url": "https://www.linkedin.com/games/zip",
       "publisher": "linkedin",
       "hasApp": true,
@@ -170,7 +170,7 @@
     {
       "id": "quordle",
       "name": "Quordle",
-      "icon": "4\ufe0f\u20e3",
+      "icon": "4️⃣",
       "url": "https://www.quordle.com",
       "hasApp": false,
       "category": "Word Games",
@@ -184,7 +184,7 @@
     {
       "id": "octordle",
       "name": "Octordle",
-      "icon": "8\ufe0f\u20e3",
+      "icon": "8️⃣",
       "url": "https://octordle.com",
       "hasApp": false,
       "category": "Word Games",
@@ -198,7 +198,7 @@
     {
       "id": "waffle",
       "name": "Waffle",
-      "icon": "\ud83e\uddc7",
+      "icon": "🧇",
       "url": "https://wafflegame.net",
       "hasApp": false,
       "category": "Word Games",
@@ -212,7 +212,7 @@
     {
       "id": "redactle",
       "name": "Redactle",
-      "icon": "\u2588",
+      "icon": "█",
       "url": "https://redactle.net",
       "hasApp": false,
       "category": "Word Games",
@@ -226,7 +226,7 @@
     {
       "id": "semantle",
       "name": "Semantle",
-      "icon": "\ud83e\udde0",
+      "icon": "🧠",
       "url": "https://semantle.com",
       "hasApp": false,
       "category": "Word Games",
@@ -240,7 +240,7 @@
     {
       "id": "nerdle",
       "name": "Nerdle",
-      "icon": "\ud83e\uddee",
+      "icon": "🧮",
       "url": "https://nerdlegame.com",
       "hasApp": false,
       "category": "Word Games",
@@ -254,7 +254,7 @@
     {
       "id": "contexto",
       "name": "Contexto",
-      "icon": "\ud83c\udfaf",
+      "icon": "🎯",
       "url": "https://contexto.me",
       "hasApp": false,
       "category": "Word Games",
@@ -268,7 +268,7 @@
     {
       "id": "dordle",
       "name": "Dordle",
-      "icon": "2\ufe0f\u20e3",
+      "icon": "2️⃣",
       "url": "https://zaratustra.itch.io/dordle",
       "hasApp": false,
       "category": "Word Games",
@@ -282,7 +282,7 @@
     {
       "id": "worldle",
       "name": "Worldle",
-      "icon": "\ud83c\udf0d",
+      "icon": "🌍",
       "url": "https://worldle.teuteuf.fr",
       "hasApp": false,
       "category": "Geography",
@@ -296,7 +296,7 @@
     {
       "id": "globle",
       "name": "Globle",
-      "icon": "\ud83c\udf0e",
+      "icon": "🌎",
       "url": "https://globle-game.com",
       "hasApp": false,
       "category": "Geography",
@@ -310,7 +310,7 @@
     {
       "id": "tradle",
       "name": "Tradle",
-      "icon": "\ud83d\udea2",
+      "icon": "🚢",
       "url": "https://oec.world/en/tradle",
       "hasApp": false,
       "category": "Geography",
@@ -324,7 +324,7 @@
     {
       "id": "wheretaken",
       "name": "WhereTaken",
-      "icon": "\ud83d\udcf8",
+      "icon": "📸",
       "url": "https://wheretaken.teuteuf.fr",
       "hasApp": false,
       "category": "Geography",
@@ -338,7 +338,7 @@
     {
       "id": "foodguessr",
       "name": "FoodGuessr",
-      "icon": "\ud83c\udf55",
+      "icon": "🍕",
       "url": "https://www.foodguessr.com",
       "hasApp": false,
       "category": "Geography",
@@ -352,7 +352,7 @@
     {
       "id": "travle",
       "name": "Travle",
-      "icon": "\u2708\ufe0f",
+      "icon": "✈️",
       "url": "https://travle.earth",
       "hasApp": false,
       "category": "Geography",
@@ -366,7 +366,7 @@
     {
       "id": "framed",
       "name": "Framed",
-      "icon": "\ud83c\udfac",
+      "icon": "🎬",
       "url": "https://framed.wtf",
       "hasApp": false,
       "category": "Entertainment",
@@ -380,7 +380,7 @@
     {
       "id": "actorle",
       "name": "Actorle",
-      "icon": "\ud83c\udfad",
+      "icon": "🎭",
       "url": "https://actorle.com",
       "hasApp": false,
       "category": "Entertainment",
@@ -394,7 +394,7 @@
     {
       "id": "moviedle",
       "name": "Moviedle",
-      "icon": "\ud83c\udfa5",
+      "icon": "🎥",
       "url": "https://moviedle.app",
       "hasApp": false,
       "category": "Entertainment",
@@ -408,7 +408,7 @@
     {
       "id": "heardle",
       "name": "Heardle",
-      "icon": "\ud83c\udfb5",
+      "icon": "🎵",
       "url": "https://www.spotify.com/heardle",
       "hasApp": false,
       "category": "Entertainment",
@@ -422,7 +422,7 @@
     {
       "id": "bandle",
       "name": "Bandle",
-      "icon": "\ud83c\udfb8",
+      "icon": "🎸",
       "url": "https://bandle.app",
       "hasApp": false,
       "category": "Entertainment",
@@ -436,7 +436,7 @@
     {
       "id": "immaculate-grid",
       "name": "Immaculate Grid",
-      "icon": "\u26be",
+      "icon": "⚾",
       "url": "https://www.immaculategrid.com",
       "hasApp": false,
       "category": "Sports & Misc",
@@ -450,7 +450,7 @@
     {
       "id": "costcodle",
       "name": "Costcodle",
-      "icon": "\ud83d\uded2",
+      "icon": "🛒",
       "url": "https://costcodle.com",
       "hasApp": false,
       "category": "Sports & Misc",
@@ -464,7 +464,7 @@
     {
       "id": "cluesbysam",
       "name": "Clues by Sam",
-      "icon": "\ud83d\udd0d",
+      "icon": "🔍",
       "url": "https://cluesbysam.com",
       "hasApp": false,
       "category": "Sports & Misc",
@@ -478,7 +478,7 @@
     {
       "id": "quotle",
       "name": "Quotle",
-      "icon": "\ud83d\udcac",
+      "icon": "💬",
       "url": "https://gameshelf.co/quotle/",
       "hasApp": false,
       "category": "Game Shelf Originals",
@@ -492,7 +492,7 @@
     {
       "id": "slate",
       "name": "Slate",
-      "icon": "\ud83d\udcdd",
+      "icon": "📝",
       "url": "https://gameshelf.co/slate/",
       "hasApp": false,
       "category": "Game Shelf Originals",
@@ -506,7 +506,7 @@
     {
       "id": "rungs",
       "name": "Rungs",
-      "icon": "\ud83e\ude9c",
+      "icon": "🪜",
       "url": "https://gameshelf.co/rungs/",
       "hasApp": false,
       "category": "Game Shelf Originals",
@@ -520,7 +520,7 @@
     {
       "id": "wordboxing",
       "name": "Word Boxing",
-      "icon": "\ud83e\udd4a",
+      "icon": "🥊",
       "url": "https://gameshelf.co/wordboxing/",
       "hasApp": false,
       "category": "Game Shelf Originals",
@@ -534,7 +534,7 @@
     {
       "id": "parity",
       "name": "Parity",
-      "icon": "\ud83d\udd22",
+      "icon": "🔢",
       "url": "https://gameshelf.co/parity/",
       "hasApp": false,
       "category": "Game Shelf Originals",
@@ -546,9 +546,23 @@
       "source": "seed"
     },
     {
+      "id": "recant",
+      "name": "Recant",
+      "icon": "🔍",
+      "url": "https://gameshelf.co/recant/",
+      "hasApp": false,
+      "category": "Game Shelf Originals",
+      "description": "Five witnesses give an account of the same half hour. One is lying. Put their statements to each other and the liar's story keeps moving.",
+      "cadence": "daily",
+      "minutes": 5,
+      "platform": "browser",
+      "addedAt": "2026-09-23",
+      "source": "original"
+    },
+    {
       "id": "the-loop",
       "name": "The Loop",
-      "icon": "\ud83d\udd17",
+      "icon": "🔗",
       "url": "https://www.britannica.com/games/loop",
       "publisher": "Britannica",
       "hasApp": false,
@@ -563,7 +577,7 @@
     {
       "id": "blossom",
       "name": "Blossom",
-      "icon": "\ud83c\udf38",
+      "icon": "🌸",
       "url": "https://www.merriam-webster.com/games/blossom-word-game/",
       "publisher": "Merriam-Webster",
       "hasApp": false,
@@ -578,7 +592,7 @@
     {
       "id": "missing-letter",
       "name": "The Missing Letter",
-      "icon": "\ud83d\udd24",
+      "icon": "🔤",
       "url": "https://www.merriam-webster.com/games/missing-letter",
       "publisher": "Merriam-Webster",
       "hasApp": false,
@@ -593,7 +607,7 @@
     {
       "id": "twofer-goofer",
       "name": "Twofer Goofer",
-      "icon": "\ud83c\udfa4",
+      "icon": "🎤",
       "url": "https://www.merriam-webster.com/games/twofer-goofer",
       "publisher": "Merriam-Webster",
       "hasApp": false,

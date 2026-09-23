@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="version" content="1.0.0">
+<meta name="gs-app-id" content="recant">
+<title>Recant - Daily Interrogation</title>
+<meta name="description" content="Five witnesses, one of them lying. Put their accounts to each other and watch the story change. Four pressings a day.">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2A2016">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Recant">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128269;</text></svg>">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Zilla+Slab:wght@600;700&display=swap">
+
+<style>
+:root{
+  --paper:#E8E0D2; --paper-2:#F3EDE2; --rule:#C8BBA4;
+  --ink:#2A2016; --ink-2:#6B5C48;
+  --card:#FBF7EF; --card-edge:#BFAF95; --card-shadow:rgba(42,32,22,.18);
+  --accent:#8C3A2B; --accent-tint:rgba(140,58,43,.12);
+  --ok:#2F6446; --ok-tint:rgba(47,100,70,.14);
+  --warn:#8A6A1F;
+  --focus:#2B6079; --scrim:rgba(42,32,22,.5);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#15120D; --paper-2:#1F1A13; --rule:#3B3225;
+    --ink:#EDE3D2; --ink-2:#A2927A;
+    --card:#241E16; --card-edge:#463A29; --card-shadow:rgba(0,0,0,.55);
+    --accent:#D9765E; --accent-tint:rgba(217,118,94,.16);
+    --ok:#6DBB92; --ok-tint:rgba(109,187,146,.16);
+    --warn:#C9A44E;
+    --focus:#79B6D4; --scrim:rgba(0,0,0,.66);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15120D; --paper-2:#1F1A13; --rule:#3B3225;
+  --ink:#EDE3D2; --ink-2:#A2927A;
+  --card:#241E16; --card-edge:#463A29; --card-shadow:rgba(0,0,0,.55);
+  --accent:#D9765E; --accent-tint:rgba(217,118,94,.16);
+  --ok:#6DBB92; --ok-tint:rgba(109,187,146,.16);
+  --warn:#C9A44E;
+  --focus:#79B6D4; --scrim:rgba(0,0,0,.66);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+  display:flex; flex-direction:column;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overflow:hidden;
+}
+header{
+  flex:0 0 auto; display:flex; align-items:center; gap:10px;
+  padding:8px 14px; border-bottom:1px solid var(--rule); background:var(--paper-2);
+}
+header .icon{
+  width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;
+  border:1px solid var(--rule); border-radius:9px; background:var(--card);
+  color:var(--ink); text-decoration:none; font-size:19px; cursor:pointer;
+}
+header h1{
+  flex:1; margin:0; text-align:center; font-family:'Zilla Slab',Georgia,serif;
+  font-weight:700; font-size:20px; letter-spacing:.14em; text-transform:uppercase;
+}
+#presses{
+  flex:0 0 auto; font-family:'IBM Plex Mono',monospace; font-size:13px;
+  color:var(--ink-2); display:flex; gap:3px; align-items:center;
+}
+#presses b{color:var(--accent);font-size:15px}
+main{flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:14px 14px 90px}
+.case{
+  background:var(--card); border:1px solid var(--card-edge); border-radius:12px;
+  padding:13px 15px; margin-bottom:14px; box-shadow:0 1px 3px var(--card-shadow);
+}
+.case .where{
+  font-family:'Zilla Slab',Georgia,serif; font-weight:700; font-size:17px; margin:0 0 4px;
+}
+.case .what{margin:0;font-size:14.5px;line-height:1.45;color:var(--ink-2)}
+.case .when{
+  margin:9px 0 0; font-family:'IBM Plex Mono',monospace; font-size:12.5px;
+  color:var(--accent); text-transform:uppercase; letter-spacing:.07em;
+}
+h2.sec{
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--ink-2); margin:0 0 8px; font-weight:500;
+}
+.w{
+  background:var(--card); border:1px solid var(--card-edge); border-radius:11px;
+  margin-bottom:9px; overflow:hidden; box-shadow:0 1px 2px var(--card-shadow);
+}
+.w > button.head{
+  width:100%; display:flex; align-items:baseline; gap:9px; padding:12px 14px;
+  background:none; border:0; text-align:left; cursor:pointer; color:var(--ink); font:inherit;
+}
+.w .nm{font-weight:600;font-size:16px;flex:0 0 auto}
+.w .cl{
+  flex:1; font-size:14px; color:var(--ink-2); font-style:italic;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.w .chev{flex:0 0 auto;color:var(--ink-2);font-size:12px;transition:transform .16s}
+.w.open .chev{transform:rotate(90deg)}
+.w .body{display:none;padding:0 14px 13px;border-top:1px dashed var(--rule)}
+.w.open .body{display:block}
+.w .body p{margin:10px 0 0;font-size:14.5px;line-height:1.5}
+.w .body p.aside{color:var(--ink-2);font-size:13.5px}
+.w.recanted{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-tint)}
+.w.cleared{opacity:.72}
+.tagline{
+  display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+  letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px;margin-left:6px;
+}
+.tagline.rec{background:var(--accent-tint);color:var(--accent)}
+.tagline.cl{background:var(--ok-tint);color:var(--ok)}
+.act{
+  width:100%;padding:13px;border-radius:10px;border:1px solid var(--card-edge);
+  background:var(--card);color:var(--ink);font:inherit;font-weight:600;font-size:15px;cursor:pointer;
+}
+.act.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.act.primary:disabled{opacity:.42}
+.act.ghost{background:none}
+footer{
+  position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  background:linear-gradient(to top,var(--paper) 72%,transparent);display:flex;gap:9px;
+}
+footer .act{flex:1}
+.sheet{
+  position:fixed;inset:0;background:var(--scrim);display:none;z-index:40;
+  align-items:flex-end;justify-content:center;
+}
+.sheet.on{display:flex}
+.sheet .panel{
+  background:var(--paper-2);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;
+  border-radius:16px 16px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--rule);
+}
+.sheet h3{font-family:'Zilla Slab',Georgia,serif;font-size:19px;margin:0 0 4px}
+.sheet p.lede{margin:0 0 14px;color:var(--ink-2);font-size:14px;line-height:1.45}
+.pick{
+  width:100%;display:flex;align-items:baseline;gap:9px;padding:12px 13px;margin-bottom:8px;
+  background:var(--card);border:1px solid var(--card-edge);border-radius:10px;
+  text-align:left;cursor:pointer;color:var(--ink);font:inherit;
+}
+.pick .nm{font-weight:600;flex:0 0 auto}
+.pick .cl{flex:1;font-size:13.5px;color:var(--ink-2);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick:disabled{opacity:.4}
+.result{
+  background:var(--card);border:1px solid var(--card-edge);border-left:3px solid var(--accent);
+  border-radius:9px;padding:13px 14px;margin:0 0 14px;font-size:14.5px;line-height:1.5;
+}
+.result.dud{border-left-color:var(--ink-2)}
+.result.good{border-left-color:var(--ok)}
+.result q{font-style:italic}
+#toast{
+  position:fixed;left:50%;bottom:86px;transform:translateX(-50%);
+  background:var(--ink);color:var(--paper);padding:9px 15px;border-radius:999px;
+  font-size:13.5px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60;max-width:88vw;text-align:center;
+}
+#toast.on{opacity:.96}
+.grid-share{font-family:'IBM Plex Mono',monospace;font-size:20px;letter-spacing:3px;margin:10px 0}
+.tally{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 0}
+.tally div{background:var(--card);border:1px solid var(--card-edge);border-radius:9px;padding:9px;text-align:center}
+.tally span{display:block;font-size:11px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.07em}
+.tally b{font-size:21px;font-family:'Zilla Slab',Georgia,serif}
+.note{font-size:13.5px;color:var(--ink-2);line-height:1.5}
+.rule-item{display:flex;gap:10px;margin:0 0 11px}
+.rule-item .tag{
+  flex:0 0 auto;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.07em;
+  text-transform:uppercase;background:var(--accent-tint);color:var(--accent);
+  padding:3px 7px;border-radius:5px;height:fit-content;
+}
+.rule-item p{margin:0;font-size:14px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="icon" href="https://gameshelf.co/app" aria-label="Back to Game Shelf">&#8592;</a>
+  <h1>Recant</h1>
+  <div id="presses" aria-live="polite"></div>
+  <button class="icon" id="btn-menu" aria-label="How to play">&#8942;</button>
+</header>
+
+<main id="main">
+  <div class="case">
+    <p class="where" id="c-where"></p>
+    <p class="what" id="c-what"></p>
+    <p class="when" id="c-when"></p>
+  </div>
+  <div id="feed"></div>
+  <h2 class="sec">The statements</h2>
+  <div id="board"></div>
+</main>
+
+<footer>
+  <button class="act primary" id="btn-press">Put it to them</button>
+  <button class="act" id="btn-accuse">Name them</button>
+</footer>
+
+<div class="sheet" id="sheet-a"><div class="panel">
+  <h3 id="sa-title"></h3>
+  <p class="lede" id="sa-lede"></p>
+  <div id="sa-list"></div>
+  <button class="act ghost" id="sa-cancel" style="margin-top:6px">Cancel</button>
+</div></div>
+
+<div class="sheet" id="sheet-end"><div class="panel">
+  <h3 id="se-title"></h3>
+  <p class="lede" id="se-lede"></p>
+  <div class="grid-share" id="se-grid"></div>
+  <div id="se-truth"></div>
+  <button class="act primary" id="se-share" style="margin-top:10px">Copy result</button>
+  <button class="act ghost" id="se-close" style="margin-top:8px">Close</button>
+</div></div>
+
+<div class="sheet" id="sheet-help"><div class="panel">
+  <h3>How it works</h3>
+  <p class="lede">Five people were on shift. One of them is lying about where they were. Nobody will tell you which.</p>
+  <div class="rule-item"><span class="tag">Read</span><p>Everyone gives an account. Two people claiming the same room at the same time is a <b>conflict</b> &mdash; unless they were genuinely together, in which case they will say so.</p></div>
+  <div class="rule-item"><span class="tag">Press</span><p>Put one account to another. Nothing is flagged for you; finding the conflict is the game. A <b>liar recants</b> and gives you a new story. An honest witness who simply misremembered will <b>correct themselves</b>, and that thread is closed.</p></div>
+  <div class="rule-item"><span class="tag">Four</span><p>You get four pressings. Cornering the liar takes three, so you can afford to be wrong once.</p></div>
+  <div class="rule-item"><span class="tag">Name</span><p>Name anyone, any time. If you pressed them until their story ran out, you have <b>proved</b> it. Name them without that and it counts, but you only <b>guessed</b>.</p></div>
+  <p class="note">Everyone here has something small they would rather not discuss. Only one of them is lying about the thing that matters.</p>
+  <div class="tally">
+    <div><span>Played</span><b id="t-played">0</b></div>
+    <div><span>Proved</span><b id="t-proved">0</b></div>
+    <div><span>Streak</span><b id="t-streak">0</b></div>
+  </div>
+  <p class="note" style="text-align:center">Recant v<span id="v-num"></span> &middot; a Game Shelf original</p>
+  <button class="act" id="help-close" style="margin-top:12px">Close</button>
+</div></div>
+
+<div id="toast" role="status"></div>
+
+<script>
+// ============ GAME SHELF INTEGRATION MODULE v1.0.0 ============
+(function(){'use strict';
+  const GAMESHELF_VERSION='1.0.0';
+  if(window.GameShelfIntegration) return;
+  window.GameShelfIntegration={
+    version:GAMESHELF_VERSION, gameId:null, gameConfig:null, _initialized:false,
+    init:function(gameId,config){
+      if(this._initialized) return;
+      this.gameId=gameId;
+      this.gameConfig={name:config.name||gameId,icon:config.icon||'🎮',url:config.url||window.location.hostname,version:config.version||'1.0.0',type:config.type||'daily',...config};
+      this._initialized=true; this._announcePresence();
+    },
+    reportComplete:function(result){
+      if(!this._initialized) return null;
+      const payload=this._buildPayload(result); this._dispatchEvents(payload); return payload;
+    },
+    _buildPayload:function(result){
+      return {gameId:this.gameId,gameName:this.gameConfig.name,gameIcon:this.gameConfig.icon,
+        gameUrl:this.gameConfig.url,gameVersion:this.gameConfig.version,timestamp:new Date().toISOString(),
+        date:this._getTodayString(),puzzleId:result.puzzleId||this._getTodayString(),
+        puzzleNumber:result.puzzleNumber||null,
+        result:{won:!!result.won,score:result.score??null,attempts:result.attempts??null,
+          maxAttempts:result.maxAttempts??null,hintsUsed:result.hintsUsed??0,
+          gaveUp:!!result.gaveUp,perfect:!!result.perfect},
+        streak:result.streak||null,
+        meta:{difficulty:result.difficulty??null,mode:result.mode??null,category:result.category??null,...(result.meta||{})},
+        grid:result.grid||null,scoreLine:result.scoreLine||null,shareText:result.shareText||null};
+    },
+    _announcePresence:function(){
+      document.documentElement.setAttribute('data-gameshelf-game',this.gameId);
+      document.documentElement.setAttribute('data-gameshelf-version',GAMESHELF_VERSION);
+      window.dispatchEvent(new CustomEvent('gameshelf:presence',{detail:{gameId:this.gameId,config:this.gameConfig}}));
+    },
+    _dispatchEvents:function(payload){
+      window.dispatchEvent(new CustomEvent('gameshelf:complete',{detail:payload}));
+      window.dispatchEvent(new CustomEvent('gameshelf:gameComplete',{detail:payload}));
+    },
+    _getTodayString:function(){
+      const d=new Date();
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    }
+  };
+})();
+
+var VERSION = document.querySelector('meta[name=version]').content;
+document.getElementById('v-num').textContent = VERSION;
+
+/* ============================================================
+   THE CASE ENGINE
+   The fiction and the logic are the same object. An innocent who
+   is confronted EXPLAINS and the thread closes; the liar RECANTS
+   and a new conflict opens. Corner them and you have proved it.
+
+   The decoys are the subtle part: two people genuinely in the
+   same room corroborate each other, which is an alibi, not a
+   conflict. So a decoy must be an honest witness who is WRONG --
+   someone off by one half-hour. Without those, the liar's story
+   is the only loose thread on the board and the case ends on the
+   first pressing.
+   ============================================================ */
+var TIMES = ['half eight','nine','half nine','ten','half ten'];
+
+function rng(seed){
+  var a = seed>>>0;
+  return function(){
+    a = (a + 0x6d2b79f5)|0;
+    var t = Math.imul(a ^ (a>>>15), 1|a);
+    t = (t + Math.imul(t ^ (t>>>7), 61|t)) ^ t;
+    return ((t ^ (t>>>14))>>>0) / 4294967296;
+  };
+}
+
+var SCENARIOS = [
+ {id:'depot',where:'The night shift at a parcel depot',incident:'Someone opened the cage and walked off with a pallet of phones.',people:'loaders',
+  cast:['Okonjo','Pryce','Halloran','Vasquez','Behrens'],places:['loading bay','sorting hall','cage','break room','yard office']},
+ {id:'station',where:'A research station in winter',incident:'The sample freezer was switched off and three years of work thawed.',people:'crew',
+  cast:['Aldridge','Strand','Nkemdirim','Beaufort','Lindqvist'],places:['greenhouse','comms room','cold store','generator shed','mess']},
+ {id:'newsroom',where:'A newsroom the night before publication',incident:'The embargoed story was leaked to a rival.',people:'journalists',
+  cast:['Ferreira','Quill','Adeyemi','Sokolov','Mbeki'],places:['copy desk','archive','studio','roof terrace','server room']},
+ {id:'filmset',where:'A film set between takes',incident:"The only print of the day's footage was wiped.",people:'crew',
+  cast:['Castellan','Osei','Marchetti','Dunbar','Yusupova'],places:['sound stage','edit truck','wardrobe','green room','back lot']},
+ {id:'aquarium',where:'An aquarium after closing',incident:'The tank valves were opened and the reef exhibit nearly drained.',people:'keepers',
+  cast:['Renwick','Achebe','Sorensen','Patel','Moreau'],places:['reef hall','quarantine room','filtration deck','gift shop','loading dock']},
+ {id:'bakery',where:'A bakery before dawn',incident:'The competition sourdough starter was poured down the drain.',people:'bakers',
+  cast:['Whitlock','Ibrahim','Kowalczyk','Amaro','Fenn'],places:['proving room','cold room','front counter','yard','office']},
+ {id:'observatory',where:'An observatory on a clear night',incident:"The telescope's mirror was scratched beyond repair.",people:'astronomers',
+  cast:['Halvorsen','Rao','Dimitrov','Ngata','Cleary'],places:['dome','control room','library','workshop','car park']},
+ {id:'theatre',where:'A theatre on opening night',incident:"The lead's costume was cut to ribbons an hour before curtain.",people:'company',
+  cast:['Pemberton','Diallo','Rossi','Okafor','Tarrant'],places:['wings','dressing rooms','flies','orchestra pit','box office']},
+ {id:'startup',where:'An office the weekend before launch',incident:'The production database was dropped, and the backups with it.',people:'engineers',
+  cast:['Zhao','Brennan','Haddad','Lindgren','Osborne'],places:['war room','kitchen','phone booth','roof','basement']},
+ {id:'ferry',where:'An overnight ferry',incident:"The purser's safe was emptied somewhere between two ports.",people:'crew',
+  cast:['Halvard','Nunes','Quintero','Fairweather','Adamu'],places:['bridge','galley','engine room','car deck','lounge']},
+ {id:'archive',where:'A records office during an audit',incident:'A whole year of files went into the shredder.',people:'clerks',
+  cast:['Tennant','Boateng','Ruiz','Lindholm','Choudhury'],places:['reading room','stacks','scanning bay','mail room','loading dock']},
+ {id:'ski',where:'A ski lodge kitchen at turnaround',incident:"The season's entire wine order was poured away.",people:'staff',
+  cast:['Girard','Mensah','Novak','Sinclair','Takahashi'],places:['cellar','kitchen','boot room','terrace','drying room']},
+ {id:'radio',where:'A radio station overnight',incident:'The transmitter was cut in the middle of the appeal.',people:'presenters',
+  cast:['Oyelaran','Baptiste','Kerr','Solberg','Marlowe'],places:['studio one','continuity','record library','mast room','reception']},
+ {id:'greenhouse',where:'A garden centre out of season',incident:'The heaters were killed and the whole orchid house was lost.',people:'growers',
+  cast:['Ashworth','Nwosu','Bergstrom','Cardoza','Finch'],places:['orchid house','potting shed','cold frames','shop floor','boiler room']},
+ {id:'printworks',where:'A print works on a deadline',incident:'The plates for the morning run were destroyed.',people:'printers',
+  cast:['Deveraux','Salah','Kaminski','Oduya','Priestley'],places:['press hall','plate room','ink store','bindery','dispatch']},
+ {id:'hospital',where:'A hospital ward on a quiet night',incident:'The controlled drugs cabinet was emptied.',people:'staff',
+  cast:['Aitken','Balogun','Ferrara','Mackenzie','Rahman'],places:['treatment room',"nurses' station",'side room','linen store','stairwell']},
+ {id:'vineyard',where:'A vineyard at harvest',incident:'The fermentation tanks were opened and the vintage spoiled.',people:'pickers',
+  cast:['Lauriston','Okoro','Benedetti','Haugen','Cruz'],places:['press house','tank room','barrel store','east rows','weighbridge']},
+ {id:'museum',where:'A museum during an install',incident:'The loaned bronze never made it into the exhibition.',people:'technicians',
+  cast:['Garnier','Umeh','Lindqvist','Ravel','Stannard'],places:['main gallery','crate store','conservation lab','loading bay','staff corridor']}
+];
+
+// Small private embarrassments. EVERY witness gets one, so that being cagey
+// is not itself a tell -- if only the guilty squirmed, manner would give the
+// case away and the logic would never have to do any work.
+var CAGEY = [
+  'was on the phone to someone they should not have been',
+  'had been asleep for twenty minutes and would rather that did not come up',
+  'was three cigarettes into a shift they had promised to give up',
+  'had taken something small from the stores, and it was not this',
+  'was avoiding someone and took the long way round',
+  'had been crying and did not want to be asked why',
+  'was reading a message they should have answered a week ago',
+  'had already clocked out and come back in'
+];
+
+function generate(seed, scen, chain, slips){
+  chain = chain || 3; slips = slips || 2;
+  var rand = rng(seed);
+  var W = scen.cast.length, P = scen.places.length, T = TIMES.length;
+  for (var attempt=0; attempt<900; attempt++){
+    var crimeT = 1 + Math.floor(rand()*(T-2));
+    var crimeP = Math.floor(rand()*P);
+    var culprit = Math.floor(rand()*W);
+
+    var truth = [];
+    for (var w=0; w<W; w++){
+      truth[w]=[];
+      for (var t=0;t<T;t++) truth[w][t]=Math.floor(rand()*P);
+    }
+    truth[culprit][crimeT]=crimeP;
+    for (w=0; w<W; w++){
+      if (w!==culprit && truth[w][crimeT]===crimeP)
+        truth[w][crimeT]=(crimeP+1+Math.floor(rand()*(P-1)))%P;
+    }
+
+    // Each alibi in the chain must be a room where exactly ONE other person
+    // genuinely was, alone. That person is the breaker: they can say the room
+    // was empty but for them.
+    var soloAt={};
+    for (w=0; w<W; w++){
+      if (w===culprit) continue;
+      var p=truth[w][crimeT];
+      if (p===crimeP) continue;
+      (soloAt[p]=soloAt[p]||[]).push(w);
+    }
+    var usable=Object.keys(soloAt).map(Number).filter(function(p){return soloAt[p].length===1;});
+    if (usable.length < chain) continue;
+    usable.sort(function(){return rand()-0.5;});
+    var alibis=usable.slice(0,chain);
+    var breakers=alibis.map(function(p){return soloAt[p][0];});
+
+    // memory slips: honest witnesses, off by one half-hour
+    var slipSet=[];
+    var free=[];
+    for (w=0; w<W; w++) if (w!==culprit && breakers.indexOf(w)<0) free.push(w);
+    free.sort(function(){return rand()-0.5;});
+    for (var i=0;i<free.length && slipSet.length<slips;i++){
+      var ww=free[i];
+      var dir = rand()<0.5 ? -1 : 1;
+      var src = Math.max(0, Math.min(T-1, crimeT+dir));
+      if (src===crimeT) continue;
+      if (truth[ww][src]===truth[ww][crimeT]) continue;
+      if (truth[ww][src]===crimeP) continue;
+      slipSet.push({who:ww, says:truth[ww][src], reallyAt:truth[ww][crimeT], fromSlot:src});
+    }
+    if (!slipSet.length) continue;
+
+    var claim=[];
+    for (w=0; w<W; w++) claim[w]=truth[w][crimeT];
+    claim[culprit]=alibis[0];
+    for (i=0;i<slipSet.length;i++) claim[slipSet[i].who]=slipSet[i].says;
+
+    var cagey=[];
+    for (w=0; w<W; w++) cagey[w]=CAGEY[Math.floor(rand()*CAGEY.length)];
+
+    var c={seed:seed,scen:scen,crimeT:crimeT,crimeP:crimeP,culprit:culprit,truth:truth,
+           claim:claim,alibis:alibis,breakers:breakers,slips:slipSet,cagey:cagey,W:W,P:P,T:T};
+    if (verify(c)) return c;
+  }
+  return null;
+}
+
+// A conflict is a claimed co-location that is NOT corroborated: two people put
+// themselves in the same room, but were not actually together.
+function conflicts(c, claim){
+  claim = claim || c.claim;
+  var out=[];
+  for (var a=0;a<c.W;a++) for (var b=a+1;b<c.W;b++){
+    if (claim[a]!==claim[b]) continue;
+    if (c.truth[a][c.crimeT]===c.truth[b][c.crimeT]) continue; // genuinely together
+    out.push({a:a,b:b,room:claim[a]});
+  }
+  return out;
+}
+
+function verify(c){
+  if (c.truth[c.culprit][c.crimeT]!==c.crimeP) return false;
+  for (var w=0;w<c.W;w++) if (w!==c.culprit && c.truth[w][c.crimeT]===c.crimeP) return false;
+  var seen={};
+  for (var i=0;i<c.alibis.length;i++){
+    if (c.alibis[i]===c.crimeP) return false;
+    if (seen[c.alibis[i]]) return false;
+    seen[c.alibis[i]]=1;
+    var b=c.breakers[i];
+    if (b===c.culprit) return false;
+    if (c.truth[b][c.crimeT]!==c.alibis[i]) return false;
+  }
+  for (i=0;i<c.slips.length;i++){
+    if (c.slips[i].who===c.culprit) return false;
+    if (c.slips[i].says===c.crimeP) return false;
+  }
+  // THE GATE: the opening board must not single the liar out. At least three
+  // people must be caught up in an unresolved conflict, and the liar must be
+  // one of them, or there is nothing to press.
+  var conf=conflicts(c), inv={};
+  for (i=0;i<conf.length;i++){ inv[conf[i].a]=1; inv[conf[i].b]=1; }
+  if (!inv[c.culprit]) return false;
+  if (Object.keys(inv).length < 3) return false;
+  return true;
+}
+
+/* ============================================================ */
+
+var PRESSES = 4;
+var c=null, claim=[], stage=0, left=PRESSES, over=false, log=[], resolved={}, accused=null, proved=false;
+
+function todayKey(){
+  var d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function dayNumber(){
+  var epoch=Date.UTC(2026,0,1);
+  var d=new Date(), today=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());
+  return Math.floor((today-epoch)/86400000);
+}
+function dailySeed(){
+  var k=todayKey(), h=2166136261;
+  for (var i=0;i<k.length;i++){ h^=k.charCodeAt(i); h=Math.imul(h,16777619); }
+  return h>>>0;
+}
+
+function newCase(){
+  var seed=dailySeed();
+  var scen=SCENARIOS[seed % SCENARIOS.length];
+  var made=null;
+  for (var bump=0; bump<40 && !made; bump++) made=generate((seed+bump*7919)>>>0, scen);
+  if (!made){ made=generate(12345, SCENARIOS[0]); }
+  c=made; claim=c.claim.slice(); stage=0; left=PRESSES; over=false;
+  log=[]; resolved={}; accused=null; proved=false;
+}
+
+function toast(msg){
+  var el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('on');
+  clearTimeout(toast._t); toast._t=setTimeout(function(){el.classList.remove('on');},2100);
+}
+
+function place(i){ return c.scen.places[i]; }
+function nameOf(i){ return c.scen.cast[i]; }
+
+// The account a witness gives, in their own words.
+function account(w){
+  var lines=[];
+  lines.push('&ldquo;At '+TIMES[c.crimeT]+' I was in the '+place(claim[w])+'.&rdquo;');
+  // one true neighbouring detail, so the account has texture
+  var before = c.crimeT>0 ? c.truth[w][c.crimeT-1] : null;
+  var after  = c.crimeT<c.T-1 ? c.truth[w][c.crimeT+1] : null;
+  var bits=[];
+  if (before!==null) bits.push('Before that, the '+place(before)+'.');
+  if (after!==null) bits.push('After, the '+place(after)+'.');
+  lines.push(bits.join(' '));
+  // who they say they saw at the crime hour, truthfully, from where they claim
+  var saw=[];
+  for (var o=0;o<c.W;o++){
+    if (o===w) continue;
+    if (c.truth[o][c.crimeT]===c.truth[w][c.crimeT] && claim[w]===c.truth[w][c.crimeT]) saw.push(nameOf(o));
+  }
+  if (saw.length) lines.push('&ldquo;'+saw.join(' and ')+' '+(saw.length>1?'were':'was')+' in there with me.&rdquo;');
+  else lines.push('&ldquo;There was nobody else in there. Just me.&rdquo;');
+  return lines;
+}
+
+function render(){
+  document.getElementById('c-where').textContent=c.scen.where;
+  document.getElementById('c-what').textContent=c.scen.incident;
+  document.getElementById('c-when').textContent='It happened in the '+place(c.crimeP)+', at '+TIMES[c.crimeT];
+
+  var p=document.getElementById('presses');
+  p.innerHTML='<b>'+left+'</b>&nbsp;left';
+
+  var board=document.getElementById('board');
+  board.innerHTML='';
+  for (var w=0; w<c.W; w++){
+    (function(w){
+      var div=document.createElement('div');
+      div.className='w'+(resolved['rec'+w]?' recanted':'')+(resolved['cl'+w]?' cleared':'');
+      var tag='';
+      if (resolved['rec'+w]) tag='<span class="tagline rec">changed story</span>';
+      else if (resolved['cl'+w]) tag='<span class="tagline cl">corrected</span>';
+      var lines=account(w);
+      div.innerHTML =
+        '<button class="head"><span class="nm">'+nameOf(w)+'</span>'+
+        '<span class="cl">the '+place(claim[w])+'</span><span class="chev">&#9656;</span></button>'+
+        '<div class="body"><p>'+lines[0]+tag+'</p>'+
+        (lines[1]?'<p class="aside">'+lines[1]+'</p>':'')+
+        '<p>'+lines[2]+'</p>'+
+        '<p class="aside">You get the feeling they '+c.cagey[w]+'.</p></div>';
+      div.querySelector('.head').addEventListener('click',function(){ div.classList.toggle('open'); });
+      board.appendChild(div);
+    })(w);
+  }
+
+  var feed=document.getElementById('feed');
+  feed.innerHTML='';
+  for (var i=0;i<log.length;i++){
+    var d=document.createElement('div');
+    d.className='result'+(log[i].kind==='dud'?' dud':(log[i].kind==='rec'?'':' good'));
+    d.innerHTML=log[i].html;
+    feed.appendChild(d);
+  }
+
+  document.getElementById('btn-press').disabled = over || left<=0;
+  document.getElementById('btn-press').textContent = over ? 'Case closed' : 'Put it to them ('+left+')';
+}
+
+/* ---- pressing ---- */
+var pressA=null;
+function openPress(){
+  if (over || left<=0) return;
+  pressA=null;
+  var sh=document.getElementById('sheet-a');
+  document.getElementById('sa-title').textContent='Whose account?';
+  document.getElementById('sa-lede').textContent='Pick the person you want to put something to.';
+  var list=document.getElementById('sa-list'); list.innerHTML='';
+  for (var w=0;w<c.W;w++){
+    (function(w){
+      var b=document.createElement('button');
+      b.className='pick';
+      b.innerHTML='<span class="nm">'+nameOf(w)+'</span><span class="cl">the '+place(claim[w])+'</span>';
+      b.addEventListener('click',function(){ pressA=w; chooseB(); });
+      list.appendChild(b);
+    })(w);
+  }
+  sh.classList.add('on');
+}
+function chooseB(){
+  document.getElementById('sa-title').textContent='Put whose account to '+nameOf(pressA)+'?';
+  document.getElementById('sa-lede').textContent='Nothing is flagged. If the two accounts do not actually clash, the pressing is wasted.';
+  var list=document.getElementById('sa-list'); list.innerHTML='';
+  for (var w=0;w<c.W;w++){
+    if (w===pressA) continue;
+    (function(w){
+      var b=document.createElement('button');
+      b.className='pick';
+      b.innerHTML='<span class="nm">'+nameOf(w)+'</span><span class="cl">the '+place(claim[w])+'</span>';
+      b.addEventListener('click',function(){ doPress(pressA,w); });
+      list.appendChild(b);
+    })(w);
+  }
+}
+function doPress(a,b){
+  document.getElementById('sheet-a').classList.remove('on');
+  left--;
+
+  var clash = claim[a]===claim[b] && c.truth[a][c.crimeT]!==c.truth[b][c.crimeT];
+  if (!clash){
+    log.push({kind:'dud', html:'You put '+nameOf(b)+'&rsquo;s account to '+nameOf(a)+
+      '. <q>I don&rsquo;t see the problem,</q> they say. <q>We weren&rsquo;t anywhere near each other.</q> '+
+      '<b>Nothing in it.</b>'});
+    afterPress(); return;
+  }
+
+  // Which of the two gives way? The liar, if they are in it; otherwise the one
+  // who misremembered.
+  var liar = (a===c.culprit || b===c.culprit) ? c.culprit : null;
+  if (liar!==null && claim[liar]===c.alibis[stage]){
+    stage++;
+    var next = stage < c.alibis.length ? c.alibis[stage] : c.crimeP;
+    claim[liar]=next;
+    resolved['rec'+liar]=1;
+    var cornered = stage >= c.alibis.length;
+    log.push({kind:'rec', html:'You put it to '+nameOf(liar)+' that '+nameOf(liar===a?b:a)+
+      ' was in the '+place(c.alibis[stage-1])+' and saw nobody. A pause. '+
+      '<q>&hellip;All right. I wasn&rsquo;t in the '+place(c.alibis[stage-1])+'. I was in the '+place(next)+'.</q>'+
+      (cornered? ' <b>That is the room it happened in.</b>' : ' <b>Their story has changed.</b>')});
+    if (cornered) toast(nameOf(liar)+' has run out of rooms.');
+    afterPress(); return;
+  }
+
+  // a memory slip gives way
+  var slip=null;
+  for (var i=0;i<c.slips.length;i++){
+    if (c.slips[i].who===a || c.slips[i].who===b){
+      if (claim[c.slips[i].who]===c.slips[i].says){ slip=c.slips[i]; break; }
+    }
+  }
+  if (slip){
+    claim[slip.who]=slip.reallyAt;
+    resolved['cl'+slip.who]=1;
+    log.push({kind:'good', html:'You put it to '+nameOf(slip.who)+' that the '+place(slip.says)+
+      ' was already spoken for. They frown, then their face clears. '+
+      '<q>No &mdash; sorry. The '+place(slip.says)+' was '+TIMES[slip.fromSlot]+'. At '+TIMES[c.crimeT]+
+      ' I was in the '+place(slip.reallyAt)+'.</q> <b>That thread is closed.</b>'});
+    afterPress(); return;
+  }
+
+  log.push({kind:'dud', html:'Both of them hold firm, and neither budges. <b>Nothing in it.</b>'});
+  afterPress();
+}
+function afterPress(){
+  save(); render();
+  document.getElementById('main').scrollTop=0;
+  if (left<=0 && !over) toast('No pressings left. Name someone.');
+}
+
+/* ---- accusing ---- */
+function openAccuse(){
+  if (over) { showEnd(); return; }
+  var sh=document.getElementById('sheet-a');
+  document.getElementById('sa-title').textContent='Who did it?';
+  document.getElementById('sa-lede').textContent='This ends the case.';
+  var list=document.getElementById('sa-list'); list.innerHTML='';
+  for (var w=0;w<c.W;w++){
+    (function(w){
+      var b=document.createElement('button');
+      b.className='pick';
+      b.innerHTML='<span class="nm">'+nameOf(w)+'</span><span class="cl">the '+place(claim[w])+'</span>';
+      b.addEventListener('click',function(){ finish(w); });
+      list.appendChild(b);
+    })(w);
+  }
+  sh.classList.add('on');
+}
+function finish(w){
+  document.getElementById('sheet-a').classList.remove('on');
+  accused=w; over=true;
+  proved = (w===c.culprit) && (stage>=c.alibis.length);
+  record(); save(); render(); showEnd();
+}
+
+function shareGrid(){
+  var g='';
+  for (var i=0;i<log.length;i++) g += (log[i].kind==='rec'?'🔴':(log[i].kind==='good'?'🟢':'⚫'));
+  for (var j=log.length;j<PRESSES;j++) g+='⬜';
+  return g;
+}
+function showEnd(){
+  var right = accused===c.culprit;
+  document.getElementById('se-title').textContent =
+    proved ? 'Proved it.' : right ? 'Right &mdash; but you guessed.' : 'Wrong.';
+  document.getElementById('se-lede').innerHTML =
+    proved ? 'You pressed '+nameOf(c.culprit)+' until the rooms ran out. There was nowhere left to be but the '+place(c.crimeP)+'.'
+    : right ? 'It was '+nameOf(c.culprit)+'. You named them without ever breaking their story &mdash; a good instinct, and nothing you could have taken to anyone.'
+    : 'It was '+nameOf(c.culprit)+', not '+nameOf(accused)+'.';
+  document.getElementById('se-grid').textContent = shareGrid();
+
+  var t='<p class="note"><b>What was actually true:</b> '+nameOf(c.culprit)+' was in the '+place(c.crimeP)+
+        ' at '+TIMES[c.crimeT]+', and said the '+place(c.alibis[0])+'.</p>';
+  if (c.slips.length){
+    t+='<p class="note"><b>The honest mistakes:</b> ';
+    var bits=[];
+    for (var i=0;i<c.slips.length;i++){
+      bits.push(nameOf(c.slips[i].who)+' had the '+place(c.slips[i].says)+' half an hour out');
+    }
+    t+=bits.join('; ')+'. Pressing them was never going to lead anywhere.</p>';
+  }
+  t+='<p class="note"><b>The way through:</b> ';
+  var path=[];
+  for (i=0;i<c.alibis.length;i++) path.push(nameOf(c.breakers[i])+' on the '+place(c.alibis[i]));
+  t+=path.join(', then ')+'.</p>';
+  document.getElementById('se-truth').innerHTML=t;
+  document.getElementById('sheet-end').classList.add('on');
+}
+
+/* ---- persistence ---- */
+function save(){
+  try{
+    localStorage.setItem('recant_game', JSON.stringify({
+      day:todayKey(), claim:claim, stage:stage, left:left, over:over,
+      log:log, resolved:resolved, accused:accused, proved:proved
+    }));
+  }catch(e){}
+}
+function stats(){
+  try{ return JSON.parse(localStorage.getItem('recant_stats')||'{}'); }catch(e){ return {}; }
+}
+function record(){
+  var s=stats();
+  if (s.lastDay===todayKey()) return;
+  s.played=(s.played||0)+1;
+  if (proved) s.proved=(s.proved||0)+1;
+  var right = accused===c.culprit;
+  var y=new Date(Date.now()-86400000);
+  var yk=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+  s.streak = right ? (s.lastDay===yk ? (s.streak||0)+1 : 1) : 0;
+  s.lastDay=todayKey();
+  try{ localStorage.setItem('recant_stats', JSON.stringify(s)); }catch(e){}
+
+  var lines = ['Recant #'+dayNumber(), shareGrid(), proved?'proved it':(right?'named them':'missed')];
+  GameShelfIntegration.reportComplete({
+    won: right, perfect: proved, attempts: PRESSES-left, maxAttempts: PRESSES,
+    puzzleNumber: dayNumber(), streak: s.streak,
+    grid: shareGrid(), scoreLine: proved?'Proved':(right?'Guessed':'Missed'),
+    shareText: lines.join('\n')
+  });
+}
+function paintStats(){
+  var s=stats();
+  document.getElementById('t-played').textContent=s.played||0;
+  document.getElementById('t-proved').textContent=s.proved||0;
+  document.getElementById('t-streak').textContent=s.streak||0;
+}
+
+/* ---- wiring ---- */
+document.getElementById('btn-press').addEventListener('click', openPress);
+document.getElementById('btn-accuse').addEventListener('click', openAccuse);
+document.getElementById('sa-cancel').addEventListener('click', function(){
+  document.getElementById('sheet-a').classList.remove('on');
+});
+document.getElementById('sheet-a').addEventListener('click', function(e){
+  if (e.target===this) this.classList.remove('on');
+});
+document.getElementById('se-close').addEventListener('click', function(){
+  document.getElementById('sheet-end').classList.remove('on');
+});
+document.getElementById('se-share').addEventListener('click', function(){
+  var txt='Recant #'+dayNumber()+'\n'+shareGrid()+'\n'+(proved?'proved it':(accused===c.culprit?'named them':'missed'))+'\ngameshelf.co/recant';
+  navigator.clipboard.writeText(txt).then(function(){ toast('Copied.'); },function(){ toast('Could not copy.'); });
+});
+document.getElementById('btn-menu').addEventListener('click', function(){
+  paintStats(); document.getElementById('sheet-help').classList.add('on');
+});
+document.getElementById('help-close').addEventListener('click', function(){
+  document.getElementById('sheet-help').classList.remove('on');
+});
+document.getElementById('sheet-help').addEventListener('click', function(e){
+  if (e.target===this) this.classList.remove('on');
+});
+document.getElementById('sheet-end').addEventListener('click', function(e){
+  if (e.target===this) this.classList.remove('on');
+});
+
+(function start(){
+  newCase();
+  try{
+    var saved=JSON.parse(localStorage.getItem('recant_game')||'null');
+    if (saved && saved.day===todayKey()){
+      claim=saved.claim; stage=saved.stage; left=saved.left; over=saved.over;
+      log=saved.log||[]; resolved=saved.resolved||{}; accused=saved.accused; proved=saved.proved;
+    }
+  }catch(e){}
+  render();
+  if (over) showEnd();
+})();
+
+GameShelfIntegration.init('recant', {
+  name:'Recant', icon:'🔍', url:'gameshelf.co/recant', version:VERSION, type:'daily'
+});
+
+if ('serviceWorker' in navigator){
+  var hadController = !!navigator.serviceWorker.controller;
+  var reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    if (!hadController || reloading) return;
+    reloading = true; location.reload();
+  });
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js').then(function(reg){
+      document.addEventListener('visibilitychange', function(){
+        if (document.visibilityState==='visible') reg.update();
+      });
+      setInterval(function(){ reg.update(); }, 30*60*1000);
+    }).catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
