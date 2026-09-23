@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.13.1">
+    <meta name="version" content="1.13.2">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -11466,7 +11466,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.13.1</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.13.2</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -23092,12 +23092,6 @@
                 return;
             }
             
-            // Check if user has seen the recording tutorial (first time ANY game launch)
-            if (!appData.hasSeenRecordingTutorial) {
-                pendingTutorialGame = gameId;
-                return;
-            }
-            
             // Check if this game has an app option AND we need to ask for publisher pref
             if (game.hasApp && game.publisher) {
                 // Check for game-specific override first
@@ -23482,8 +23476,7 @@
             });
             
             // Show pre-launch reminder if enabled (not for GS Originals which auto-sync)
-            const showReminder = appData.hasSeenRecordingTutorial && 
-                                 appData.settings?.showPrelaunchReminder !== false &&
+            const showReminder = appData.settings?.showPrelaunchReminder !== false &&
                                  !isGSOriginal(gameId);
             
             if (showReminder) {
@@ -30535,7 +30528,7 @@
             // v1.10.0: Start day-change detection interval
             startDayCheckInterval();
             
-            console.log('🧩 Game Shelf PWA v1.13.1 initialized');
+            console.log('🧩 Game Shelf PWA v1.13.2 initialized');
             console.log('🌅 Day-change engine active. Current day:', _lastKnownDay);
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());

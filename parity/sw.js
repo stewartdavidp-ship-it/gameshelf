@@ -1,12 +1,12 @@
 /**
  * Parity PWA Service Worker
- * Version: 1.0.7
+ * Version: 1.0.8
  *
  * The page itself is NETWORK-FIRST. A stale-while-revalidate page always shows
  * the previous release — you only ever see version N-1 — which is exactly the
  * "my PWA never updates" symptom. Everything else stays cache-first.
  */
-const CACHE_VERSION = 'v1.0.7';
+const CACHE_VERSION = 'v1.0.8';
 const CACHE_NAME = `parity-pwa-${CACHE_VERSION}`;
 const CACHE_FILES = ['./', './index.html', './manifest.json'];
 
