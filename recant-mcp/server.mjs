@@ -77,7 +77,7 @@ function restore(day, chain) {
   } catch { return null; }
 }
 
-function newSession(c, label, { day = null, chain = 3, practice = false } = {}) {
+function newSession(c, label, { day = null, chain = 2, practice = false } = {}) {
   S = {
     c, label, day, chain, practice,
     claim: c.claim.slice(),   // what each witness CURRENTLY says; recantations move this
@@ -160,8 +160,10 @@ function opening() {
     `there together. **Ask them who else was there.** A real pair name each other.`,
     `A liar, and whoever's room they borrowed, will both say they were alone.`,
     ``,
-    `Asking is free. You have **${S.left} pressings**, and you only need them once`,
-    `you have found a room where the story does not add up.`,
+    `Not every wrong story is a lie — some people just have the time wrong.`,
+    ``,
+    `Asking is free. You have **${S.left} challenges**: put two people's stories`,
+    `to each other with \`confront\` and see who gives way.`,
   ].join('\n');
 }
 
@@ -217,10 +219,12 @@ server.registerTool('open_case', {
     "Open today's Recant case, or resume the one in progress. Returns the setting, what happened, where and when, and every witness's opening account. Call this first.",
   inputSchema: {
     practice: z.boolean().optional().describe('Open a random practice case instead of today\'s daily.'),
-    harder: z.boolean().optional().describe('Longer chain of alibis. The liar has to be pressed one more time.'),
   },
-}, async ({ practice, harder }) => {
-  const chain = harder ? 4 : 3;
+}, async ({ practice }) => {
+  // Two retreats. A three-step chase needs a solo breaker in three rooms, which
+  // leaves nobody free to mix up the time -- no decoy, and one rule solved
+  // every case. So there is no "harder" mode: longer would have been easier.
+  const chain = 2;
 
   if (practice) {
     const seed = (Math.random() * 2 ** 32) >>> 0;
@@ -257,7 +261,7 @@ server.registerTool('open_case', {
 server.registerTool('ask_witness', {
   title: 'Ask a witness something',
   description:
-    'Ask one witness about their movements, who they saw, another person, or the incident. Asking is free and unlimited — only pressings are rationed. Map whatever the player said onto the closest topic.',
+    'Ask one witness about their movements, who they saw, another person, or the incident. Asking is free and unlimited — only challenges are rationed. Map whatever the player said onto the closest topic.',
   inputSchema: {
     witness: z.string().describe('Who to ask, by name.'),
     about: z.enum(['where_they_were', 'who_they_saw', 'someone_else', 'the_incident'])
@@ -285,7 +289,7 @@ server.registerTool('ask_witness', {
 server.registerTool('confront', {
   title: 'Put one account to another',
   description:
-    "Spend a pressing: put one witness's account to another and see who gives way. If the two accounts do not actually clash, the pressing is wasted. A liar recants and gives a new story; an honest witness who misremembered corrects themselves and that thread closes.",
+    "Spend a challenge: put one witness's account to another and see who gives way. If the two accounts do not actually clash, the challenge is wasted. A liar recants and gives a new story; an honest witness who misremembered corrects themselves and that thread closes.",
   inputSchema: {
     witness: z.string().describe('The person being pressed.'),
     with_account_of: z.string().describe("Whose account you are putting to them."),
@@ -293,7 +297,7 @@ server.registerTool('confront', {
 }, async ({ witness, with_account_of }) => {
   const g = needCase(); if (g) return g;
   if (S.over) return text('The case is closed.');
-  if (S.left <= 0) return text('No pressings left. You can still name someone — call accuse.');
+  if (S.left <= 0) return text('No challenges left. You can still accuse someone — call accuse.');
 
   const a = findWitness(witness), b = findWitness(with_account_of);
   if (a < 0 || b < 0) return text(`Name them both. The ${S.c.scen.people} are: ${S.c.scen.cast.join(', ')}.`);
@@ -304,7 +308,7 @@ server.registerTool('confront', {
   const clash = S.claim[a] === S.claim[b] && c.truth[a][c.crimeT] !== c.truth[b][c.crimeT];
 
   if (!clash) {
-    const body = `You put ${nameOf(b)}'s account to ${nameOf(a)}. "I don't see the problem," they say. "We weren't anywhere near each other."\n\n**Nothing in it.** ${S.left} pressing${S.left === 1 ? '' : 's'} left.`;
+    const body = `You put ${nameOf(b)}'s account to ${nameOf(a)}. "I don't see the problem," they say. "We weren't anywhere near each other."\n\n**Nothing in it.** ${S.left} challenge${S.left === 1 ? '' : 's'} left.`;
     S.log.push({ kind: 'dud', text: body });
     persist();
     return text(body + HOUSE);
@@ -325,7 +329,7 @@ server.registerTool('confront', {
       `A pause. "…All right. I wasn't in the ${place(broken)}. I was in the ${place(next)}."\n\n` +
       (cornered
         ? `**That is the room it happened in.** ${nameOf(liar)} has run out of rooms.`
-        : `**Their story has changed.** ${S.left} pressing${S.left === 1 ? '' : 's'} left.`);
+        : `**Their story has changed.** ${S.left} challenge${S.left === 1 ? '' : 's'} left.`);
     S.log.push({ kind: 'recant', text: body });
     persist();
     return text(body + HOUSE);
@@ -339,13 +343,13 @@ server.registerTool('confront', {
       `You put it to ${nameOf(slip.who)} that the ${place(slip.says)} was already spoken for. ` +
       `They frown, then their face clears.\n\n` +
       `"No — sorry. The ${place(slip.says)} was ${TIMES[slip.fromSlot]}. At ${TIMES[c.crimeT]} I was in the ${place(slip.reallyAt)}."\n\n` +
-      `**That thread is closed.** ${S.left} pressing${S.left === 1 ? '' : 's'} left.`;
+      `**That thread is closed.** ${S.left} challenge${S.left === 1 ? '' : 's'} left.`;
     S.log.push({ kind: 'corrected', text: body });
     persist();
     return text(body + HOUSE);
   }
 
-  const body = `Both of them hold firm, and neither budges.\n\n**Nothing in it.** ${S.left} pressing${S.left === 1 ? '' : 's'} left.`;
+  const body = `Both of them hold firm, and neither budges.\n\n**Nothing in it.** ${S.left} challenge${S.left === 1 ? '' : 's'} left.`;
   S.log.push({ kind: 'dud', text: body });
   persist();
   return text(body + HOUSE);
@@ -362,13 +366,13 @@ function caseFileBody() {
     `**Where everyone says they were at ${TIMES[c.crimeT]}:**`,
     ...rows,
     '',
-    `Pressings left: **${S.left}**`,
+    `Challenges left: **${S.left}**`,
   ].join('\n');
 }
 
 server.registerTool('case_file', {
   title: 'Review the case',
-  description: 'Where every account currently stands, who has changed their story, and how many pressings remain. Free.',
+  description: 'Where every account currently stands, who has changed their story, and how many challenges remain. Free.',
   inputSchema: {},
 }, async () => {
   const g = needCase(); if (g) return g;
@@ -409,7 +413,7 @@ server.registerTool('accuse', {
   return text([
     head, '', lede, '', grid, '',
     `**What was true:** ${nameOf(c.culprit)} was in the ${place(c.crimeP)} at ${TIMES[c.crimeT]}, and said the ${place(c.alibis[0])}.`,
-    mistakes ? `**The honest mistakes:** ${mistakes}. Pressing them was never going to lead anywhere.` : '',
+    mistakes ? `**The honest mistakes:** ${mistakes}. Challenging them was never going to lead anywhere.` : '',
     `**The way through:** ${path}.`,
     '', `${S.label} · a Game Shelf original · gameshelf.co/recant`,
   ].filter(Boolean).join('\n'));

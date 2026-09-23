@@ -50,8 +50,11 @@ if (!m) {
   for (let d = 1; d <= 1500; d++) {
     const seed = (d * 7919) >>> 0;
     const scen = mine.SCENARIOS[seed % mine.SCENARIOS.length];
-    const a = theirs.generate(seed, scen, 3, 2);
-    const b = mine.generate(seed, scen, 3, 2);
+    // DEFAULTS on both sides. The daily path calls generate() with no chain or
+    // slips argument; passing explicit values here would hide a drift in a
+    // default, which is exactly what changing the chain length risks.
+    const a = theirs.generate(seed, scen);
+    const b = mine.generate(seed, scen);
     if (!a && !b) continue;
     made++;
     const norm = (c) => c && JSON.stringify({
@@ -65,8 +68,8 @@ if (!m) {
      diverged ? `${diverged} diverged, first at seed ${firstBad}` : '');
 
   // the parity check must be capable of failing
-  const sabotaged = theirs.generate(7919, mine.SCENARIOS[0], 4, 2);
-  const straight = mine.generate(7919, mine.SCENARIOS[0], 3, 2);
+  const sabotaged = theirs.generate(7919, mine.SCENARIOS[0], 3, 2);
+  const straight = mine.generate(7919, mine.SCENARIOS[0]);
   ok('parity check has teeth (different params => different case)',
      JSON.stringify(sabotaged?.alibis) !== JSON.stringify(straight?.alibis));
 }
@@ -87,7 +90,7 @@ console.log('\n1b. golden cases — the cross-RUNTIME guard');
     const [seedS, crimeP, crimeT, culprit, claim, alibis, breakers] = line.split('|');
     const seed = Number(seedS);
     const scen = mine.SCENARIOS[seed % mine.SCENARIOS.length];
-    const c = mine.generate(seed, scen, 3, 2);
+    const c = mine.generate(seed, scen);
     const got = c ? [c.crimeP, c.crimeT, c.culprit, c.claim.join(''), c.alibis.join(''), c.breakers.join('')].join('|') : 'null';
     const want = [crimeP, crimeT, culprit, claim, alibis, breakers].join('|');
     if (got !== want) { bad++; if (firstBad === null) firstBad = `${seed}: got ${got}, want ${want}`; }
@@ -142,6 +145,61 @@ console.log('\n2. case invariants');
 }
 
 // ---------------------------------------------------------------------------
+console.log('\n2b. the decision, and who wins it');
+// The six-witness fix made the game playable and then fully deterministic:
+// nobody was left alone to mix up the time, so "ask everyone, then challenge
+// the room where everyone says alone" proved 100% of cases. These pin the fix:
+// asking must leave two rooms that look the same, the clue that separates them
+// must be clean, and the three ways of playing must land at three levels.
+{
+  let n = 0, oneSuspicious = 0, dirtyTell = 0;
+  const won = { noAsk: 0, guess: 0, read: 0 };
+  for (let d = 1; d <= 3000; d++) {
+    const c = mine.dailyCase(`ladder-${d}`);
+    if (!c) continue;
+    n++;
+    const T = c.crimeT;
+    const comp = (claim, w) => claim[w] === c.truth[w][T]
+      ? c.truth.map((_, o) => o).filter((o) => o !== w && c.truth[o][T] === c.truth[w][T]) : [];
+    const tell = (claim, w) => c.truth[w][T - 1] === claim[w] || c.truth[w][T + 1] === claim[w];
+
+    const by = {};
+    c.claim.forEach((p, w) => { (by[p] = by[p] || []).push(w); });
+    const suspicious = Object.values(by).filter((v) => v.length > 1 && v.every((w) => comp(c.claim, w).length === 0));
+    if (suspicious.length < 2) oneSuspicious++;
+    const slipIds = new Set(c.slips.map((x) => x.who));
+    for (const v of suspicious) for (const w of v) if (!slipIds.has(w) && tell(c.claim, w)) dirtyTell++;
+
+    for (const style of ['noAsk', 'guess', 'read']) {
+      const claim = c.claim.slice(); let stage = 0, left = mine.PRESSINGS;
+      // seeded per case so the test is reproducible
+      let r = (d * 2654435761) >>> 0; const rand = () => ((r = (r * 1103515245 + 12345) >>> 0) / 4294967296);
+      while (left > 0 && stage < c.alibis.length) {
+        const rooms0 = {}; claim.forEach((p, w) => { (rooms0[p] = rooms0[p] || []).push(w); });
+        let rooms = Object.values(rooms0).filter((v) => v.length > 1);
+        if (style !== 'noAsk') rooms = rooms.filter((v) => v.every((w) => comp(claim, w).length === 0));
+        if (style === 'read') { const clean = rooms.filter((v) => !v.some((w) => tell(claim, w))); if (clean.length) rooms = clean; }
+        if (!rooms.length) break;
+        const room = rooms[Math.floor(rand() * rooms.length)]; left--;
+        if (room.includes(c.culprit) && claim[c.culprit] === c.alibis[stage]) {
+          stage++; claim[c.culprit] = stage < c.alibis.length ? c.alibis[stage] : c.crimeP;
+        } else {
+          const sl = c.slips.find((x) => room.includes(x.who) && claim[x.who] === x.says);
+          if (sl) claim[sl.who] = sl.reallyAt;
+        }
+      }
+      if (stage >= c.alibis.length) won[style]++;
+    }
+  }
+  const pct = (x) => Math.round(100 * x / n);
+  ok('asking always leaves two rooms that look the same', oneSuspicious === 0, `${oneSuspicious} bad`);
+  ok('the half-hour clue never points at the wrong person', dirtyTell === 0, `${dirtyTell} bad`);
+  ok(`reading the accounts always proves it (${pct(won.read)}%)`, won.read === n);
+  ok(`asking and guessing proves it about half the time (${pct(won.guess)}%)`, pct(won.guess) >= 35 && pct(won.guess) <= 65);
+  ok(`never asking does worse still (${pct(won.noAsk)}%)`, won.noAsk < won.guess);
+}
+
+// ---------------------------------------------------------------------------
 console.log('\n3. end to end over MCP stdio');
 
 // isolate: a saved game from a previous run would otherwise be restored and
@@ -166,7 +224,7 @@ const call = async (name, args = {}) => {
 
 // Work out the truth independently so the test can play correctly. The SERVER
 // never tells us; we recompute from the same daily key.
-const truthCase = mine.dailyCase(mine.todayKey(), 3);
+const truthCase = mine.dailyCase(mine.todayKey());
 const cast = truthCase.scen.cast;
 const culprit = cast[truthCase.culprit];
 const chain = truthCase.alibis.map((a) => truthCase.scen.places[a]);
@@ -181,17 +239,30 @@ const q = await call('ask_witness', { witness: cast[0], about: 'where_they_were'
 leak.push(q);
 ok('asking a witness is free', (await call('case_file')).includes(`**${mine.PRESSINGS}**`));
 
-// a deliberately wasted pressing: two people whose claims do not clash
-let dudPair = null;
-for (let a = 0; a < 5 && !dudPair; a++) {
-  for (let b = a + 1; b < 5; b++) {
-    if (truthCase.claim[a] !== truthCase.claim[b]) { dudPair = [cast[a], cast[b]]; break; }
+// A deliberately wasted challenge, in its OWN session: with two challenges and
+// a two-step chain, wasting one here would leave too few to finish below.
+{
+  const dudState = mkdtempSync(join(tmpdir(), 'recant-dud-'));
+  const td = new StdioClientTransport({
+    command: process.execPath, args: [join(here, 'server.mjs')],
+    env: { ...process.env, RECANT_STATE_DIR: dudState },
+  });
+  const cd = new Client({ name: 'recant-dud', version: '1.0.0' });
+  await cd.connect(td);
+  const dcall = async (name, args = {}) => (await cd.callTool({ name, arguments: args })).content.map((x) => x.text).join('\n');
+  await dcall('open_case');
+  let dudPair = null;
+  for (let a = 0; a < cast.length && !dudPair; a++) {
+    for (let b = a + 1; b < cast.length; b++) {
+      if (truthCase.claim[a] !== truthCase.claim[b]) { dudPair = [cast[a], cast[b]]; break; }
+    }
   }
+  const dud = await dcall('confront', { witness: dudPair[0], with_account_of: dudPair[1] });
+  leak.push(dud);
+  ok('a challenge with no clash is wasted', /Nothing in it/.test(dud));
+  ok('and it costs one', (await dcall('case_file')).includes(`**${mine.PRESSINGS - 1}**`));
+  await cd.close();
 }
-const dud = await call('confront', { witness: dudPair[0], with_account_of: dudPair[1] });
-leak.push(dud);
-ok('a pressing with no clash is wasted', /Nothing in it/.test(dud));
-ok('and it costs one', (await call('case_file')).includes(`**${mine.PRESSINGS - 1}**`));
 
 // now walk the chain
 let cornered = false;
@@ -214,7 +285,7 @@ ok('debrief names the real culprit', verdict.includes(culprit));
 ok('debrief shows the way through', verdict.includes('The way through'));
 
 const after = await call('confront', { witness: cast[0], with_account_of: cast[1] });
-ok('case is closed to further pressings', /closed/i.test(after));
+ok('case is closed to further challenges', /closed/i.test(after));
 
 // 4. progress must survive a restart, or there is no daily game -- an MCP
 //    client spawns the server per conversation, so this happens constantly.

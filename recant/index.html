@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<meta name="version" content="1.2.0">
+<meta name="version" content="1.3.0">
 <meta name="gs-app-id" content="recant">
 <title>Recant - Daily Interrogation</title>
 <meta name="description" content="Six people, five rooms, one of them lying about where they were. Ask who was together, challenge the room where the stories don't fit, and follow the liar until they run out of rooms.">
@@ -181,6 +181,13 @@ footer{
 .aside{margin:0 0 8px;font-size:14px;line-height:1.5;color:var(--ink-2)}
 .hist{margin:12px 0 0;font-size:14px;color:var(--accent)}
 .cagey{font-style:italic;margin-top:12px}
+.tl{margin:6px 0 4px;border-left:2px solid var(--rule);padding-left:12px}
+.tl div{display:flex;align-items:baseline;gap:10px;padding:4px 0;font-size:14.5px}
+.tl span{flex:0 0 76px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-2)}
+.tl b{font-weight:500}
+.tl .now b{font-weight:600}
+.tl i{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--accent);margin-left:auto}
 .pick{
   width:100%;display:flex;align-items:baseline;gap:10px;padding:12px 13px;margin-bottom:8px;
   background:var(--card);border:1px solid var(--card-edge);border-radius:10px;
@@ -263,10 +270,10 @@ footer{
   <ol class="steps">
     <li><b>Look for a room with two names in it.</b> Two people can&rsquo;t both have been alone in the same room &mdash; unless they were really in there together.</li>
     <li><b>Tap a name to ask who else was there.</b> People who really were together will name each other. Asking is free.</li>
-    <li><b>Challenge a room where the stories don&rsquo;t fit.</b> The liar will change their story to a new room. Follow them until they run out of rooms.</li>
+    <li><b>Challenge a room where the stories don&rsquo;t fit.</b> Careful: not every wrong story is a lie &mdash; some people just have the time wrong. Read what they say. The liar will change their story to a new room; follow them until they run out.</li>
     <li><b>Then accuse them.</b> If you chased their story all the way, you&rsquo;ve <b>proved</b> it. Accuse without that and you only <b>guessed</b>.</li>
   </ol>
-  <p class="note">You have four challenges. Everyone here has something small they&rsquo;d rather not talk about &mdash; only one of them is lying about where they were.</p>
+  <p class="note">You have two challenges, and cornering the liar takes both &mdash; so choose carefully. Everyone here has something small they&rsquo;d rather not talk about; only one of them is lying about where they were.</p>
   <div class="tally">
     <div><span>Played</span><b id="t-played">0</b></div>
     <div><span>Proved</span><b id="t-proved">0</b></div>
@@ -410,7 +417,7 @@ function shuffle(a, rand){
 }
 
 function generate(seed, scen, chain, slips){
-  chain = chain || 3; slips = slips || 2;
+  chain = chain || 2; slips = slips || 2;
   var rand = rng(seed);
   var W = scen.cast.length, P = scen.places.length, T = TIMES.length;
   for (var attempt=0; attempt<900; attempt++){
@@ -535,6 +542,39 @@ function verify(c){
       if (c.truth[v[a2]][c.crimeT]===c.truth[v[b2]][c.crimeT]) hasGenuine=true;
   }
   if (!hasGenuine) return false;
+
+  // THE DECISION. Asking must not settle which room to challenge. Someone
+  // "looks alone" when they name nobody -- the liar, anyone genuinely alone,
+  // and anyone who has the time wrong. A SUSPICIOUS room is two or more names,
+  // all of whom look alone. There must be at least two: one hiding the liar,
+  // one hiding an honest mix-up. With only one, "challenge the room where
+  // everyone says alone" solved 100% of cases.
+  var looksAlone=function(w){
+    if (c.claim[w]!==c.truth[w][c.crimeT]) return true;
+    for (var o=0;o<c.W;o++) if (o!==w && c.truth[o][c.crimeT]===c.truth[w][c.crimeT]) return false;
+    return true;
+  };
+  var suspicious=[], liarInOne=false;
+  for (g=0; g<shared.length; g++){
+    var allAlone=true;
+    for (var q=0;q<shared[g].length;q++) if (!looksAlone(shared[g][q])) allAlone=false;
+    if (allAlone){ suspicious.push(shared[g]); if (shared[g].indexOf(c.culprit)>=0) liarInOne=true; }
+  }
+  if (suspicious.length < 2 || !liarInOne) return false;
+
+  // THE TELL, kept clean so careful reading always wins. An honest mix-up is
+  // off by half an hour, so their own account puts them in the room they claim
+  // just before or just after. Nobody else in a suspicious room may say the
+  // same, or the clue would point at the wrong person.
+  var slipIds={};
+  for (i=0;i<c.slips.length;i++) slipIds[c.slips[i].who]=1;
+  for (g=0; g<suspicious.length; g++){
+    for (q=0; q<suspicious[g].length; q++){
+      var sw=suspicious[g][q];
+      if (slipIds[sw]) continue;
+      if (c.truth[sw][c.crimeT-1]===c.claim[sw] || c.truth[sw][c.crimeT+1]===c.claim[sw]) return false;
+    }
+  }
   return true;
 }
 
@@ -549,7 +589,7 @@ function verify(c){
    answer stays on the name; challenging a room spends one of four.
    ============================================================ */
 
-var CHALLENGES = 4;
+var CHALLENGES = 2;
 // v1 saves hold five-person cases. Restoring one into a six-person case
 // would leave a witness with no claim, so the key moves and the shape is
 // checked on the way in.
@@ -618,6 +658,20 @@ function companions(w){
 }
 
 function anyAsked(){ for (var k in asked) return true; return false; }
+// Rooms the player has ALREADY found to be suspicious: two or more names, every
+// one of them asked, every one of them alone. Only counts what they have seen.
+function knownSuspicious(){
+  var n=0, byRoom={};
+  for (var w=0; w<c.W; w++) (byRoom[claim[w]]=byRoom[claim[w]]||[]).push(w);
+  for (var k in byRoom){
+    var v=byRoom[k];
+    if (v.length<2) continue;
+    var ok=true;
+    for (var i=0;i<v.length;i++) if (!asked[v[i]] || companions(v[i]).length) ok=false;
+    if (ok) n++;
+  }
+  return n;
+}
 
 // One line that says what just happened and where to look. It explains what
 // things MEAN; it never says which room to challenge.
@@ -636,6 +690,8 @@ function coach(){
     return 'They really were together, so that challenge is gone. <b>Look at the others.</b>';
   if (!anyAsked())
     return 'Two names in one room means one story is wrong &mdash; unless they were in there together. <b>Tap a name to ask who else was there.</b>';
+  if (knownSuspicious()>=2)
+    return 'Two rooms don&rsquo;t add up. One hides the liar; the other, someone who has the time wrong. <b>Read what they say before you challenge.</b>';
   return 'Challenge a room where the stories don&rsquo;t fit. You have '+left+' challenge'+(left===1?'':'s')+'.';
 }
 
@@ -724,10 +780,14 @@ function openPerson(w){
   var after  = c.crimeT<c.T-1 ? c.truth[w][c.crimeT+1] : null;
   var h='<h3>'+nameOf(w)+'</h3>';
   h+='<p class="say">&ldquo;At '+TIMES[c.crimeT]+' I was in the '+place(claim[w])+'.&rdquo;</p>';
-  var bits=[];
-  if (before!==null) bits.push('Before that, the '+place(before)+'.');
-  if (after!==null) bits.push('After, the '+place(after)+'.');
-  if (bits.length) h+='<p class="aside">'+bits.join(' ')+'</p>';
+  // Their evening as a timeline. Someone who has the time wrong was in the room
+  // they claim half an hour before or after -- as a sentence that hides in the
+  // prose; as a timeline it is there for anyone who reads.
+  h+='<div class="tl">';
+  if (before!==null) h+='<div><span>'+TIMES[c.crimeT-1]+'</span><b>the '+place(before)+'</b></div>';
+  h+='<div class="now"><span>'+TIMES[c.crimeT]+'</span><b>the '+place(claim[w])+'</b><i>what they say</i></div>';
+  if (after!==null) h+='<div><span>'+TIMES[c.crimeT+1]+'</span><b>the '+place(after)+'</b></div>';
+  h+='</div>';
   h+='<p class="q">Who else was there?</p>';
   h+='<p class="say">'+(comp.length
       ? '&ldquo;'+listNames(comp)+' '+(comp.length>1?'were':'was')+' in there with me.&rdquo;'
@@ -848,8 +908,9 @@ function showEnd(){
   var t='<p class="note"><b>What really happened:</b> '+nameOf(c.culprit)+' was in the '+place(c.crimeP)+
         ' at '+TIMES[c.crimeT]+', and said the '+place(c.alibis[0])+'.</p>';
   if (c.slips.length){
-    t+='<p class="note"><b>The honest mistakes:</b> '+c.slips.map(function(s){
-      return nameOf(s.who)+' had the '+place(s.says)+' half an hour out';
+    t+='<p class="note"><b>The honest mistake:</b> '+c.slips.map(function(s){
+      return nameOf(s.who)+' really was in the '+place(s.says)+' &mdash; at '+TIMES[s.fromSlot]+', not '+TIMES[c.crimeT]+
+             '. Their own timeline showed it: the same room twice in a row';
     }).join('; ')+'.</p>';
   }
   t+='<p class="note"><b>The way through:</b> challenge the '+c.alibis.map(function(a, i){

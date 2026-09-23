@@ -2,8 +2,8 @@
 
 Today's Recant case, playable by talking instead of tapping.
 
-Five people were on shift. One of them is lying about where they were. You get
-four pressings: put one person's account to another and see who gives way. An
+Six people were in the building. One of them is lying about where they were. You
+get two challenges: put two people's stories to each other and see who gives way. An
 honest witness who simply misremembered corrects themselves and that thread
 closes. The liar recants, and a new conflict opens. Corner them and you have
 **proved** it; name them without that and you only **guessed**.
@@ -43,10 +43,10 @@ Then just say **"open today's case"**.
 
 | tool | costs | what it does |
 |---|---|---|
-| `open_case` | — | Opens today's case, or resumes it. `practice: true` for a random one, `harder: true` for a longer chain. |
+| `open_case` | — | Opens today's case, or resumes it. `practice: true` for a random one that doesn't save. |
 | `ask_witness` | free | Their movements, who they saw, what they say about someone else, or the incident. Ask as much as you like. |
-| `confront` | **1 pressing** | Put one account to another. If the two don't actually clash, the pressing is wasted. |
-| `case_file` | free | Where every account currently stands and how many pressings are left. |
+| `confront` | **1 challenge** | Put one account to another. If the two don't actually clash, the challenge is wasted. |
+| `case_file` | free | Where every account currently stands and how many challenges are left. |
 | `accuse` | ends it | Name them. Full debrief, including what the honest mistakes were and the route through. |
 
 ## Why it is built this way
@@ -65,8 +65,8 @@ working. Here the model cannot leak what it was never given.
 
 There is one honest asymmetry with the web version. In a browser the interface is
 neutral. Here the narrator is the player's own assistant, and it will try to help
-them — it can reason about the case, and with five suspects it may well crack it.
-That is why `harder: true` exists. It cannot *know*, though: nothing in any tool
+them — it can reason about the case, and if it reads every account it may well
+spot the honest mix-up for you. It cannot *know*, though: nothing in any tool
 result contains the answer until the accusation. Treat it as a partner who talks
 too much rather than a referee.
 
@@ -87,6 +87,12 @@ Three groups:
 2. **Invariants.** 2,000 daily keys all produce a case; the culprit is never the
    only lead on the opening board; every alibi has a breaker who was genuinely
    alone in that room.
-3. **End to end** over real MCP stdio: a wasted pressing costs one, the chain
+2b. **The decision.** Asking must leave two rooms that look identical — one hiding
+   the liar, one an honest witness with the time wrong — and the clue between them
+   (the mix-up's own timeline shows the same room twice) must never point at the
+   wrong person. Pinned as outcomes: reading the accounts proves 100%, asking and
+   guessing ~50%, never asking ~16%. Verified to fail with either guard removed
+   (guessing jumps to 92%; reading drops to 70%).
+3. **End to end** over real MCP stdio: a wasted challenge costs one, the chain
    corners the liar, the case closes after an accusation — and **no result leaks
    the answer before the accusation**.

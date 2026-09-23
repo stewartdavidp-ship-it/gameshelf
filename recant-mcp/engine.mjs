@@ -17,7 +17,7 @@
 // the first pressing.
 
 export const TIMES = ['half eight', 'nine', 'half nine', 'ten', 'half ten'];
-export const PRESSINGS = 4;
+export const PRESSINGS = 2;
 
 export function rng(seed) {
   let a = seed >>> 0;
@@ -93,7 +93,7 @@ export function shuffle(a, rand) {
   return a;
 }
 
-export function generate(seed, scen, chain = 3, slips = 2) {
+export function generate(seed, scen, chain = 2, slips = 2) {
   const rand = rng(seed);
   const W = scen.cast.length, P = scen.places.length, T = TIMES.length;
 
@@ -217,6 +217,31 @@ export function verify(c) {
   const hasGenuine = shared.some((v) =>
     v.some((a, i) => v.some((b, j) => i < j && c.truth[a][c.crimeT] === c.truth[b][c.crimeT])));
   if (!hasGenuine) return false;
+
+  // THE DECISION. Asking must not settle which room to challenge. Someone
+  // "looks alone" when they name nobody -- the liar (not where they claim),
+  // anyone genuinely alone, and anyone who has the time wrong. A SUSPICIOUS
+  // room is two or more names, all of whom look alone. There must be at least
+  // two: one hiding the liar, one hiding an honest mix-up. With only one, a
+  // single rule -- "challenge the room where everyone says alone" -- solved
+  // 100% of cases.
+  const looksAlone = (w) => !(c.claim[w] === c.truth[w][c.crimeT] &&
+    c.truth.some((row, o) => o !== w && row[c.crimeT] === c.truth[w][c.crimeT]));
+  const suspicious = shared.filter((v) => v.every(looksAlone));
+  if (suspicious.length < 2) return false;
+  if (!suspicious.some((v) => v.includes(c.culprit))) return false;
+
+  // THE TELL, kept clean so careful reading always wins. An honest mix-up is
+  // off by half an hour, so their own account puts them in the room they claim
+  // either just before or just after. Nobody else in a suspicious room may say
+  // the same, or the clue would point at the wrong person.
+  const slipIds = new Set(c.slips.map((x) => x.who));
+  for (const v of suspicious) {
+    for (const w of v) {
+      if (slipIds.has(w)) continue;
+      if (c.truth[w][c.crimeT - 1] === c.claim[w] || c.truth[w][c.crimeT + 1] === c.claim[w]) return false;
+    }
+  }
   return true;
 }
 
@@ -242,7 +267,7 @@ export function seedFor(key) {
   return h >>> 0;
 }
 
-export function dailyCase(key = todayKey(), chain = 3) {
+export function dailyCase(key = todayKey(), chain = 2) {
   const seed = seedFor(key);
   const scen = SCENARIOS[seed % SCENARIOS.length];
   for (let bump = 0; bump < 40; bump++) {

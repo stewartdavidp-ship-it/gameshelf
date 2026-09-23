@@ -1,12 +1,12 @@
 /**
  * Recant PWA Service Worker
- * Version: 1.2.0
+ * Version: 1.3.0
  *
  * The page itself is NETWORK-FIRST. A stale-while-revalidate page always shows
  * the previous release — you only ever see version N-1 — which is exactly the
  * "my PWA never updates" symptom. Everything else stays cache-first.
  */
-const CACHE_VERSION = 'v1.2.0';
+const CACHE_VERSION = 'v1.3.0';
 const CACHE_NAME = `recant-pwa-${CACHE_VERSION}`;
 const CACHE_FILES = ['./', './index.html', './manifest.json'];
 
