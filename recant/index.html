@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<meta name="version" content="1.0.0">
+<meta name="version" content="1.0.1">
 <meta name="gs-app-id" content="recant">
 <title>Recant - Daily Interrogation</title>
 <meta name="description" content="Five witnesses, one of them lying. Put their accounts to each other and watch the story change. Four pressings a day.">
@@ -302,6 +302,10 @@ document.getElementById('v-num').textContent = VERSION;
    is the only loose thread on the board and the case ends on the
    first pressing.
    ============================================================ */
+/* >>> RECANT-ENGINE  (mirrored in recant-mcp/engine.mjs — `npm test` there
+       regenerates cases from BOTH copies and fails if they ever disagree,
+       because the phone and the chat version must not differ about who
+       did it on a given day. Edit both, or neither.) */
 var TIMES = ['half eight','nine','half nine','ten','half ten'];
 
 function rng(seed){
@@ -357,13 +361,13 @@ var SCENARIOS = [
 // is not itself a tell -- if only the guilty squirmed, manner would give the
 // case away and the logic would never have to do any work.
 var CAGEY = [
-  'was on the phone to someone they should not have been',
+  'were on the phone to someone they should not have been',
   'had been asleep for twenty minutes and would rather that did not come up',
-  'was three cigarettes into a shift they had promised to give up',
+  'were three cigarettes into a shift they had promised to give up',
   'had taken something small from the stores, and it was not this',
-  'was avoiding someone and took the long way round',
+  'were avoiding someone and took the long way round',
   'had been crying and did not want to be asked why',
-  'was reading a message they should have answered a week ago',
+  'were reading a message they should have answered a week ago',
   'had already clocked out and come back in'
 ];
 
@@ -472,6 +476,8 @@ function verify(c){
   if (Object.keys(inv).length < 3) return false;
   return true;
 }
+
+/* <<< RECANT-ENGINE */
 
 /* ============================================================ */
 
