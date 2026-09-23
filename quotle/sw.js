@@ -4,7 +4,7 @@
  *
  * ⚠️ IMPORTANT: CACHE_VERSION must match app version!
  */
-const CACHE_VERSION = 'v1.5.3';
+const CACHE_VERSION = 'v1.5.4';
 const CACHE_NAME = `quotle-pwa-${CACHE_VERSION}`;
 
 const CACHE_FILES = ['./', './index.html', './manifest.json'];
