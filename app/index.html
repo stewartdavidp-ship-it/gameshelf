@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.13.3">
+    <meta name="version" content="1.13.4">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -11466,7 +11466,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.13.3</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.13.4</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -19626,9 +19626,12 @@
         }
         
         // ============ WHAT'S NEW SYSTEM ============
-        const APP_VERSION = '1.13.3';
+        const APP_VERSION = '1.13.4';
 
         const RELEASE_NOTES = {
+            '1.13.4': [
+                { icon: '↩️', title: 'Come back where you left', desc: 'Returning from a game reopens the tab you were on instead of resetting to Home' }
+            ],
             '1.13.3': [
                 { icon: '📱', title: 'Games stay in the app', desc: 'Opening a Game Shelf original from your home-screen app no longer bounces you out to the browser' }
             ],
@@ -25366,6 +25369,11 @@
         function switchTab(tab) {
             // Track tab switch
             trackEvent('tab_switched', { tab });
+
+            // Launching a game is an in-window navigation, so coming back is a full
+            // page load. Remember the tab so the return reads as a resume rather
+            // than a cold start on Home.
+            try { localStorage.setItem('gameshelf_last_tab', tab); } catch (e) {}
             
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`.nav-tab[data-tab="${tab}"]`).classList.add('active');
@@ -30330,6 +30338,15 @@
             // Update header version badge to match APP_VERSION
             const versionBadge = document.getElementById('header-version-badge');
             if (versionBadge) versionBadge.textContent = 'v' + APP_VERSION;
+
+            // Restore the tab you left from, so returning from a game resumes
+            // instead of dropping you back on Home.
+            try {
+                const lastTab = localStorage.getItem('gameshelf_last_tab');
+                if (lastTab && lastTab !== 'home' && document.getElementById('screen-' + lastTab)) {
+                    requestAnimationFrame(() => { try { switchTab(lastTab); } catch (e) {} });
+                }
+            } catch (e) {}
             
             loadData();
             
@@ -30545,7 +30562,7 @@
             // v1.10.0: Start day-change detection interval
             startDayCheckInterval();
             
-            console.log('🧩 Game Shelf PWA v1.13.3 initialized');
+            console.log('🧩 Game Shelf PWA v1.13.4 initialized');
             console.log('🌅 Day-change engine active. Current day:', _lastKnownDay);
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());
