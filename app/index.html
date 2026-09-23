@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.13.4">
+    <meta name="version" content="1.14.0">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -11466,7 +11466,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.13.4</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.14.0</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -19626,9 +19626,12 @@
         }
         
         // ============ WHAT'S NEW SYSTEM ============
-        const APP_VERSION = '1.13.4';
+        const APP_VERSION = '1.14.0';
 
         const RELEASE_NOTES = {
+            '1.14.0': [
+                { icon: '📚', title: 'The catalog moved out of the app', desc: 'Games now live in a data file the app loads, so the catalog can grow without shipping a new version' }
+            ],
             '1.13.4': [
                 { icon: '↩️', title: 'Come back where you left', desc: 'Returning from a game reopens the tab you were on instead of resetting to Home' }
             ],
@@ -30334,6 +30337,50 @@
         
         
         // ============ INIT ============
+        // ============ CATALOG ============
+        // The built-in GAMES object is now only a fallback. The catalog lives in
+        // catalog.json so it can grow without editing this file — which is what
+        // makes "new since your last visit" possible at all.
+        let catalogMeta = { schemaVersion: 0, generatedAt: null, loaded: false };
+
+        async function loadCatalog() {
+            try {
+                const res = await fetch('catalog.json', { cache: 'no-cache' });
+                if (!res.ok) return false;
+                const data = await res.json();
+                if (!data || !Array.isArray(data.games) || !data.games.length) return false;
+
+                let added = 0, updated = 0;
+                data.games.forEach(g => {
+                    if (!g.id || !g.name || !g.url) return;   // schema gate
+                    if (GAMES[g.id]) { Object.assign(GAMES[g.id], g); updated++; }
+                    else { GAMES[g.id] = g; added++; }
+                });
+                catalogMeta = { schemaVersion: data.schemaVersion, generatedAt: data.generatedAt, loaded: true };
+                console.log(`📚 Catalog: ${data.games.length} games (${added} new to this build, ${updated} updated)`);
+                return true;
+            } catch (e) {
+                console.log('📚 Catalog unavailable, using built-in list:', e.message);
+                return false;
+            }
+        }
+
+        // What the discovery screen will need: totals, and what is new to YOU.
+        function catalogStats() {
+            const all = Object.values(GAMES);
+            const onShelf = new Set((appData.games || []).map(g => g.id));
+            let lastVisit = null;
+            try { lastVisit = localStorage.getItem('gameshelf_last_visit'); } catch (e) {}
+            const newSince = lastVisit
+                ? all.filter(g => g.addedAt && g.addedAt > lastVisit).length
+                : 0;
+            return { total: all.length, onShelf: onShelf.size, newSinceLastVisit: newSince, lastVisit };
+        }
+
+        function markVisited() {
+            try { localStorage.setItem('gameshelf_last_visit', new Date().toISOString()); } catch (e) {}
+        }
+
         function init() {
             // Update header version badge to match APP_VERSION
             const versionBadge = document.getElementById('header-version-badge');
@@ -30349,7 +30396,12 @@
             } catch (e) {}
             
             loadData();
-            
+
+            // Catalog first, so the first render already knows every game.
+            // Deliberately not awaited: a slow or missing catalog must never
+            // block the app from starting on the built-in list.
+            loadCatalog().then(ok => { if (ok && typeof renderAll === 'function') renderAll(); });
+
             // v1.10.0: Initialize timezone tracking (needs appData loaded first)
             initTimezone();
             
@@ -30562,7 +30614,7 @@
             // v1.10.0: Start day-change detection interval
             startDayCheckInterval();
             
-            console.log('🧩 Game Shelf PWA v1.13.4 initialized');
+            console.log('🧩 Game Shelf PWA v1.14.0 initialized');
             console.log('🌅 Day-change engine active. Current day:', _lastKnownDay);
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());
