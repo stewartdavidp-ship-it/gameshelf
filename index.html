@@ -9,6 +9,14 @@
     <meta property="og:title" content="Game Shelf - Your Daily Puzzle Companion">
     <meta property="og:image" content="https://gameshelf.co/images/og-image.png">
     <meta name="theme-color" content="#667eea">
+
+    <!-- Installing from the marketing page must give you the APP, with the app's
+         icon. Without these, Add to Home Screen bookmarks THIS page and iOS
+         invents an icon from a screenshot. The manifest's start_url is /app/. -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <meta name="apple-mobile-web-app-title" content="Game Shelf">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800;900&family=Satoshi:wght@400;500;600;700&display=swap" rel="stylesheet">
