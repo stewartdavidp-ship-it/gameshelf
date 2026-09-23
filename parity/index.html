@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.0.5">
+    <meta name="version" content="1.0.6">
     <meta name="gs-app-id" content="parity">
     <title>Parity - Daily Puzzle</title>
     <meta name="description" content="Nine tiles, three rules. Odd tiles slide sideways, even tiles move up and down, and partners that sum to 10 trade places. A new board every day.">
@@ -361,7 +361,7 @@
         })();
         // ============ END GAME SHELF INTEGRATION ============
 
-    const VERSION = '1.0.5';
+    const VERSION = '1.0.6';
 (function(){
   "use strict";
   var GOAL=[1,2,3,4,5,6,7,8,9];
@@ -526,6 +526,7 @@
     btnSolve.disabled = !DIST || solved;
     btnSolve.classList.toggle("live", !!playing);
     btnSolve.classList.toggle("armed", !!solveArm && !playing);
+    if(DIST) persistGame();
     speedbar.hidden = !solveArm || !!playing;
     btnSolve.innerHTML = playing ? "<b>\u25a0</b>Stop"
                        : (solveArm ? "<b>\u2715</b>Cancel" : "<b>\u25b6</b>Solve");
@@ -533,6 +534,12 @@
 
   var solveSpeed=420;
   function disarmSolve(){ if(solveArm){ clearTimeout(solveArm); solveArm=null; } }
+
+  function persistGame(){
+    save.game = { state: state.slice(), history: history.slice(-80), moves: moves, par: par,
+                  isDaily: isDaily, easy: easyRules, day: todayKey(), solved: solved };
+    persist();
+  }
 
   function say(text,cls){ msg.textContent=text||""; msg.className="msg"+(cls?" "+cls:""); }
 
@@ -734,7 +741,18 @@
         solved = state.join("")===GOAL.join("");
         say(solved?"Solved.":"Tap a tile to begin."); render();
       } else {
-        newDaily();
+        var g = save.game;
+        if (g && g.state && g.state.length === 9 && !g.solved && g.easy === easyRules
+            && (!g.isDaily || g.day === todayKey())) {
+          state = g.state.slice(); history = g.history || []; moves = g.moves || 0;
+          par = g.par || DIST[rank(state)]; isDaily = !!g.isDaily; solved = false;
+          bestSeen = Infinity; bestState = null; counted = false;
+          modeChip.textContent = (easyRules?"Easy":"Hard")+" \u00b7 "+(isDaily ? DAY_NAMES[new Date().getDay()].slice(0,3) : "Free");
+          say("Picked up where you left off.");
+          render();
+        } else {
+          newDaily();
+        }
       }
     },40);
   }
@@ -750,7 +768,24 @@
     });
 
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); });
+        // controllerchange also fires on the very first install, when there is
+        // nothing stale to reload away from.
+        var hadController = !!navigator.serviceWorker.controller;
+        var reloading = false;
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+            if (!hadController || reloading) return;
+            reloading = true;
+            location.reload();
+        });
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('./sw.js').then(function (reg) {
+                // A home-screen PWA can sit suspended for days; ask on every reopen.
+                document.addEventListener('visibilitychange', function () {
+                    if (document.visibilityState === 'visible') reg.update();
+                });
+                setInterval(function () { reg.update(); }, 30 * 60 * 1000);
+            }).catch(function () {});
+        });
     }
 </script>
 </body>
