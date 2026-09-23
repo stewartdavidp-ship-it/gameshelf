@@ -17233,7 +17233,8 @@
             quotle: { id: 'quotle', name: 'Quotle', icon: '💬', url: 'https://gameshelf.co/quotle/', hasApp: false },
             slate: { id: 'slate', name: 'Slate', icon: '📝', url: 'https://gameshelf.co/slate/', hasApp: false },
             rungs: { id: 'rungs', name: 'Rungs', icon: '🪜', url: 'https://gameshelf.co/rungs/', hasApp: false },
-            wordboxing: { id: 'wordboxing', name: 'Word Boxing', icon: '🥊', url: 'https://gameshelf.co/wordboxing/', hasApp: false }
+            wordboxing: { id: 'wordboxing', name: 'Word Boxing', icon: '🥊', url: 'https://gameshelf.co/wordboxing/', hasApp: false },
+            parity: { id: 'parity', name: 'Parity', icon: '🔢', url: 'https://gameshelf.co/parity/', hasApp: false }
         };
         
         // Test URLs for GS Originals (used when Test Mode is enabled)
@@ -17241,7 +17242,8 @@
             quotle: 'https://stewartdavidp-ship-it.github.io/gameshelftest/quotle/',
             slate: 'https://stewartdavidp-ship-it.github.io/gameshelftest/slate/',
             rungs: 'https://stewartdavidp-ship-it.github.io/gameshelftest/rungs/',
-            wordboxing: 'https://stewartdavidp-ship-it.github.io/gameshelftest/wordboxing/'
+            wordboxing: 'https://stewartdavidp-ship-it.github.io/gameshelftest/wordboxing/',
+            parity: 'https://stewartdavidp-ship-it.github.io/gameshelftest/parity/'
         };
         
         // Production URLs for GS Originals (default) - gameshelf.co
@@ -17249,12 +17251,13 @@
             quotle: 'https://gameshelf.co/quotle/',
             slate: 'https://gameshelf.co/slate/',
             rungs: 'https://gameshelf.co/rungs/',
-            wordboxing: 'https://gameshelf.co/wordboxing/'
+            wordboxing: 'https://gameshelf.co/wordboxing/',
+            parity: 'https://gameshelf.co/parity/'
         };
         
         // Check if game is a GS Original
         function isGSOriginal(gameId) {
-            return ['quotle', 'slate', 'rungs', 'wordboxing'].includes(gameId);
+            return ['quotle', 'slate', 'rungs', 'wordboxing', 'parity'].includes(gameId);
         }
         
         // Get URL for game (respects test mode for GS Originals)
@@ -17303,7 +17306,7 @@
         };
         
         const DEFAULT_SHELF = ['wordle', 'connections', 'strands', 'mini', 'spelling-bee', 'worldle'];
-        const POPULAR_GAMES = ['quotle', 'slate', 'rungs', 'wordboxing', 'quordle', 'framed', 'queens', 'heardle', 'nerdle'];
+        const POPULAR_GAMES = ['quotle', 'slate', 'rungs', 'wordboxing', 'parity', 'quordle', 'framed', 'queens', 'heardle', 'nerdle'];
         
         // Quick games that can reasonably be completed in under 30 seconds
         // Used for game-aware time thresholds in confidence algorithm
@@ -17312,7 +17315,7 @@
         // Quick Start preset - NYT core + Game Shelf Originals (best auto-sync UX)
         const QUICK_START_GAMES = [
             'wordle', 'connections', 'strands',           // NYT Core
-            'quotle', 'slate', 'rungs', 'wordboxing'      // Game Shelf Originals
+            'quotle', 'slate', 'rungs', 'wordboxing', 'parity'   // Game Shelf Originals
         ];
         
         // Game categories for browse section
@@ -17327,7 +17330,7 @@
                 id: 'originals', 
                 name: 'Game Shelf Originals', 
                 icon: '🎮',
-                games: ['quotle', 'slate', 'rungs', 'wordboxing']
+                games: ['quotle', 'slate', 'rungs', 'wordboxing', 'parity']
             },
             { 
                 id: 'linkedin', 
@@ -18399,6 +18402,40 @@
                 }
             },
             {
+                id: 'parity',
+                // Matches: "🔢 Parity #12 · Hard" / "28 moves · par 28 🌟 perfect"
+                regex: /Parity\s*#?(\d+)?/i,
+                extract: (match, text) => {
+                    const puzzleNum = match[1];
+                    const movesMatch = text.match(/(\d+)\s*moves/i);
+                    const parMatch = text.match(/par\s*(\d+)/i);
+                    const hard = /hard/i.test(text);
+                    const perfect = text.includes('🌟') || /perfect/i.test(text);
+
+                    if (movesMatch && parMatch) {
+                        const moves = parseInt(movesMatch[1]);
+                        const par = parseInt(parMatch[1]);
+                        const over = Math.max(0, moves - par);
+                        return {
+                            gameId: 'parity',
+                            puzzleNumber: puzzleNum ? parseInt(puzzleNum) : null,
+                            score: perfect ? `${moves} 🌟` : `${moves} (+${over})`,
+                            won: true,
+                            // Scored against the board's own par, so Easy and Hard compare fairly
+                            numericScore: perfect ? 35 : Math.max(12, 30 - over * 2),
+                            meta: { moves, par, over, perfect, mode: hard ? 'hard' : 'easy' }
+                        };
+                    }
+                    return {
+                        gameId: 'parity',
+                        puzzleNumber: puzzleNum ? parseInt(puzzleNum) : null,
+                        score: 'Solved',
+                        won: true,
+                        numericScore: 15
+                    };
+                }
+            },
+            {
                 id: 'wordboxing',
                 // Matches: "Word Boxing" with win/loss indicators
                 regex: /Word\s*Boxing|🥊.*Boxing/i,
@@ -18862,7 +18899,8 @@
             quotle: ['semantle', 'contexto', 'redactle'],
             slate: ['wordle', 'waffle', 'strands'],
             rungs: ['wordle', 'dordle', 'quordle'],
-            wordboxing: ['wordle', 'quordle', 'slate']
+            wordboxing: ['wordle', 'quordle', 'slate'],
+            parity: ['queens', 'tango', 'zip']
         };
         
         function generateGameRecommendations() {
@@ -18975,7 +19013,7 @@
             });
             
             // 4. GAME SHELF ORIGINALS - If not playing any
-            const originalsOnShelf = ['quotle', 'slate', 'rungs', 'wordboxing'].filter(id => onShelf.has(id));
+            const originalsOnShelf = ['quotle', 'slate', 'rungs', 'wordboxing', 'parity'].filter(id => onShelf.has(id));
             if (originalsOnShelf.length === 0) {
                 // Recommend Quotle first
                 if (!recommendations.find(r => r.id === 'quotle')) {
@@ -20704,7 +20742,7 @@
         
         // ============ GAME SHELF GAMES SYNC ============
         // Sync results from Game Shelf games (Quotle, Slate, Rungs, Word Boxing)
-        const GAMESHELF_GAME_IDS = ['quotle', 'slate', 'rungs', 'wordboxing'];
+        const GAMESHELF_GAME_IDS = ['quotle', 'slate', 'rungs', 'wordboxing', 'parity'];
         
         function syncGameShelfGames() {
             const today = getTodayString();
@@ -20773,6 +20811,13 @@
                     
                 case 'wordboxing':
                     return result.won ? 25 : 10;
+                    
+                case 'parity':
+                    // Scored against the board's own par, so Easy and Hard compare fairly
+                    if (!result.won) return 0;
+                    if (result.perfect) return 35;
+                    const over = Math.max(0, (result.score ?? 0) - (result.meta?.par ?? result.score ?? 0));
+                    return Math.max(12, 30 - over * 2);
                     
                 default:
                     return result.won ? 15 : 5;
@@ -29237,7 +29282,7 @@
         
         const BATTLE_GAME_CATEGORIES = {
             'NYT Games': ['wordle', 'connections', 'strands', 'mini', 'spelling-bee', 'letterboxed'],
-            'Game Shelf Originals': ['quotle', 'slate', 'rungs', 'wordboxing'],
+            'Game Shelf Originals': ['quotle', 'slate', 'rungs', 'wordboxing', 'parity'],
             'LinkedIn': ['queens', 'tango', 'pinpoint', 'crossclimb', 'zip'],
             'Word Games': ['quordle', 'octordle', 'waffle', 'dordle', 'nerdle', 'semantle', 'contexto', 'redactle'],
             'Geography': ['worldle', 'globle', 'tradle', 'wheretaken', 'travle', 'foodguessr'],
@@ -37355,7 +37400,8 @@ Hint levels:
             'quotle': ['quotle'],
             'slate': ['slate'],
             'rungs': ['rungs'],
-            'wordboxing': ['word boxing', 'wordboxing']
+            'wordboxing': ['word boxing', 'wordboxing'],
+            'parity': ['parity']
         };
         
         // Universal stats patterns - work across all games

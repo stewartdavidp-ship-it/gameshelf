@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.0.1">
+    <meta name="version" content="1.0.2">
     <meta name="gs-app-id" content="parity">
     <title>Parity - Daily Puzzle</title>
     <meta name="description" content="Nine tiles, three rules. Odd tiles slide sideways, even tiles move up and down, and partners that sum to 10 trade places. A new board every day.">
@@ -112,6 +112,25 @@
   .dock button:disabled{opacity:.36}
   .dock button.live{border-color:var(--accent); color:var(--accent)}
 
+  /* ---- end-of-game panel ---- */
+  .result{
+    border:1px solid var(--ok); border-radius:4px; background:var(--ok-tint);
+    padding:14px 16px 16px; margin-bottom:12px; display:grid; gap:2px;
+    animation:rise .32s cubic-bezier(.2,.7,.3,1) both;
+  }
+  .result .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em;
+                   text-transform:uppercase; color:var(--ink-2)}
+  .result h2{font-family:"Zilla Slab",Georgia,serif; font-weight:700; font-size:27px; line-height:1.05;
+             margin:2px 0 0; color:var(--ok)}
+  .result .detail{font-size:13.5px; color:var(--ink-2); margin:0 0 11px; font-variant-numeric:tabular-nums}
+  .result .detail b{color:var(--ink); font-weight:600}
+  .result .btns{display:grid; grid-template-columns:1fr auto; gap:8px}
+  .result button{appearance:none; font:inherit; font-size:14px; font-weight:600; cursor:pointer;
+                 padding:12px 14px; border-radius:3px; border:1px solid var(--ok); background:transparent; color:var(--ok)}
+  .result button.primary{background:var(--ok); color:var(--paper-2); border-color:var(--ok)}
+  @keyframes rise{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+  @media (prefers-reduced-motion: reduce){ .result{animation:none} }
+
   /* ---- sheet ---- */
   .scrim{position:fixed; inset:0; background:var(--scrim); z-index:9}
   .sheet{
@@ -146,7 +165,6 @@
   .rule-item .tag{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); padding-top:3px}
   .rule-item p{margin:0}
   .note{font-size:12.5px; color:var(--ink-2); margin:12px 0 0}
-  .share-row{display:grid; padding-bottom:8px}
 </style>
 </head>
 <body>
@@ -166,9 +184,15 @@
   <main class="stage"><div class="board" id="board" role="grid" aria-label="Puzzle grid"></div></main>
   <p class="msg" id="msg" role="status" aria-live="polite">Preparing every board&hellip;</p>
 
-  <div class="share-row" id="share-row" hidden>
-    <button class="act primary" id="btn-share" style="margin:0">Share result</button>
-  </div>
+  <section class="result" id="result" hidden aria-live="polite">
+    <span class="eyebrow" id="res-eyebrow"></span>
+    <h2 id="res-head"></h2>
+    <p class="detail" id="res-detail"></p>
+    <div class="btns">
+      <button class="primary" id="btn-share">Share result</button>
+      <button id="btn-dismiss">Board</button>
+    </div>
+  </section>
 
   <nav class="dock">
     <button id="btn-undo" disabled><b>&#8630;</b>Undo</button>
@@ -317,7 +341,7 @@
         })();
         // ============ END GAME SHELF INTEGRATION ============
 
-    const VERSION = '1.0.1';
+    const VERSION = '1.0.2';
 (function(){
   "use strict";
   var GOAL=[1,2,3,4,5,6,7,8,9];
@@ -430,7 +454,10 @@
   var driftBox=elDrift.parentNode, modeChip=document.getElementById("mode");
   var btnUndo=document.getElementById("btn-undo"), btnRewind=document.getElementById("btn-rewind");
   var btnHint=document.getElementById("btn-hint"), btnSolve=document.getElementById("btn-solve");
-  var shareRow=document.getElementById("share-row"), btnShare=document.getElementById("btn-share");
+  var resultBox=document.getElementById("result"), btnShare=document.getElementById("btn-share");
+  var resEyebrow=document.getElementById("res-eyebrow"), resHead=document.getElementById("res-head");
+  var resDetail=document.getElementById("res-detail"), btnDismiss=document.getElementById("btn-dismiss");
+  var dock=document.querySelector(".dock");
   var btnMenu=document.getElementById("btn-menu"), sheet=document.getElementById("sheet"), scrim=document.getElementById("scrim");
   var slider=document.getElementById("depth"), depthOut=document.getElementById("depth-out");
   var tiles=[];
@@ -483,7 +510,7 @@
   function begin(deal, daily){
     state=deal.state.slice(); par=deal.par; isDaily=daily;
     history=[]; moves=0; sel=null; solved=false; bestSeen=Infinity; bestState=null; counted=false;
-    shareRow.hidden=true;
+    resultBox.hidden=true; dock.hidden=false; msg.hidden=false;
     modeChip.textContent = (easyRules?"Easy":"Hard")+" \u00b7 "+(daily ? DAY_NAMES[new Date().getDay()].slice(0,3) : "Free");
     save.stats.played++; persist();
     say(daily ? "Today’s board — "+par+" moves at best." : "Dealt at "+par+" moves. Tap a tile.");
@@ -505,7 +532,15 @@
       persist(); paintStats();
     }
     say(over===0 ? "Perfect — solved in par, "+par+" moves." : "Solved in "+moves+", par was "+par+". "+over+" over.", "win");
-    shareRow.hidden = !isDaily;
+    var head = over===0 ? "Perfect" : (over<=2 ? "Solved" : "Home at last");
+    resEyebrow.textContent = (isDaily ? "Parity #"+puzzleNumber() : "Free board")+" \u00b7 "+(easyRules?"Easy":"Hard");
+    resHead.textContent = head;
+    resDetail.innerHTML = "<b>"+moves+"</b> moves against a par of <b>"+par+"</b>"
+      + (over===0 ? " \u2014 the shortest line there is."
+                  : " \u2014 "+over+" more than the best possible.")
+      + (isDaily && save.stats.streak>1 ? "<br>Daily streak: <b>"+save.stats.streak+"</b>." : "");
+    btnShare.hidden = !isDaily;
+    resultBox.hidden = false; dock.hidden = true; msg.hidden = true;
     if(window.GameShelfIntegration){
       GameShelfIntegration.reportComplete({
         won:true, score:moves, attempts:moves, perfect:over===0,
@@ -604,6 +639,11 @@
   }
   document.getElementById("m-easy").addEventListener("click", function(){ switchMode("easy"); });
   document.getElementById("m-hard").addEventListener("click", function(){ switchMode("hard"); });
+  btnDismiss.addEventListener("click", function(){
+    resultBox.hidden = true; dock.hidden = false; msg.hidden = false;
+    say("Solved in "+moves+" \u2014 open the menu for a new board.","win");
+  });
+
   btnShare.addEventListener("click", function(){
     var txt=shareText();
     if(navigator.share){ navigator.share({text:txt}).catch(function(){}); return; }
