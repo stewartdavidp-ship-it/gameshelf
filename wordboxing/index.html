@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="1.0.24">
+    <meta name="version" content="1.0.26">
     <title>Word Boxing 🥊</title>
     <!-- Version 1.0.22 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥊</text></svg>">
@@ -3072,8 +3072,8 @@
     </div>
 
     <!-- Tutorial Prompt Modal (v1.0.0) -->
-    <div class="tutorial-prompt-overlay" id="tutorial-prompt-overlay">
-        <div class="tutorial-prompt-modal">
+    <div class="tutorial-prompt-overlay" id="tutorial-prompt-overlay" onclick="if(event.target===event.currentTarget) TutorialManager.dismissPrompt()">
+        <div class="tutorial-prompt-modal" onclick="event.stopPropagation()">
             <h2>Welcome to Word Boxing! 🥊</h2>
             <p>A competitive 1v1 word puzzle game where you try to guess your opponent's secret word before they guess yours.</p>
             <div class="tutorial-prompt-buttons">
@@ -3734,7 +3734,7 @@
 
             <!-- 6. GAME INFO -->
             <div class="settings-version">
-                Word Boxing v1.0.24<br>
+                Word Boxing v1.0.26<br>
                 <span style="font-size: 0.7rem;">© 2026 RB Games</span>
             </div>
         </div>
@@ -3837,7 +3837,7 @@
         </div>
     </div>
 
-    <div class="version">v1.0.24 &bull; Word Boxing</div>
+    <div class="version">v1.0.26 &bull; Word Boxing</div>
 
     <script>
         // ============ GAME SHELF INTEGRATION MODULE v1.0.13 ============
@@ -4928,9 +4928,11 @@
             isActive: false,
 
             init() {
-                // Check if user has seen tutorial
-                const hasSeenTutorial = localStorage.getItem('wordboxing_tutorial_complete');
-                if (!hasSeenTutorial) {
+                // Ask once, ever. 'complete' is only set by FINISHING the walkthrough,
+                // so starting it and not finishing used to re-prompt on every launch.
+                const hasBeenAsked = localStorage.getItem('wordboxing_tutorial_prompted')
+                                  || localStorage.getItem('wordboxing_tutorial_complete');
+                if (!hasBeenAsked) {
                     // Show tutorial prompt for first-time players
                     setTimeout(() => this.promptStart(), 1500);
                 }
@@ -4944,12 +4946,17 @@
 
             acceptPrompt() {
                 document.getElementById('tutorial-prompt-overlay').classList.remove('active');
+                localStorage.setItem('wordboxing_tutorial_prompted', 'true');
+                // Took the walkthrough, so the overview would be redundant.
+                localStorage.setItem('wordboxing-visited', 'true');
                 this.start();
             },
 
             dismissPrompt() {
                 document.getElementById('tutorial-prompt-overlay').classList.remove('active');
-                localStorage.setItem('wordboxing_tutorial_complete', 'true');
+                localStorage.setItem('wordboxing_tutorial_prompted', 'true');
+                // Skipping the walkthrough should still leave you with the rules.
+                setTimeout(() => { try { checkShowOverviewOnStart(); } catch (e) {} }, 250);
             },
 
             start() {
@@ -9078,8 +9085,14 @@ wordboxing.com`;
         }
         
         function checkShowOverviewOnStart() {
-            // Check if this is first visit or if overview should be shown
+            // Two first-run modals used to race: this one opened immediately and the
+            // tutorial prompt landed on top of it 1.5s later. Now the tutorial prompt
+            // goes first, and this only runs if the player skips it — so a first
+            // launch shows exactly one thing at a time.
             const hasVisited = localStorage.getItem('wordboxing-visited');
+            const tutorialPending = !localStorage.getItem('wordboxing_tutorial_prompted')
+                                 && !localStorage.getItem('wordboxing_tutorial_complete');
+            if (tutorialPending) return;
             if (!hasVisited && appSettings.showOverview) {
                 showGameOverview();
                 localStorage.setItem('wordboxing-visited', 'true');
@@ -9350,7 +9363,7 @@ wordboxing.com`;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('Word Boxing v1.0.24 - Network-first SW for auto-updates');
+            console.log('Word Boxing v1.0.26 - Network-first SW for auto-updates');
             console.log('Device ID:', deviceId);
             console.log('Firebase ready:', isFirebaseReady);
 

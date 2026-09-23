@@ -1,8 +1,8 @@
 /**
  * Word Boxing PWA Service Worker
- * Version: 1.0.24
+ * Version: 1.0.26
  */
-const CACHE_VERSION = 'v1.0.24';
+const CACHE_VERSION = 'v1.0.26';
 const CACHE_NAME = `wordboxing-pwa-${CACHE_VERSION}`;
 
 const CACHE_FILES = ['./', './index.html', './manifest.json'];
