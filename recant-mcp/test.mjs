@@ -106,22 +106,39 @@ console.log('\n1b. golden cases — the cross-RUNTIME guard');
 // ---------------------------------------------------------------------------
 console.log('\n2. case invariants');
 {
-  let n = 0, soleLead = 0, badChain = 0;
+  let n = 0, badChain = 0, notPressable = 0, noChoice = 0, notInformative = 0, culpritCorroborated = 0;
   for (let d = 1; d <= 2000; d++) {
     const c = mine.dailyCase(`seed-${d}`);
     if (!c) continue;
     n++;
-    const conf = mine.conflicts(c);
-    const inv = new Set();
-    conf.forEach((x) => { inv.add(x.a); inv.add(x.b); });
-    if (inv.size < 3 || !inv.has(c.culprit)) soleLead++;
     for (let i = 0; i < c.alibis.length; i++) {
       if (c.truth[c.breakers[i]][c.crimeT] !== c.alibis[i]) badChain++;
     }
+    // the liar must collide with somebody, or there is nothing to press
+    const conf = mine.conflicts(c);
+    if (!conf.some((x) => x.a === c.culprit || x.b === c.culprit)) notPressable++;
+
+    const byRoom = {};
+    c.claim.forEach((p, w) => { (byRoom[p] = byRoom[p] || []).push(w); });
+    const shared = Object.values(byRoom).filter((v) => v.length > 1);
+    // at least two rooms hold more than one name, so there is a real choice
+    if (shared.length < 2) noChoice++;
+    // and at least one of them is a GENUINE pair, so asking discriminates.
+    // Without this every witness answers "nobody, just me" and the free
+    // questions carry no information at all — which is exactly what shipped.
+    const genuine = shared.filter((v) =>
+      v.some((a, i) => v.some((b, j) => i < j && c.truth[a][c.crimeT] === c.truth[b][c.crimeT])));
+    if (!genuine.length) notInformative++;
+    // and the liar must never be inside a genuine pair, or they would be
+    // corroborated by an honest witness and the case would be unwinnable
+    if (genuine.some((v) => v.includes(c.culprit))) culpritCorroborated++;
   }
   ok(`${n} daily keys all produced a case`, n === 2000, `${n}/2000`);
-  ok('culprit never the only lead on the opening board', soleLead === 0, `${soleLead} bad`);
   ok('every alibi has a breaker who was genuinely alone there', badChain === 0, `${badChain} bad`);
+  ok('the liar is always pressable', notPressable === 0, `${notPressable} bad`);
+  ok('always two or more rooms with a shared claim (a real choice)', noChoice === 0, `${noChoice} bad`);
+  ok('always a genuine pair on the board (asking discriminates)', notInformative === 0, `${notInformative} bad`);
+  ok('the liar is never corroborated by an honest witness', culpritCorroborated === 0, `${culpritCorroborated} bad`);
 }
 
 // ---------------------------------------------------------------------------

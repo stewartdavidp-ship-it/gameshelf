@@ -151,14 +151,17 @@ function opening() {
     c.scen.incident,
     '',
     `It happened in the **${place(c.crimeP)}**, at **${TIMES[c.crimeT]}**.`,
-    `Five ${c.scen.people} were on. One of them is lying about where they were.`,
+    `${c.scen.cast.length} ${c.scen.people} were on. One of them is lying about where they were.`,
     '',
     `Asked where they were at ${TIMES[c.crimeT]}:`,
     ...lines,
     '',
-    `You have **${S.left} pressings**. Put one person's account to another and see who gives way.`,
-    `Nothing is flagged — two people claiming the same room have not necessarily`,
-    `contradicted each other, because they may simply have been in there together.`,
+    `Two names in one room is not yet a contradiction — they may have been in`,
+    `there together. **Ask them who else was there.** A real pair name each other.`,
+    `A liar, and whoever's room they borrowed, will both say they were alone.`,
+    ``,
+    `Asking is free. You have **${S.left} pressings**, and you only need them once`,
+    `you have found a room where the story does not add up.`,
   ].join('\n');
 }
 

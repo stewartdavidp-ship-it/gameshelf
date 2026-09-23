@@ -31,41 +31,41 @@ export function rng(seed) {
 
 export const SCENARIOS = [
   { id: 'depot', where: 'The night shift at a parcel depot', incident: 'Someone opened the cage and walked off with a pallet of phones.', people: 'loaders',
-    cast: ['Okonjo', 'Pryce', 'Halloran', 'Vasquez', 'Behrens'], places: ['loading bay', 'sorting hall', 'cage', 'break room', 'yard office'] },
+    cast: ['Okonjo', 'Pryce', 'Halloran', 'Vasquez', 'Behrens', 'Traore'], places: ['loading bay', 'sorting hall', 'cage', 'break room', 'yard office'] },
   { id: 'station', where: 'A research station in winter', incident: 'The sample freezer was switched off and three years of work thawed.', people: 'crew',
-    cast: ['Aldridge', 'Strand', 'Nkemdirim', 'Beaufort', 'Lindqvist'], places: ['greenhouse', 'comms room', 'cold store', 'generator shed', 'mess'] },
+    cast: ['Aldridge', 'Strand', 'Nkemdirim', 'Beaufort', 'Lindqvist', 'Vance'], places: ['greenhouse', 'comms room', 'cold store', 'generator shed', 'mess'] },
   { id: 'newsroom', where: 'A newsroom the night before publication', incident: 'The embargoed story was leaked to a rival.', people: 'journalists',
-    cast: ['Ferreira', 'Quill', 'Adeyemi', 'Sokolov', 'Mbeki'], places: ['copy desk', 'archive', 'studio', 'roof terrace', 'server room'] },
+    cast: ['Ferreira', 'Quill', 'Adeyemi', 'Sokolov', 'Mbeki', 'Bardem'], places: ['copy desk', 'archive', 'studio', 'roof terrace', 'server room'] },
   { id: 'filmset', where: 'A film set between takes', incident: "The only print of the day's footage was wiped.", people: 'crew',
-    cast: ['Castellan', 'Osei', 'Marchetti', 'Dunbar', 'Yusupova'], places: ['sound stage', 'edit truck', 'wardrobe', 'green room', 'back lot'] },
+    cast: ['Castellan', 'Osei', 'Marchetti', 'Dunbar', 'Yusupova', 'Novotny'], places: ['sound stage', 'edit truck', 'wardrobe', 'green room', 'back lot'] },
   { id: 'aquarium', where: 'An aquarium after closing', incident: 'The tank valves were opened and the reef exhibit nearly drained.', people: 'keepers',
-    cast: ['Renwick', 'Achebe', 'Sørensen', 'Patel', 'Moreau'], places: ['reef hall', 'quarantine room', 'filtration deck', 'gift shop', 'loading dock'] },
+    cast: ['Renwick', 'Achebe', 'Sørensen', 'Patel', 'Moreau', 'Haldane'], places: ['reef hall', 'quarantine room', 'filtration deck', 'gift shop', 'loading dock'] },
   { id: 'bakery', where: 'A bakery before dawn', incident: 'The competition sourdough starter was poured down the drain.', people: 'bakers',
-    cast: ['Whitlock', 'Ibrahim', 'Kowalczyk', 'Amaro', 'Fenn'], places: ['proving room', 'cold room', 'front counter', 'yard', 'office'] },
+    cast: ['Whitlock', 'Ibrahim', 'Kowalczyk', 'Amaro', 'Fenn', 'Petrov'], places: ['proving room', 'cold room', 'front counter', 'yard', 'office'] },
   { id: 'observatory', where: 'An observatory on a clear night', incident: "The telescope's mirror was scratched beyond repair.", people: 'astronomers',
-    cast: ['Halvorsen', 'Rao', 'Dimitrov', 'Ngata', 'Cleary'], places: ['dome', 'control room', 'library', 'workshop', 'car park'] },
+    cast: ['Halvorsen', 'Rao', 'Dimitrov', 'Ngata', 'Cleary', 'Ibori'], places: ['dome', 'control room', 'library', 'workshop', 'car park'] },
   { id: 'theatre', where: 'A theatre on opening night', incident: "The lead's costume was cut to ribbons an hour before curtain.", people: 'company',
-    cast: ['Pemberton', 'Diallo', 'Rossi', 'Okafor', 'Tarrant'], places: ['wings', 'dressing rooms', 'flies', 'orchestra pit', 'box office'] },
+    cast: ['Pemberton', 'Diallo', 'Rossi', 'Okafor', 'Tarrant', 'Ashby'], places: ['wings', 'dressing rooms', 'flies', 'orchestra pit', 'box office'] },
   { id: 'startup', where: 'An office the weekend before launch', incident: 'The production database was dropped, and the backups with it.', people: 'engineers',
-    cast: ['Zhao', 'Brennan', 'Haddad', 'Lindgren', 'Osborne'], places: ['war room', 'kitchen', 'phone booth', 'roof', 'basement'] },
+    cast: ['Zhao', 'Brennan', 'Haddad', 'Lindgren', 'Osborne', 'Mwangi'], places: ['war room', 'kitchen', 'phone booth', 'roof', 'basement'] },
   { id: 'ferry', where: 'An overnight ferry', incident: "The purser's safe was emptied somewhere between two ports.", people: 'crew',
-    cast: ['Halvard', 'Nunes', 'Quintero', 'Fairweather', 'Adamu'], places: ['bridge', 'galley', 'engine room', 'car deck', 'lounge'] },
+    cast: ['Halvard', 'Nunes', 'Quintero', 'Fairweather', 'Adamu', 'Oduor'], places: ['bridge', 'galley', 'engine room', 'car deck', 'lounge'] },
   { id: 'archive', where: 'A records office during an audit', incident: 'A whole year of files went into the shredder.', people: 'clerks',
-    cast: ['Tennant', 'Boateng', 'Ruiz', 'Lindholm', 'Choudhury'], places: ['reading room', 'stacks', 'scanning bay', 'mail room', 'loading dock'] },
+    cast: ['Tennant', 'Boateng', 'Ruiz', 'Lindholm', 'Choudhury', 'Weatherby'], places: ['reading room', 'stacks', 'scanning bay', 'mail room', 'loading dock'] },
   { id: 'ski', where: 'A ski lodge kitchen at turnaround', incident: "The season's entire wine order was poured away.", people: 'staff',
-    cast: ['Girard', 'Mensah', 'Novak', 'Sinclair', 'Takahashi'], places: ['cellar', 'kitchen', 'boot room', 'terrace', 'drying room'] },
+    cast: ['Girard', 'Mensah', 'Novak', 'Sinclair', 'Takahashi', 'Delacroix'], places: ['cellar', 'kitchen', 'boot room', 'terrace', 'drying room'] },
   { id: 'radio', where: 'A radio station overnight', incident: 'The transmitter was cut in the middle of the appeal.', people: 'presenters',
-    cast: ['Oyelaran', 'Baptiste', 'Kerr', 'Solberg', 'Marlowe'], places: ['studio one', 'continuity', 'record library', 'mast room', 'reception'] },
+    cast: ['Oyelaran', 'Baptiste', 'Kerr', 'Solberg', 'Marlowe', 'Hearne'], places: ['studio one', 'continuity', 'record library', 'mast room', 'reception'] },
   { id: 'greenhouse', where: 'A garden centre out of season', incident: 'The heaters were killed and the whole orchid house was lost.', people: 'growers',
-    cast: ['Ashworth', 'Nwosu', 'Bergström', 'Cardoza', 'Finch'], places: ['orchid house', 'potting shed', 'cold frames', 'shop floor', 'boiler room'] },
+    cast: ['Ashworth', 'Nwosu', 'Bergström', 'Cardoza', 'Finch', 'Tanaka'], places: ['orchid house', 'potting shed', 'cold frames', 'shop floor', 'boiler room'] },
   { id: 'printworks', where: 'A print works on a deadline', incident: 'The plates for the morning run were destroyed.', people: 'printers',
-    cast: ['Deveraux', 'Salah', 'Kaminski', 'Oduya', 'Priestley'], places: ['press hall', 'plate room', 'ink store', 'bindery', 'dispatch'] },
+    cast: ['Deveraux', 'Salah', 'Kaminski', 'Oduya', 'Priestley', 'Voss'], places: ['press hall', 'plate room', 'ink store', 'bindery', 'dispatch'] },
   { id: 'hospital', where: 'A hospital ward on a quiet night', incident: 'The controlled drugs cabinet was emptied.', people: 'staff',
-    cast: ['Aitken', 'Balogun', 'Ferrara', 'Mackenzie', 'Rahman'], places: ['treatment room', "nurses' station", 'side room', 'linen store', 'stairwell'] },
+    cast: ['Aitken', 'Balogun', 'Ferrara', 'Mackenzie', 'Rahman', 'Nkosi'], places: ['treatment room', "nurses' station", 'side room', 'linen store', 'stairwell'] },
   { id: 'vineyard', where: 'A vineyard at harvest', incident: 'The fermentation tanks were opened and the vintage spoiled.', people: 'pickers',
-    cast: ['Lauriston', 'Okoro', 'Benedetti', 'Haugen', 'Cruz'], places: ['press house', 'tank room', 'barrel store', 'east rows', 'weighbridge'] },
+    cast: ['Lauriston', 'Okoro', 'Benedetti', 'Haugen', 'Cruz', 'Calvo'], places: ['press house', 'tank room', 'barrel store', 'east rows', 'weighbridge'] },
   { id: 'museum', where: 'A museum during an install', incident: 'The loaned bronze never made it into the exhibition.', people: 'technicians',
-    cast: ['Garnier', 'Umeh', 'Lindqvist', 'Ravel', 'Stannard'], places: ['main gallery', 'crate store', 'conservation lab', 'loading bay', 'staff corridor'] },
+    cast: ['Garnier', 'Umeh', 'Lindqvist', 'Ravel', 'Stannard', 'Whitfield'], places: ['main gallery', 'crate store', 'conservation lab', 'loading bay', 'staff corridor'] },
 ];
 
 // Everyone is cagey about something. If only the guilty squirmed, manner would
@@ -130,10 +130,14 @@ export function generate(seed, scen, chain = 3, slips = 2) {
     const alibis = usable.slice(0, chain);
     const breakers = alibis.map((p) => soloAt[p][0]);
 
-    // memory slips: honest witnesses, off by one half-hour
+    // Memory slips: honest witnesses off by one half-hour. Only for people who
+    // were genuinely ALONE — slipping someone out of a real pair would destroy
+    // the corroboration the board depends on, which is what made every early
+    // case uninformative.
+    const alone = (w) => !([...Array(W).keys()].some((o) => o !== w && truth[o][crimeT] === truth[w][crimeT]));
     const slipSet = [];
     const free = [];
-    for (let w = 0; w < W; w++) if (w !== culprit && breakers.indexOf(w) < 0) free.push(w);
+    for (let w = 0; w < W; w++) if (w !== culprit && breakers.indexOf(w) < 0 && alone(w)) free.push(w);
     shuffle(free, rand);
     for (let i = 0; i < free.length && slipSet.length < slips; i++) {
       const ww = free[i];
@@ -144,7 +148,8 @@ export function generate(seed, scen, chain = 3, slips = 2) {
       if (truth[ww][src] === crimeP) continue;
       slipSet.push({ who: ww, says: truth[ww][src], reallyAt: truth[ww][crimeT], fromSlot: src });
     }
-    if (!slipSet.length) continue;
+    // A slip is now optional. The decoy that matters is a real pair sharing a
+    // room, which looks identical to the liar's collision until you ask.
 
     const claim = [];
     for (let w = 0; w < W; w++) claim[w] = truth[w][crimeT];
@@ -193,14 +198,25 @@ export function verify(c) {
     if (c.slips[i].who === c.culprit) return false;
     if (c.slips[i].says === c.crimeP) return false;
   }
-  // THE GATE: the opening board must not single the liar out. At least three
-  // people must be caught in an unresolved conflict, and the liar must be one
-  // of them, or there is nothing to press.
+  // THE GATE. The board must pose a real question, which means:
+  //   - the liar is pressable (their claim collides with someone)
+  //   - at least TWO rooms show more than one name, so there is a choice
+  //   - at least one of those rooms is a GENUINE pair, so the choice is not
+  //     free -- telling it apart from the liar's collision is what the free
+  //     questions are for.
+  // Without the last condition every shared room was a conflict, every witness
+  // said "nobody, just me", and interviewing told you nothing at all.
   const conf = conflicts(c);
-  const inv = {};
-  for (let i = 0; i < conf.length; i++) { inv[conf[i].a] = 1; inv[conf[i].b] = 1; }
-  if (!inv[c.culprit]) return false;
-  if (Object.keys(inv).length < 3) return false;
+  if (!conf.some((x) => x.a === c.culprit || x.b === c.culprit)) return false;
+
+  const byRoom = {};
+  c.claim.forEach((p, w) => { (byRoom[p] = byRoom[p] || []).push(w); });
+  const shared = Object.values(byRoom).filter((v) => v.length > 1);
+  if (shared.length < 2) return false;
+
+  const hasGenuine = shared.some((v) =>
+    v.some((a, i) => v.some((b, j) => i < j && c.truth[a][c.crimeT] === c.truth[b][c.crimeT])));
+  if (!hasGenuine) return false;
   return true;
 }
 
