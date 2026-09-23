@@ -1,8 +1,8 @@
 /**
  * Word Boxing PWA Service Worker
- * Version: 1.0.22
+ * Version: 1.0.23
  */
-const CACHE_VERSION = 'v1.0.22';
+const CACHE_VERSION = 'v1.0.23';
 const CACHE_NAME = `wordboxing-pwa-${CACHE_VERSION}`;
 
 const CACHE_FILES = ['./', './index.html', './manifest.json'];
@@ -11,7 +11,7 @@ const CACHE_FILES = ['./', './index.html', './manifest.json'];
 const NETWORK_TIMEOUT = 2000;
 
 self.addEventListener('install', (event) => {
-    event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CACHE_FILES)));
+    event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CACHE_FILES.map((u) => new Request(u, { cache: 'reload' })))));
     self.skipWaiting();
 });
 

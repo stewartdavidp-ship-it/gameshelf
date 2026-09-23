@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.0.17">
+    <meta name="version" content="1.0.18">
     <title>Rungs - Daily Puzzle</title>
     
     <!-- PWA Support -->
@@ -1811,7 +1811,7 @@
         </div>
 
         <footer class="footer">
-            v1.0.17 &bull; Rungs
+            v1.0.18 &bull; Rungs
         </footer>
     </div>
 
@@ -2376,7 +2376,7 @@
         // ============ END GAME SHELF INTEGRATION ============
 
         // ============ CONFIGURATION ============
-        const VERSION = '1.0.17';
+        const VERSION = '1.0.18';
         const GAME_URL = 'https://rfrbrn.github.io/rungs/rungs.html'; // Update this when hosted
         const DEBUG_MODE = false; // Set to true to show test mode in menu
         
@@ -5639,10 +5639,15 @@ rungs.game`;
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then((reg) => {
                         console.log('[Rungs] SW registered');
                         setInterval(() => reg.update(), 3600000);
+                        // An installed PWA can sit suspended for days, so an interval
+                        // alone never fires. Ask on every reopen.
+                        document.addEventListener('visibilitychange', () => {
+                            if (document.visibilityState === 'visible') reg.update();
+                        });
                         reg.addEventListener('updatefound', () => {
                             const nw = reg.installing;
                             nw.addEventListener('statechange', () => {

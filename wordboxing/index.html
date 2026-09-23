@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="1.0.22">
+    <meta name="version" content="1.0.23">
     <title>Word Boxing 🥊</title>
     <!-- Version 1.0.22 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥊</text></svg>">
@@ -3714,7 +3714,7 @@
 
             <!-- 6. GAME INFO -->
             <div class="settings-version">
-                Word Boxing v1.0.22<br>
+                Word Boxing v1.0.23<br>
                 <span style="font-size: 0.7rem;">© 2026 RB Games</span>
             </div>
         </div>
@@ -3817,7 +3817,7 @@
         </div>
     </div>
 
-    <div class="version">v1.0.22 &bull; Word Boxing</div>
+    <div class="version">v1.0.23 &bull; Word Boxing</div>
 
     <script>
         // ============ GAME SHELF INTEGRATION MODULE v1.0.13 ============
@@ -9330,7 +9330,7 @@ wordboxing.com`;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('Word Boxing v1.0.22 - Network-first SW for auto-updates');
+            console.log('Word Boxing v1.0.23 - Network-first SW for auto-updates');
             console.log('Device ID:', deviceId);
             console.log('Firebase ready:', isFirebaseReady);
 
@@ -9468,10 +9468,15 @@ wordboxing.com`;
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then((reg) => {
                         console.log('[WordBoxing] SW registered');
                         setInterval(() => reg.update(), 3600000);
+                        // An installed PWA can sit suspended for days, so an interval
+                        // alone never fires. Ask on every reopen.
+                        document.addEventListener('visibilitychange', () => {
+                            if (document.visibilityState === 'visible') reg.update();
+                        });
                         reg.addEventListener('updatefound', () => {
                             const nw = reg.installing;
                             nw.addEventListener('statechange', () => {
