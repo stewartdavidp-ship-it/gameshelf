@@ -81,6 +81,18 @@ export const CAGEY = [
   'had already clocked out and come back in',
 ];
 
+// Deterministic across runtimes: exactly n-1 rand() calls, fixed order.
+// `sort(() => rand() - 0.5)` is NOT -- it is an inconsistent comparator, so the
+// number of comparisons (and therefore the PRNG stream) varies by JS engine.
+// That divergence is invisible to any test that runs both copies in one runtime.
+export function shuffle(a, rand) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
 export function generate(seed, scen, chain = 3, slips = 2) {
   const rand = rng(seed);
   const W = scen.cast.length, P = scen.places.length, T = TIMES.length;
@@ -114,7 +126,7 @@ export function generate(seed, scen, chain = 3, slips = 2) {
     }
     const usable = Object.keys(soloAt).map(Number).filter((p) => soloAt[p].length === 1);
     if (usable.length < chain) continue;
-    usable.sort(() => rand() - 0.5);
+    shuffle(usable, rand);
     const alibis = usable.slice(0, chain);
     const breakers = alibis.map((p) => soloAt[p][0]);
 
@@ -122,7 +134,7 @@ export function generate(seed, scen, chain = 3, slips = 2) {
     const slipSet = [];
     const free = [];
     for (let w = 0; w < W; w++) if (w !== culprit && breakers.indexOf(w) < 0) free.push(w);
-    free.sort(() => rand() - 0.5);
+    shuffle(free, rand);
     for (let i = 0; i < free.length && slipSet.length < slips; i++) {
       const ww = free[i];
       const dir = rand() < 0.5 ? -1 : 1;

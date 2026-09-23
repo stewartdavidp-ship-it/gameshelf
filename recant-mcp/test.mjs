@@ -71,6 +71,38 @@ if (!m) {
 }
 
 // ---------------------------------------------------------------------------
+console.log('\n1b. golden cases — the cross-RUNTIME guard');
+// The parity test above runs BOTH copies inside this one Node process, so it is
+// structurally blind to a divergence caused by the JS engine rather than the
+// source. That is not hypothetical: `sort(() => rand() - 0.5)` is an
+// inconsistent comparator, so the number of rand() calls it consumes varies by
+// engine, and Node and the browser silently generated DIFFERENT cases from the
+// same seed on live gameshelf.co (2026-09-23). Pinning the output catches it.
+{
+  const lines = readFileSync(join(here, 'fixtures', 'cases.txt'), 'utf8')
+    .split('\n').filter((l) => l && !l.startsWith('#'));
+  let bad = 0, firstBad = null;
+  for (const line of lines) {
+    const [seedS, crimeP, crimeT, culprit, claim, alibis, breakers] = line.split('|');
+    const seed = Number(seedS);
+    const scen = mine.SCENARIOS[seed % mine.SCENARIOS.length];
+    const c = mine.generate(seed, scen, 3, 2);
+    const got = c ? [c.crimeP, c.crimeT, c.culprit, c.claim.join(''), c.alibis.join(''), c.breakers.join('')].join('|') : 'null';
+    const want = [crimeP, crimeT, culprit, claim, alibis, breakers].join('|');
+    if (got !== want) { bad++; if (firstBad === null) firstBad = `${seed}: got ${got}, want ${want}`; }
+  }
+  ok(`${lines.length} golden cases reproduce exactly`, bad === 0, firstBad || '');
+  ok('generator uses no order-unstable sort', (() => {
+    const src = readFileSync(join(here, 'engine.mjs'), 'utf8')
+      .split('\n').filter((l) => !l.trim().startsWith('//')).join('\n');
+    return !/\.sort\s*\(/.test(src);
+  })(), 'a .sort() reappeared in engine.mjs');
+  ok('browser copy uses no order-unstable sort', !/\.sort\s*\(/.test(
+    html.match(/\/\* >>> RECANT-ENGINE[\s\S]*?\*\/([\s\S]*?)\/\* <<< RECANT-ENGINE \*\//)[1]
+      .split('\n').filter((l) => !l.trim().startsWith('//')).join('\n')));
+}
+
+// ---------------------------------------------------------------------------
 console.log('\n2. case invariants');
 {
   let n = 0, soleLead = 0, badChain = 0;
