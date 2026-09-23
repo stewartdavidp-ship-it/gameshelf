@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="108" fill="#0F2A3B"/>
+  <rect x="24" y="24" width="464" height="464" rx="84" fill="#163A4F" opacity="0.6"/>
+  <g>
+    <!-- row 1 -->
+    <rect x="96"  y="96"  width="96" height="96" rx="10" fill="#F2F7F9"/>
+    <rect x="208" y="96"  width="96" height="96" rx="10" fill="#F2F7F9"/>
+    <rect x="320" y="96"  width="96" height="96" rx="10" fill="#F2F7F9"/>
+    <!-- row 2 -->
+    <rect x="96"  y="208" width="96" height="96" rx="10" fill="#F2F7F9"/>
+    <rect x="208" y="208" width="96" height="96" rx="10" fill="#B3462E"/>
+    <rect x="320" y="208" width="96" height="96" rx="10" fill="#F2F7F9"/>
+    <!-- row 3 -->
+    <rect x="96"  y="320" width="96" height="96" rx="10" fill="#F2F7F9"/>
+    <rect x="208" y="320" width="96" height="96" rx="10" fill="#F2F7F9"/>
+    <rect x="320" y="320" width="96" height="96" rx="10" fill="#F2F7F9"/>
+  </g>
+  <g fill="#0F2A3B">
+    <!-- odd tiles: horizontal rails -->
+    <rect x="116" y="138" width="56" height="12" rx="6"/>
+    <rect x="340" y="138" width="56" height="12" rx="6"/>
+    <rect x="116" y="362" width="56" height="12" rx="6"/>
+    <rect x="340" y="362" width="56" height="12" rx="6"/>
+    <!-- even tiles: vertical rails -->
+    <rect x="250" y="116" width="12" height="56" rx="6"/>
+    <rect x="138" y="228" width="12" height="56" rx="6"/>
+    <rect x="362" y="228" width="12" height="56" rx="6"/>
+    <rect x="250" y="340" width="12" height="56" rx="6"/>
+  </g>
+  <!-- centre tile keeps its own rail, drawn light on the accent -->
+  <rect x="228" y="250" width="56" height="12" rx="6" fill="#F2F7F9"/>
+</svg>
