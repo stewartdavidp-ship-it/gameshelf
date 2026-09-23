@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.0.4">
+    <meta name="version" content="1.0.5">
     <meta name="gs-app-id" content="parity">
     <title>Parity - Daily Puzzle</title>
     <meta name="description" content="Nine tiles, three rules. Odd tiles slide sideways, even tiles move up and down, and partners that sum to 10 trade places. A new board every day.">
@@ -78,8 +78,8 @@
   .stat.adrift.clear dd{color:var(--ok)}
 
   /* ---- board ---- */
-  .stage{flex:1 1 0; min-height:40px; display:grid; place-items:center; overflow:hidden}
-  .board{height:100%; width:auto; max-width:100%; aspect-ratio:1; display:grid; grid-template-columns:repeat(3,1fr); gap:3%}
+  .stage{flex:1 1 0; min-height:40px; display:grid; place-items:center; overflow:hidden; container-type:size}
+  .board{width:min(100%, 100cqh); height:auto; max-width:100%; aspect-ratio:1; display:grid; grid-template-columns:repeat(3,1fr); gap:3%}
   .tile{
     appearance:none; position:relative; touch-action:manipulation; cursor:pointer;
     background:var(--tile); color:var(--ink); font:inherit; padding:0;
@@ -111,6 +111,16 @@
   .dock button b{font-size:17px; font-weight:400; line-height:1}
   .dock button:disabled{opacity:.36}
   .dock button.live{border-color:var(--accent); color:var(--accent)}
+  .dock button.armed{border-color:var(--accent); color:var(--accent); background:var(--accent-tint); font-weight:600}
+
+  /* ---- solve: confirm by choosing a speed ---- */
+  .speedbar{display:flex; align-items:center; gap:7px; padding:9px 10px; border:1px solid var(--accent);
+            background:var(--accent-tint); border-radius:3px}
+  .speedbar span{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.09em;
+                 text-transform:uppercase; color:var(--accent); flex:1; line-height:1.35}
+  .speedbar button{appearance:none; font:inherit; font-size:12.5px; font-weight:600; cursor:pointer;
+                   touch-action:manipulation; padding:9px 11px; border-radius:3px;
+                   border:1px solid var(--accent); background:var(--paper-2); color:var(--accent)}
 
   /* ---- end-of-game panel ---- */
   .result{
@@ -192,9 +202,17 @@
     <p class="detail" id="res-detail"></p>
     <div class="btns">
       <button class="primary" id="btn-share">Share result</button>
+      <button class="primary" id="btn-again" hidden>New board</button>
       <button id="btn-dismiss">Board</button>
     </div>
   </section>
+
+  <div class="speedbar" id="speedbar" hidden>
+    <span>Play the answer?<br>This ends the board.</span>
+    <button data-ms="950">Slow</button>
+    <button data-ms="420">Medium</button>
+    <button data-ms="90">Fast</button>
+  </div>
 
   <nav class="dock">
     <button id="btn-undo" disabled><b>&#8630;</b>Undo</button>
@@ -343,7 +361,7 @@
         })();
         // ============ END GAME SHELF INTEGRATION ============
 
-    const VERSION = '1.0.4';
+    const VERSION = '1.0.5';
 (function(){
   "use strict";
   var GOAL=[1,2,3,4,5,6,7,8,9];
@@ -448,7 +466,7 @@
 
   // ---- game state ----
   var state=GOAL.slice(), history=[], moves=0, sel=null, solved=false;
-  var par=25, target=25, isDaily=true, bestSeen=Infinity, bestState=null, playing=null, counted=false, hintTimer=null;
+  var par=25, target=25, isDaily=true, bestSeen=Infinity, bestState=null, playing=null, counted=false, hintTimer=null, solveArm=null;
 
   var board=document.getElementById("board"), msg=document.getElementById("msg");
   var elMoves=document.getElementById("r-moves"), elPar=document.getElementById("r-par");
@@ -456,6 +474,8 @@
   var driftBox=elDrift.parentNode, modeChip=document.getElementById("mode");
   var btnUndo=document.getElementById("btn-undo"), btnRewind=document.getElementById("btn-rewind");
   var btnHint=document.getElementById("btn-hint"), btnSolve=document.getElementById("btn-solve");
+  var speedbar=document.getElementById("speedbar");
+  var btnAgain=document.getElementById("btn-again");
   var resultBox=document.getElementById("result"), btnShare=document.getElementById("btn-share");
   var resEyebrow=document.getElementById("res-eyebrow"), resHead=document.getElementById("res-head");
   var resDetail=document.getElementById("res-detail"), btnDismiss=document.getElementById("btn-dismiss");
@@ -505,7 +525,14 @@
     btnHint.disabled = !DIST || solved || !!playing;
     btnSolve.disabled = !DIST || solved;
     btnSolve.classList.toggle("live", !!playing);
+    btnSolve.classList.toggle("armed", !!solveArm && !playing);
+    speedbar.hidden = !solveArm || !!playing;
+    btnSolve.innerHTML = playing ? "<b>\u25a0</b>Stop"
+                       : (solveArm ? "<b>\u2715</b>Cancel" : "<b>\u25b6</b>Solve");
   }
+
+  var solveSpeed=420;
+  function disarmSolve(){ if(solveArm){ clearTimeout(solveArm); solveArm=null; } }
 
   function say(text,cls){ msg.textContent=text||""; msg.className="msg"+(cls?" "+cls:""); }
 
@@ -541,7 +568,7 @@
       + (over===0 ? " \u2014 the shortest line there is."
                   : " \u2014 "+over+" more than the best possible.")
       + (isDaily && save.stats.streak>1 ? "<br>Daily streak: <b>"+save.stats.streak+"</b>." : "");
-    btnShare.hidden = !isDaily;
+    btnShare.hidden = !isDaily; btnAgain.hidden = true;
     resultBox.hidden = false; dock.hidden = true; msg.hidden = true;
     if(window.GameShelfIntegration){
       GameShelfIntegration.reportComplete({
@@ -571,6 +598,7 @@
 
   board.addEventListener("click", function(e){
     var t=e.target.closest(".tile"); if(!t||solved||playing) return;
+    if(solveArm){ disarmSolve(); say(""); }
     var idx=+t.dataset.idx;
     if(sel!==null){
       if(idx===sel){ sel=null; say(""); render(); return; }
@@ -613,14 +641,30 @@
 
   btnSolve.addEventListener("click", function(){
     if(!DIST) return;
-    if(playing){ clearInterval(playing); playing=null; say("Stopped — carry on."); render(); return; }
+    if(playing){ clearInterval(playing); playing=null; disarmSolve(); say("Stopped — carry on."); render(); return; }
+    if(!solveArm){
+      solveArm = setTimeout(function(){ solveArm=null; say(""); render(); }, 8000);
+      say("Choose a speed, or Cancel.","warn"); buzz(30); render(); return;
+    }
+    disarmSolve(); say(""); render();
+  });
+
+  function runSolution(){
     var total=DIST[rank(state)]; if(!total) return;
     sel=null; counted=true;
     say("Playing the shortest line — "+total+" moves."); render();
     playing=setInterval(function(){
       var here=DIST[rank(state)];
-      if(here===0){ clearInterval(playing); playing=null; solved=true;
-        say("That was the shortest line: "+total+" moves.","win"); render(); return; }
+      if(here===0){
+        clearInterval(playing); playing=null; solved=true;
+        resEyebrow.textContent = (isDaily ? "Parity" : "Free board")+" — answer played";
+        resHead.textContent = "Shown, not solved";
+        resDetail.innerHTML = "The shortest line from where you were was <b>"+total+"</b> move"+(total===1?"":"s")+".";
+        if(typeof btnShare !== "undefined") btnShare.hidden = true;
+        btnAgain.hidden = false;
+        resultBox.hidden = false; dock.hidden = true; msg.hidden = true;
+        say(""); render(); return;
+      }
       var mv=legalSwaps(state, easyRules), t=new Array(9), i, p;
       for(i=0;i<mv.length;i++){
         for(p=0;p<9;p++) t[p]=state[p];
@@ -628,8 +672,8 @@
         if(DIST[rank(t)]===here-1){ state=t.slice(); say(mv[i][2]+"."); break; }
       }
       render();
-    },540);
-  });
+    }, solveSpeed);
+  }
 
   // ---- sheet ----
   function openSheet(){ sheet.hidden=false; scrim.hidden=false; paintStats(); }
@@ -646,13 +690,21 @@
     say("Solved in "+moves+" \u2014 open the menu for a new board.","win");
   });
 
+  btnAgain.addEventListener("click", function(){ newFree(); });
+
   btnShare.addEventListener("click", function(){
     var txt=shareText();
     if(navigator.share){ navigator.share({text:txt}).catch(function(){}); return; }
     try{ navigator.clipboard.writeText(txt); say("Result copied.","win"); }
     catch(e){ say("Copy this: "+txt); }
   });
-  btnMenu.addEventListener("click", openSheet);
+  speedbar.addEventListener("click", function(e){
+    var b=e.target.closest("button[data-ms]"); if(!b||!DIST||playing) return;
+    solveSpeed = +b.dataset.ms; save.speed = solveSpeed; persist();
+    disarmSolve(); runSolution();
+  });
+
+  btnMenu.addEventListener("click", function(){ disarmSolve(); render(); openSheet(); });
   scrim.addEventListener("click", closeSheet);
   document.getElementById("btn-close").addEventListener("click", closeSheet);
   document.getElementById("btn-daily").addEventListener("click", newDaily);
@@ -671,7 +723,7 @@
   // ---- boot ----
   function start(hot){
     document.getElementById("v-num").textContent=VERSION;
-    load(); target=save.target||25; slider.value=target; depthOut.value=target+" moves"; paintStats();
+    load(); target=save.target||25; solveSpeed=save.speed||420; slider.value=target; depthOut.value=target+" moves"; paintStats();
     setTimeout(function(){
       TABLES.easy=buildTable(true); TABLES.hard=buildTable(false);
       useMode(save.mode||"easy");
