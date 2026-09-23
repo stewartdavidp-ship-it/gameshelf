@@ -1,0 +1,16 @@
+{
+  "name": "recant-mcp",
+  "version": "1.0.0",
+  "description": "Recant — a daily interrogation case, as an MCP server. The engine holds the truth and decides every outcome; the client model only talks.",
+  "type": "module",
+  "bin": { "recant-mcp": "./server.mjs" },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node test.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.1"
+  },
+  "license": "MIT",
+  "private": true
+}
