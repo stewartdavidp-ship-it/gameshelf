@@ -1,10 +1,10 @@
 /**
  * Quotle PWA Service Worker
- * Version: 1.5.2
+ * Version: 1.5.3
  *
  * ⚠️ IMPORTANT: CACHE_VERSION must match app version!
  */
-const CACHE_VERSION = 'v1.5.2';
+const CACHE_VERSION = 'v1.5.3';
 const CACHE_NAME = `quotle-pwa-${CACHE_VERSION}`;
 
 const CACHE_FILES = ['./', './index.html', './manifest.json'];
@@ -14,7 +14,7 @@ const NETWORK_TIMEOUT = 2000;
 
 self.addEventListener('install', (event) => {
     console.log('[SW] Installing:', CACHE_VERSION);
-    event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CACHE_FILES)));
+    event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CACHE_FILES.map((u) => new Request(u, { cache: 'reload' })))));
     self.skipWaiting();
 });
 

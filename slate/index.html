@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="1.0.23">
+    <meta name="version" content="1.0.24">
     <title>Slate - Daily Word Challenge</title>
     
     <!-- PWA Support -->
@@ -2317,7 +2317,7 @@
             <!-- 7. GAME INFO -->
             <h3>ℹ️ Game Info</h3>
             <p><strong>Puzzle:</strong> <span id="puzzle-date">Daily</span></p>
-            <p><strong>Version:</strong> v1.0.23</p>
+            <p><strong>Version:</strong> v1.0.24</p>
             <p style="font-size: 0.85rem; color: #a8b896; margin-top: 8px;">A daily word puzzle game. New words every day at midnight!</p>
             
             <!-- 8. DATA -->
@@ -5039,6 +5039,11 @@ slate.game`;
                     .then((registration) => {
                         console.log('[Slate] SW registered');
                         setInterval(() => registration.update(), 60 * 60 * 1000);
+                        // An installed PWA can sit suspended for days, so an interval
+                        // alone never fires. Ask on every reopen.
+                        document.addEventListener('visibilitychange', () => {
+                            if (document.visibilityState === 'visible') registration.update();
+                        });
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             newWorker.addEventListener('statechange', () => {

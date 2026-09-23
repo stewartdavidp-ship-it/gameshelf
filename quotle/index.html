@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.5.2">
+    <meta name="version" content="1.5.3">
     <title>Quotle - Daily Quote Puzzle</title>
     
     <!-- Early initialization: Set defaults and apply dark mode BEFORE any CSS renders -->
@@ -3618,7 +3618,7 @@
                     <p><strong>Quote #:</strong> <span id="current-quote-number">Loading...</span></p>
                     <p><strong>Total Quotes:</strong> 365</p>
                     <p><strong>Days Live:</strong> <span id="days-since-launch">Loading...</span></p>
-                    <p><strong>Version:</strong> v1.5.2</p>
+                    <p><strong>Version:</strong> v1.5.3</p>
                 </div>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--slate); line-height: 1.5;">
                     A daily quote guessing game featuring wisdom from ancient philosophers to modern thinkers - spanning over 2,500 years of human thought.
@@ -13572,6 +13572,11 @@ const allQuotes = [
                         setInterval(() => {
                             registration.update();
                         }, 60 * 60 * 1000); // Check every hour
+                        // An installed PWA can sit suspended for days, so an interval
+                        // alone never fires. Ask on every reopen.
+                        document.addEventListener('visibilitychange', () => {
+                            if (document.visibilityState === 'visible') registration.update();
+                        });
                         
                         // Listen for updates
                         registration.addEventListener('updatefound', () => {
