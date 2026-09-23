@@ -11,7 +11,8 @@
 //    happen -- the answer must not appear in any result before the accusation,
 //    and a wasted pressing must actually cost one.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
@@ -126,7 +127,14 @@ console.log('\n2. case invariants');
 // ---------------------------------------------------------------------------
 console.log('\n3. end to end over MCP stdio');
 
-const transport = new StdioClientTransport({ command: process.execPath, args: [join(here, 'server.mjs')] });
+// isolate: a saved game from a previous run would otherwise be restored and
+// the suite would fail against its own leftovers
+const tmpState = mkdtempSync(join(tmpdir(), 'recant-test-'));
+const transport = new StdioClientTransport({
+  command: process.execPath,
+  args: [join(here, 'server.mjs')],
+  env: { ...process.env, RECANT_STATE_DIR: tmpState },
+});
 const client = new Client({ name: 'recant-test', version: '1.0.0' });
 await client.connect(transport);
 
@@ -190,6 +198,21 @@ ok('debrief shows the way through', verdict.includes('The way through'));
 
 const after = await call('confront', { witness: cast[0], with_account_of: cast[1] });
 ok('case is closed to further pressings', /closed/i.test(after));
+
+// 4. progress must survive a restart, or there is no daily game -- an MCP
+//    client spawns the server per conversation, so this happens constantly.
+{
+  const t2 = new StdioClientTransport({
+    command: process.execPath, args: [join(here, 'server.mjs')],
+    env: { ...process.env, RECANT_STATE_DIR: tmpState },
+  });
+  const c2 = new Client({ name: 'recant-test-2', version: '1.0.0' });
+  await c2.connect(t2);
+  const r = await c2.callTool({ name: 'open_case', arguments: {} });
+  const body = r.content.map((x) => x.text).join('\n');
+  ok('a finished case is still finished after a restart', /already finished/i.test(body), body.split('\n')[0]);
+  await c2.close();
+}
 
 await client.close();
 

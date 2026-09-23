@@ -17,6 +17,9 @@
 // That is fine, and arguably the point -- it can reason, but it cannot know,
 // because nothing in any tool result contains the answer until the case ends.
 
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
@@ -25,14 +28,58 @@ import {
 } from './engine.mjs';
 
 // ---------------------------------------------------------------------------
-// session state — stdio is one client per process, so a single case is enough
+// Session state, persisted to disk.
+//
+// This has to survive a process restart or there is no daily game. An MCP
+// client spawns the server per conversation, so without persistence every new
+// chat handed the player a fresh four pressings and the same case could be
+// farmed until it fell over. Measured, not assumed: the first version reset
+// 2 pressings back to 4 on reconnect.
+//
+// Only the mutable part is stored. The case itself is regenerated from the
+// date, which is cheaper than serialising it and cannot drift from what the
+// web version shows for the same day.
 // ---------------------------------------------------------------------------
+// RECANT_STATE_DIR lets the tests run against a throwaway directory; without
+// it a previous run's saved game leaks in and the suite fails on its own state.
+const STATE_DIR = process.env.RECANT_STATE_DIR || join(homedir(), '.recant');
+const STATE_FILE = join(STATE_DIR, 'state.json');
+
 let S = null;
 
-function newSession(c, label) {
+function persist() {
+  if (!S || S.practice) return;   // practice cases are throwaway
+  try {
+    mkdirSync(STATE_DIR, { recursive: true });
+    writeFileSync(STATE_FILE, JSON.stringify({
+      day: S.day, chain: S.chain, label: S.label,
+      claim: S.claim, stage: S.stage, left: S.left, over: S.over,
+      accused: S.accused, proved: S.proved, log: S.log,
+      recanted: [...S.recanted], corrected: [...S.corrected],
+    }));
+  } catch { /* a read-only home should not break the game */ }
+}
+
+function restore(day, chain) {
+  try {
+    const raw = JSON.parse(readFileSync(STATE_FILE, 'utf8'));
+    if (raw.day !== day || raw.chain !== chain) return null;   // a new day is a new case
+    const c = dailyCase(day, chain);
+    if (!c) return null;
+    return {
+      c, day, chain, label: raw.label, practice: false,
+      claim: raw.claim, stage: raw.stage, left: raw.left, over: raw.over,
+      accused: raw.accused, proved: raw.proved, log: raw.log || [],
+      asked: new Set(),
+      recanted: new Set(raw.recanted || []),
+      corrected: new Set(raw.corrected || []),
+    };
+  } catch { return null; }
+}
+
+function newSession(c, label, { day = null, chain = 3, practice = false } = {}) {
   S = {
-    c,
-    label,
+    c, label, day, chain, practice,
     claim: c.claim.slice(),   // what each witness CURRENTLY says; recantations move this
     stage: 0,                 // how far down the chain the liar has been pushed
     left: PRESSINGS,
@@ -44,22 +91,40 @@ function newSession(c, label) {
     recanted: new Set(),
     corrected: new Set(),
   };
+  persist();
   return S;
 }
 
 const nameOf = (i) => S.c.scen.cast[i];
 const place = (i) => S.c.scen.places[i];
 
+// Fold accents before matching. A model asked to name "Sørensen" will often
+// send "Sorensen", and so will anyone typing on a phone keyboard. NFD handles
+// the combining-mark cases (ö, á, å); the map covers the letters NFD does not
+// decompose at all, which is exactly where ø lives.
+const FOLD = { 'ø': 'o', 'æ': 'ae', 'œ': 'oe', 'ß': 'ss', 'đ': 'd', 'ð': 'd', 'ł': 'l', 'þ': 'th' };
+function fold(s) {
+  return String(s)
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[øæœßđðłþ]/g, (ch) => FOLD[ch] || ch)
+    .replace(/[^a-z0-9]+/g, '')
+    .trim();
+}
+
 function findWitness(input) {
   if (input == null) return -1;
-  const q = String(input).trim().toLowerCase();
-  const cast = S.c.scen.cast;
-  let i = cast.findIndex((n) => n.toLowerCase() === q);
+  const q = fold(input);
+  if (!q) return -1;
+  const cast = S.c.scen.cast.map(fold);
+  let i = cast.indexOf(q);
   if (i >= 0) return i;
-  i = cast.findIndex((n) => n.toLowerCase().startsWith(q));
+  i = cast.findIndex((n) => n.startsWith(q) && q.length >= 3);
   if (i >= 0) return i;
-  i = cast.findIndex((n) => q.includes(n.toLowerCase()));
-  return i;
+  i = cast.findIndex((n) => q.includes(n));
+  if (i >= 0) return i;
+  // last resort: the player wrote a phrase containing the name
+  return cast.findIndex((n) => n.length >= 4 && fold(input).includes(n.slice(0, 4)));
 }
 
 function text(body) {
@@ -153,22 +218,37 @@ server.registerTool('open_case', {
   },
 }, async ({ practice, harder }) => {
   const chain = harder ? 4 : 3;
-  if (S && !S.over && !practice) {
-    return text(`Case already open — ${S.label}.\n\n${opening()}\n\n${caseFileBody()}`);
-  }
-  let c, label;
+
   if (practice) {
     const seed = (Math.random() * 2 ** 32) >>> 0;
     const scen = SCENARIOS[seed % SCENARIOS.length];
-    c = generate(seed, scen, chain);
-    label = 'practice case';
-  } else {
-    c = dailyCase(todayKey(), chain);
-    label = `Recant #${dayNumber()}`;
+    const c = generate(seed, scen, chain);
+    if (!c) return text('Could not generate a case. Try again.');
+    newSession(c, 'practice case', { chain, practice: true });
+    return text(`**Practice case** (does not count, does not save)\n\n${opening()}`);
   }
+
+  const day = todayKey();
+
+  // Key on the DAY, not on "is something in memory". A server left running
+  // overnight would otherwise keep serving yesterday's case forever.
+  if (S && !S.practice && S.day === day && S.chain === chain) {
+    return text(`**${S.label}** — already open.\n\n${opening()}\n\n${caseFileBody()}`);
+  }
+
+  const resumed = restore(day, chain);
+  if (resumed) {
+    S = resumed;
+    const head = S.over
+      ? `**${S.label}** — you already finished this one. Come back tomorrow, or ask for a practice case.`
+      : `**${S.label}** — picking up where you left off.`;
+    return text(`${head}\n\n${opening()}\n\n${caseFileBody()}`);
+  }
+
+  const c = dailyCase(day, chain);
   if (!c) return text('Could not generate a case. Try again.');
-  newSession(c, label);
-  return text(`**${label}**\n\n${opening()}`);
+  newSession(c, `Recant #${dayNumber()}`, { day, chain });
+  return text(`**${S.label}**\n\n${opening()}`);
 });
 
 server.registerTool('ask_witness', {
@@ -213,6 +293,7 @@ server.registerTool('confront', {
   if (!clash) {
     const body = `You put ${nameOf(b)}'s account to ${nameOf(a)}. "I don't see the problem," they say. "We weren't anywhere near each other."\n\n**Nothing in it.** ${S.left} pressing${S.left === 1 ? '' : 's'} left.`;
     S.log.push({ kind: 'dud', text: body });
+    persist();
     return text(body + HOUSE);
   }
 
@@ -233,6 +314,7 @@ server.registerTool('confront', {
         ? `**That is the room it happened in.** ${nameOf(liar)} has run out of rooms.`
         : `**Their story has changed.** ${S.left} pressing${S.left === 1 ? '' : 's'} left.`);
     S.log.push({ kind: 'recant', text: body });
+    persist();
     return text(body + HOUSE);
   }
 
@@ -246,11 +328,13 @@ server.registerTool('confront', {
       `"No — sorry. The ${place(slip.says)} was ${TIMES[slip.fromSlot]}. At ${TIMES[c.crimeT]} I was in the ${place(slip.reallyAt)}."\n\n` +
       `**That thread is closed.** ${S.left} pressing${S.left === 1 ? '' : 's'} left.`;
     S.log.push({ kind: 'corrected', text: body });
+    persist();
     return text(body + HOUSE);
   }
 
   const body = `Both of them hold firm, and neither budges.\n\n**Nothing in it.** ${S.left} pressing${S.left === 1 ? '' : 's'} left.`;
   S.log.push({ kind: 'dud', text: body });
+  persist();
   return text(body + HOUSE);
 });
 
@@ -294,6 +378,7 @@ server.registerTool('accuse', {
   S.over = true;
   S.proved = (w === c.culprit) && (S.stage >= c.alibis.length);
   const right = w === c.culprit;
+  persist();
 
   const head = S.proved ? '**Proved it.**' : right ? '**Right — but you guessed.**' : '**Wrong.**';
   const lede = S.proved
