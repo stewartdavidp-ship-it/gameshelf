@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.13.0">
+    <meta name="version" content="1.13.1">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -11466,7 +11466,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.13.0</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.13.1</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -11529,11 +11529,6 @@
             <!-- Rewards - Combined Invite + Shop -->
             <div class="settings-section" data-lean-hide>
                 <div class="settings-section-title">🎁 Rewards</div>
-                <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(showReferralSheet, 300)">
-                    <span class="icon">📨</span>
-                    Share & Earn Tokens
-                    <span class="menu-chevron">›</span>
-                </a>
                 <p class="settings-desc">Get 🎟️ 110 tokens per friend + auto-connect!</p>
                 <a class="settings-link" style="margin-top: 8px;">
                     <span class="icon">🛍️</span>
@@ -13214,8 +13209,6 @@
                     <span>4 days remaining - stay consistent!</span>
                 </div>
                 <div class="battle-impact-actions">
-                    <button class="battle-impact-btn" onclick="event.stopPropagation(); closeSuccessModal(); showBattleDetails(currentBattleImpact?.id)">View Battle</button>
-                    <button class="battle-impact-btn primary" onclick="event.stopPropagation(); shareBattleProgress()">Share Progress</button>
                 </div>
             </div>
             
@@ -17566,16 +17559,6 @@
                 renderAll();
             }
             
-            // 5. Queue morning review (but respect 4am rule)
-            const currentHour = new Date().getHours();
-            if (currentHour >= MORNING_REVIEW_HOUR) {
-                // It's already past 4am — queue morning review
-                queueNewDayPopup('morning-review');
-            } else {
-                // Before 4am — defer morning review until 4am+
-                console.log('🌅 Before 4am — deferring morning review');
-                sessionStorage.setItem('pendingMorningReview', 'true');
-            }
             
             // 6. Check for scheduled sprint (may need prompt)
             if (appData.sprintSchedule?.enabled) {
@@ -20018,23 +20001,6 @@
         };
         
         // Expand query with synonyms
-        function expandQueryWithSynonyms(words) {
-            const expanded = new Set(words);
-            words.forEach(word => {
-                // Check if this word is a key
-                if (FAQ_SYNONYMS[word]) {
-                    FAQ_SYNONYMS[word].forEach(syn => expanded.add(syn));
-                }
-                // Check if this word appears in any synonym list
-                Object.entries(FAQ_SYNONYMS).forEach(([key, syns]) => {
-                    if (syns.includes(word)) {
-                        expanded.add(key);
-                        syns.forEach(syn => expanded.add(syn));
-                    }
-                });
-            });
-            return Array.from(expanded);
-        }
         
         function renderSearchResults(results, query) {
             const container = document.getElementById('help-content');
@@ -20390,162 +20356,10 @@
             document.querySelectorAll('.merch-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.textContent.toLowerCase().includes(filter) || (filter === 'all' && tab.textContent === 'All'));
             });
-            renderMerchCatalog();
         }
         
-        function renderMerchCatalog() {
-            const container = document.getElementById('merch-catalog');
-            const coins = appData.wallet?.coins || 0;
-            const owned = appData.ownedMerch || [];
-            
-            let items = MERCH_CATALOG;
-            if (currentMerchFilter === 'virtual') {
-                items = items.filter(i => i.category === 'virtual');
-            } else if (currentMerchFilter === 'physical') {
-                items = items.filter(i => i.category === 'physical');
-            }
-            
-            const virtualItems = items.filter(i => i.category === 'virtual');
-            const physicalItems = items.filter(i => i.category === 'physical');
-            
-            let html = '';
-            
-            if (virtualItems.length > 0 && currentMerchFilter !== 'physical') {
-                html += `<div class="merch-section-header">🏆 Rewards<br><span class="merch-earn-hint">Earned through battles & achievements</span></div>`;
-                virtualItems.forEach(item => {
-                    const isOwned = owned.includes(item.id);
-                    html += `
-                        <div class="merch-card ${isOwned ? 'owned' : ''}" onclick="showMerchDetails('${item.id}')">
-                            <div class="merch-image">${item.image}</div>
-                            <div class="merch-info">
-                                <div class="merch-name">${item.name}</div>
-                                <div class="merch-desc">${item.description}</div>
-                                <div class="merch-footer">
-                                    ${isOwned ? '<span class="merch-owned">✓ Owned</span>' : `<span class="merch-earn-hint">${item.earnedBy}</span>`}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            if (physicalItems.length > 0 && currentMerchFilter !== 'virtual') {
-                html += `<div class="merch-section-header">🎁 Gift of Choice<br><span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">Redeem coins for real gifts via Goody</span></div>`;
-                physicalItems.forEach(item => {
-                    const canAfford = coins >= item.price;
-                    html += `
-                        <div class="merch-card ${canAfford ? '' : 'unaffordable'}" onclick="showMerchDetails('${item.id}')">
-                            <div class="merch-image">${item.image}${item.popular ? '⭐' : ''}</div>
-                            <div class="merch-info">
-                                <div class="merch-name">${item.name}</div>
-                                <div class="merch-desc">${item.description}</div>
-                                <div class="merch-footer">
-                                    <span class="merch-price ${canAfford ? '' : 'too-expensive'}">🪙 ${item.price}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            container.innerHTML = html || '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 20px;">No items found</div>';
-        }
         
-        function showMerchDetails(itemId) {
-            const item = MERCH_CATALOG.find(m => m.id === itemId);
-            if (!item) return;
-            
-            const coins = appData.wallet?.coins || 0;
-            const owned = (appData.ownedMerch || []).includes(itemId);
-            
-            let content = `
-                <div style="padding: 20px; text-align: center;">
-                    <div style="font-size: 4rem; margin-bottom: 12px;">${item.image}</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">${item.name}</div>
-                    <div style="color: var(--text-muted); margin-bottom: 20px;">${item.description}</div>
-            `;
-            
-            if (item.category === 'virtual') {
-                // Virtual item (earned, not purchased)
-                if (owned) {
-                    content += `
-                        <div style="background: var(--accent-green); color: white; padding: 12px; border-radius: 10px; font-weight: 600;">
-                            ✓ You own this!
-                        </div>
-                    `;
-                } else {
-                    content += `
-                        <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 10px; text-align: left;">
-                            <div style="font-weight: 600; margin-bottom: 4px;">How to earn:</div>
-                            <div style="color: var(--text-muted);">${item.earnedBy}</div>
-                        </div>
-                    `;
-                }
-            } else {
-                // Physical item (purchased with coins)
-                if (owned) {
-                    content += `
-                        <div style="background: var(--accent-green); color: white; padding: 12px; border-radius: 10px; font-weight: 600;">
-                            ✓ Already redeemed!
-                        </div>
-                    `;
-                } else if (coins >= item.price) {
-                    content += `
-                        <div style="background: var(--bg-tertiary); padding: 12px; border-radius: 10px; margin-bottom: 16px;">
-                            <span style="font-size: 1.1rem;">🪙 ${item.price}</span>
-                            <span style="color: var(--text-muted); margin-left: 8px;">You have: 🪙 ${coins}</span>
-                        </div>
-                        <button onclick="closeGenericSheet(); confirmRedeemMerch('${itemId}');" style="
-                            width: 100%; padding: 14px;
-                            background: linear-gradient(135deg, var(--accent-gold), #e6c200);
-                            border: none; border-radius: 10px;
-                            color: #1a1a2e; font-weight: 600; font-size: 1rem; cursor: pointer;
-                        ">
-                            Redeem Now
-                        </button>
-                    `;
-                } else {
-                    content += `
-                        <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 10px;">
-                            <div style="font-size: 1.1rem; margin-bottom: 8px;">🪙 ${item.price} needed</div>
-                            <div style="color: var(--accent-red);">You have: 🪙 ${coins}</div>
-                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">
-                                Need ${item.price - coins} more coins
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-            
-            content += `
-                <button onclick="closeGenericSheet();" style="
-                    width: 100%; padding: 12px; margin-top: 12px;
-                    background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px;
-                    color: var(--text-primary); font-size: 0.95rem; cursor: pointer;
-                ">
-                    Close
-                </button>
-            </div>`;
-            
-            showGenericSheet({
-                title: `${item.image} ${item.name}`,
-                content: content
-            });
-        }
         
-        function confirmRedeemMerch(itemId) {
-            const item = MERCH_CATALOG.find(m => m.id === itemId);
-            if (!item) return;
-            
-            showConfirmModal({
-                icon: '🎁',
-                title: 'Redeem Gift?',
-                message: `Redeem ${item.name} for 🪙 ${item.price} coins?`,
-                confirmText: 'Redeem',
-                confirmStyle: 'primary',
-                onConfirm: () => redeemMerch(itemId)
-            });
-        }
         
         
         // ============ UI RENDERING ============
@@ -21436,49 +21250,11 @@
             el.classList.add('selected');
         }
         
-        function openScheduleGameSelector() {
-            renderScheduleGameSelector();
-            document.getElementById('schedule-game-selector-overlay').classList.add('active');
-        }
         
         function closeScheduleGameSelector() {
             document.getElementById('schedule-game-selector-overlay').classList.remove('active');
         }
         
-        function renderScheduleGameSelector() {
-            const body = document.getElementById('schedule-game-selector-body');
-            if (!body) return;
-            
-            let html = '';
-            
-            for (const [category, gameIds] of Object.entries(BATTLE_GAME_CATEGORIES)) {
-                const validGames = gameIds.filter(id => GAMES[id]);
-                if (validGames.length === 0) continue;
-                
-                html += `<div class="game-category">`;
-                html += `<div class="game-category-title">${category}</div>`;
-                html += `<div class="game-category-grid">`;
-                
-                for (const gameId of validGames) {
-                    const game = GAMES[gameId];
-                    const isSelected = scheduleSelectedGames.includes(gameId);
-                    html += `
-                        <div class="game-select-item ${isSelected ? 'selected' : ''}" 
-                             data-game="${gameId}" 
-                             onclick="toggleScheduleGame(this, '${gameId}')">
-                            <span class="game-select-icon">${game.icon}</span>
-                            <span class="game-select-name">${game.name}</span>
-                            <span class="game-select-check">✓</span>
-                        </div>
-                    `;
-                }
-                
-                html += `</div></div>`;
-            }
-            
-            body.innerHTML = html;
-            updateScheduleGameSelectorCount();
-        }
         
         function toggleScheduleGame(el, gameId) {
             const isSelected = scheduleSelectedGames.includes(gameId);
@@ -21559,50 +21335,11 @@
         let battleSelectedGames = []; // v1.9.9: Start empty, user chooses all
         
         
-        function openGameSelector() {
-            renderGameSelector();
-            document.getElementById('game-selector-overlay').classList.add('active');
-        }
         
         function closeGameSelector() {
             document.getElementById('game-selector-overlay').classList.remove('active');
         }
         
-        function renderGameSelector() {
-            const body = document.getElementById('game-selector-body');
-            if (!body) return;
-            
-            let html = '';
-            
-            for (const [category, gameIds] of Object.entries(BATTLE_GAME_CATEGORIES)) {
-                // Filter to only include games that exist in GAMES
-                const validGames = gameIds.filter(id => GAMES[id]);
-                if (validGames.length === 0) continue;
-                
-                html += `<div class="game-category">`;
-                html += `<div class="game-category-title">${category}</div>`;
-                html += `<div class="game-category-grid">`;
-                
-                for (const gameId of validGames) {
-                    const game = GAMES[gameId];
-                    const isSelected = battleSelectedGames.includes(gameId);
-                    html += `
-                        <div class="game-select-item ${isSelected ? 'selected' : ''}" 
-                             data-game="${gameId}" 
-                             onclick="toggleGameInSelector(this, '${gameId}')">
-                            <span class="game-select-icon">${game.icon}</span>
-                            <span class="game-select-name">${game.name}</span>
-                            <span class="game-select-check">✓</span>
-                        </div>
-                    `;
-                }
-                
-                html += `</div></div>`;
-            }
-            
-            body.innerHTML = html;
-            updateGameSelectorCount();
-        }
         
         function toggleGameInSelector(el, gameId) {
             const isSelected = battleSelectedGames.includes(gameId);
@@ -30604,19 +30341,6 @@
                 // On init, we check if morning review / scheduled sprint should show.
                 // The orchestrator respects the 4am rule and priority ordering.
                 // Activity summary is now folded into morning review.
-                setTimeout(() => {
-                    const currentHour = new Date().getHours();
-                    if (currentHour >= MORNING_REVIEW_HOUR) {
-                        queueNewDayPopup('morning-review');
-                    } else {
-                        // Before 4am on startup — defer morning review
-                        sessionStorage.setItem('pendingMorningReview', 'true');
-                    }
-                    if (appData.sprintSchedule?.enabled) {
-                        queueNewDayPopup('scheduled-sprint');
-                    }
-                    processPopupQueue();
-                }, 2000);
                 
                 // v1.3.2: Check for What's New (version-based, not day-based — stays independent)
                 setTimeout(checkForWhatsNew, 2500);
@@ -30811,7 +30535,7 @@
             // v1.10.0: Start day-change detection interval
             startDayCheckInterval();
             
-            console.log('🧩 Game Shelf PWA v1.13.0 initialized');
+            console.log('🧩 Game Shelf PWA v1.13.1 initialized');
             console.log('🌅 Day-change engine active. Current day:', _lastKnownDay);
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());
