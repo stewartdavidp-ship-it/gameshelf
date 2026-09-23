@@ -265,6 +265,16 @@ server.registerTool('ask_witness', {
   const g = needCase(); if (g) return g;
   const w = findWitness(witness);
   if (w < 0) return text(`No one here by that name. The ${S.c.scen.people} are: ${S.c.scen.cast.join(', ')}.`);
+  // The enum is declared but not enforced on the wire, so an unrecognised topic
+  // would otherwise fall through to the catch-all and answer a question nobody
+  // asked. Say so instead — a model recovers from that in one turn.
+  const TOPICS = ['where_they_were', 'who_they_saw', 'someone_else', 'the_incident'];
+  if (!TOPICS.includes(about)) {
+    return text(`I can put four things to ${nameOf(w)}: where_they_were, who_they_saw, someone_else (with a subject), or the_incident. Which of those did you mean?`);
+  }
+  if (about === 'someone_else' && !subject) {
+    return text(`Ask ${nameOf(w)} about whom? Pass a subject.`);
+  }
   S.asked.add(`${w}:${about}`);
   return text(`**${nameOf(w)}**\n\n${accountOf(w, about, subject)}${HOUSE}`);
 });
