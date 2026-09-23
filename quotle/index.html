@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.5.3">
+    <meta name="version" content="1.5.4">
     <title>Quotle - Daily Quote Puzzle</title>
     
     <!-- Early initialization: Set defaults and apply dark mode BEFORE any CSS renders -->
@@ -817,6 +817,9 @@
             align-items: center;
             gap: 12px;
             opacity: 0;
+            /* A toast is never interactive. Without this it stays in the hit-test
+               at opacity 0 and silently swallows taps on whatever is beneath it. */
+            pointer-events: none;
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
@@ -972,8 +975,10 @@
         
         .token-earned-toast {
             position: fixed;
-            top: 60px;
-            right: 20px;
+            /* Must clear the status bar in an installed PWA, or this lands on the
+               menu button. It is invisible, so the menu just stops responding. */
+            top: calc(env(safe-area-inset-top, 0px) + 60px);
+            right: calc(env(safe-area-inset-right, 0px) + 20px);
             background: linear-gradient(135deg, var(--gold) 0%, #C4A030 100%);
             color: #1a1a1a;
             padding: 10px 15px;
@@ -983,6 +988,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 9999;
             opacity: 0;
+            pointer-events: none;
             transform: translateX(50px);
             transition: all 0.4s ease;
         }
@@ -1107,6 +1113,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            pointer-events: none;
             transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
@@ -3618,7 +3625,7 @@
                     <p><strong>Quote #:</strong> <span id="current-quote-number">Loading...</span></p>
                     <p><strong>Total Quotes:</strong> 365</p>
                     <p><strong>Days Live:</strong> <span id="days-since-launch">Loading...</span></p>
-                    <p><strong>Version:</strong> v1.5.3</p>
+                    <p><strong>Version:</strong> v1.5.4</p>
                 </div>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--slate); line-height: 1.5;">
                     A daily quote guessing game featuring wisdom from ancient philosophers to modern thinkers - spanning over 2,500 years of human thought.
