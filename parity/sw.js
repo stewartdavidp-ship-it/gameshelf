@@ -1,8 +1,8 @@
 /**
  * Parity PWA Service Worker
- * Version: 1.0.3
+ * Version: 1.0.4
  */
-const CACHE_VERSION = 'v1.0.3';
+const CACHE_VERSION = 'v1.0.4';
 const CACHE_NAME = `parity-pwa-${CACHE_VERSION}`;
 
 const CACHE_FILES = ['./', './index.html', './manifest.json'];
