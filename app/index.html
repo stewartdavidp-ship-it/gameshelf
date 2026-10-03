@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.14.1">
+    <meta name="version" content="1.15.0">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -2730,6 +2730,32 @@
             box-sizing: border-box;
         }
         
+        /* Shelf groups: a group name spans the whole row above its games */
+        .shelf-group-header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 8px 2px -2px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary, var(--text-primary));
+            letter-spacing: 0.02em;
+        }
+        .shelf-group-header:first-child { margin-top: 0; }
+        .shelf-group-header .shelf-group-count { color: var(--text-muted); font-weight: 400; }
+        .shelf-group-header.editable { cursor: pointer; }
+        .shelf-group-header.editable::after { content: '✎'; color: var(--text-muted); font-weight: 400; margin-left: 2px; }
+        .shelf-group-empty {
+            grid-column: 1 / -1;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 10px;
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+            text-align: center;
+        }
+
         /* Prevent double padding in games list */
         .games-list .games-grid {
             padding: 0;
@@ -11466,7 +11492,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.14.1</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.15.0</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -11896,7 +11922,7 @@
                 <!-- Your Shelf -->
                 <div class="games-category">
                     <div class="category-title">Your Shelf <span id="shelf-count" style="color: var(--text-muted); font-weight: normal;">(0)</span></div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding-left: 4px;">Long-press any game to remove</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding-left: 4px;">Long-press any game to put it in a group or remove it</div>
                     <div class="games-grid" id="shelf-games-grid">
                         <!-- Populated by JS -->
                     </div>
@@ -19626,9 +19652,12 @@
         }
         
         // ============ WHAT'S NEW SYSTEM ============
-        const APP_VERSION = '1.14.1';
+        const APP_VERSION = '1.15.0';
 
         const RELEASE_NOTES = {
+            '1.15.0': [
+                { icon: '📁', title: 'Group your games', desc: 'Long-press any game and choose “Put in a group” to sort your shelf your way — like Morning, Word games or With the kids' }
+            ],
             '1.14.1': [
                 { icon: '✨', title: '4 new games', desc: 'The Loop from Britannica, plus Blossom, The Missing Letter and Twofer Goofer from Merriam-Webster' }
             ],
@@ -22246,7 +22275,7 @@
                 return;
             }
             
-            container.innerHTML = shelf.map(g => {
+            const homeCard = g => {
                 const game = GAMES[g.id];
                 if (!game) return '';
                 const done = todayHistory[g.id];
@@ -22263,12 +22292,198 @@
                     <div class="game-name">${game.name}</div>
                     <div class="game-status">${status}</div>
                 </div>`;
-            }).join('');
+            };
+            // Shelf groups: same tiles, laid out under the player's group names
+            container.innerHTML = sectionShelfByGroup(shelf, false).map(sec =>
+                shelfGroupHeaderHtml(sec, false) + sec.entries.map(homeCard).join('')
+            ).join('');
             
             // v1.3.0: Setup long-press for each game card
             container.querySelectorAll('.game-card[data-game-id]').forEach(card => {
                 setupLongPress(card, card.dataset.gameId);
             });
+        }
+        
+        // ============ SHELF GROUPS ============
+        // Player-made groups ("Morning", "With the kids", ...). Stored in settings so they
+        // ride the existing settings sync: settings.shelfGroups = [{ name, games: [gameId] }],
+        // array order = display order. A game is in at most one group; games in none are
+        // shown last under "Other". RTDB drops empty arrays, hence the defensive reads.
+        const SHELF_GROUP_NAME_MAX = 24;
+        
+        function getShelfGroups() {
+            const raw = appData.settings?.shelfGroups;
+            const list = Array.isArray(raw) ? raw : (raw && typeof raw === 'object' ? Object.values(raw) : []);
+            return list.filter(g => g && g.name).map(g => ({
+                name: String(g.name),
+                games: Array.isArray(g.games) ? g.games.filter(Boolean)
+                    : (g.games && typeof g.games === 'object' ? Object.values(g.games) : [])
+            }));
+        }
+        
+        function saveShelfGroups(groups) {
+            if (!appData.settings) appData.settings = {};
+            appData.settings.shelfGroups = groups;
+            saveData();
+            syncToCloud();
+            renderAll();
+        }
+        
+        function shelfGroupIndexOf(gameId) {
+            return getShelfGroups().findIndex(g => g.games.includes(gameId));
+        }
+        
+        // Split shelf entries into [{ name, index, entries }] in group order, then "Other".
+        // With no groups at all there is one unnamed section, so the shelf looks as before.
+        function sectionShelfByGroup(entries, includeEmpty) {
+            const groups = getShelfGroups();
+            if (!groups.length) return [{ name: null, index: -1, entries }];
+            const placed = new Set();
+            const sections = groups.map((g, index) => {
+                const inGroup = entries.filter(e => g.games.includes(e.id) && !placed.has(e.id));
+                inGroup.forEach(e => placed.add(e.id));
+                return { name: g.name, index, entries: inGroup };
+            }).filter(sec => includeEmpty || sec.entries.length);
+            const rest = entries.filter(e => !placed.has(e.id));
+            if (rest.length) sections.push({ name: 'Other', index: -1, entries: rest });
+            return sections;
+        }
+        
+        function shelfGroupHeaderHtml(sec, editable) {
+            if (sec.name === null) return '';
+            const canEdit = editable && sec.index >= 0;
+            return `<div class="shelf-group-header ${canEdit ? 'editable' : ''}" ${canEdit ? `onclick="showShelfGroupOptions(${sec.index})"` : ''}>
+                <span>${escapeHtml(sec.name)}</span><span class="shelf-group-count">${sec.entries.length}</span>
+            </div>`;
+        }
+        
+        function moveGameToShelfGroup(gameId, groupIndex) {
+            const groups = getShelfGroups();
+            groups.forEach(g => { g.games = g.games.filter(id => id !== gameId); });
+            if (groupIndex >= 0 && groups[groupIndex]) groups[groupIndex].games.push(gameId);
+            saveShelfGroups(groups);
+            closeGenericSheet();
+            const game = GAMES[gameId];
+            showToast(groupIndex >= 0 && groups[groupIndex]
+                ? `${game ? game.name : 'Game'} moved to ${groups[groupIndex].name}`
+                : `${game ? game.name : 'Game'} is no longer in a group`, 'success');
+        }
+        
+        function readShelfGroupName(inputId) {
+            const input = document.getElementById(inputId);
+            const name = (input?.value || '').trim().replace(/\s+/g, ' ').slice(0, SHELF_GROUP_NAME_MAX);
+            if (!name) { showToast('Type a name for the group'); input?.focus(); return null; }
+            const taken = getShelfGroups().some(g => g.name.toLowerCase() === name.toLowerCase());
+            return { name, taken };
+        }
+        
+        function createShelfGroupWithGame(gameId) {
+            const read = readShelfGroupName('new-shelf-group-name');
+            if (!read) return;
+            const groups = getShelfGroups();
+            let index = groups.findIndex(g => g.name.toLowerCase() === read.name.toLowerCase());
+            if (index === -1) { groups.push({ name: read.name, games: [] }); index = groups.length - 1; }
+            if (!appData.settings) appData.settings = {};
+            appData.settings.shelfGroups = groups;
+            moveGameToShelfGroup(gameId, index);
+        }
+        
+        function showShelfGroupPicker(gameId) {
+            const game = GAMES[gameId];
+            if (!game) return;
+            const groups = getShelfGroups();
+            const current = shelfGroupIndexOf(gameId);
+            const row = (label, onclick, selected) => `
+                <button onclick="${onclick}" style="
+                    width: 100%; padding: 13px 14px; background: var(--bg-tertiary);
+                    border: 1px solid ${selected ? 'var(--accent-purple)' : 'var(--border)'};
+                    border-radius: 10px; color: var(--text-primary); font-size: 0.95rem; cursor: pointer;
+                    display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left;
+                "><span>${label}</span><span style="color: var(--accent-purple); font-weight: 700;">${selected ? '✓' : ''}</span></button>`;
+            showGenericSheet({
+                title: `📁 Group for ${game.icon} ${game.name}`,
+                content: `
+                    <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+                        ${groups.map((g, i) => row(escapeHtml(g.name), `moveGameToShelfGroup('${gameId}', ${i})`, i === current)).join('')}
+                        ${groups.length ? row('<span style="color: var(--text-muted);">No group</span>', `moveGameToShelfGroup('${gameId}', -1)`, current === -1) : ''}
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: ${groups.length ? '8px' : '0'};">${groups.length ? 'Or start a new group' : 'Name a group to start one — like “Morning”, “Word games” or “With the kids”.'}</div>
+                        <div style="display: flex; gap: 8px;">
+                            <input id="new-shelf-group-name" type="text" maxlength="${SHELF_GROUP_NAME_MAX}" placeholder="Group name"
+                                onkeydown="if (event.key === 'Enter') createShelfGroupWithGame('${gameId}')"
+                                style="flex: 1; min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;">
+                            <button onclick="createShelfGroupWithGame('${gameId}')" style="
+                                padding: 12px 16px; background: var(--accent-purple); border: none; border-radius: 10px;
+                                color: white; font-size: 0.95rem; font-weight: 600; cursor: pointer;">Add</button>
+                        </div>
+                    </div>
+                `
+            });
+        }
+        
+        function showShelfGroupOptions(index) {
+            const groups = getShelfGroups();
+            const group = groups[index];
+            if (!group) return;
+            const btn = (label, onclick, style = '') => `
+                <button onclick="${onclick}" style="
+                    width: 100%; padding: 13px; background: var(--bg-tertiary); border: 1px solid var(--border);
+                    border-radius: 10px; color: var(--text-primary); font-size: 0.95rem; cursor: pointer; ${style}
+                ">${label}</button>`;
+            showGenericSheet({
+                title: `📁 ${escapeHtml(group.name)}`,
+                content: `
+                    <div style="padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; gap: 8px;">
+                            <input id="rename-shelf-group" type="text" maxlength="${SHELF_GROUP_NAME_MAX}" value="${escapeHtml(group.name)}"
+                                onkeydown="if (event.key === 'Enter') renameShelfGroup(${index})"
+                                style="flex: 1; min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-secondary); color: var(--text-primary); font-size: 1rem;">
+                            <button onclick="renameShelfGroup(${index})" style="
+                                padding: 12px 16px; background: var(--accent-purple); border: none; border-radius: 10px;
+                                color: white; font-size: 0.95rem; font-weight: 600; cursor: pointer;">Rename</button>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            ${index > 0 ? btn('⬆️ Move up', `moveShelfGroup(${index}, -1)`) : ''}
+                            ${index < groups.length - 1 ? btn('⬇️ Move down', `moveShelfGroup(${index}, 1)`) : ''}
+                        </div>
+                        ${btn('🗑️ Delete group', `deleteShelfGroup(${index})`, 'border-color: var(--accent-red); color: var(--accent-red);')}
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Deleting a group keeps its games on your shelf.</div>
+                    </div>
+                `
+            });
+        }
+        
+        function renameShelfGroup(index) {
+            const groups = getShelfGroups();
+            if (!groups[index]) return;
+            const read = readShelfGroupName('rename-shelf-group');
+            if (!read) return;
+            if (read.taken && groups[index].name.toLowerCase() !== read.name.toLowerCase()) {
+                showToast('You already have a group with that name');
+                return;
+            }
+            groups[index].name = read.name;
+            saveShelfGroups(groups);
+            closeGenericSheet();
+            showToast('Group renamed', 'success');
+        }
+        
+        function moveShelfGroup(index, delta) {
+            const groups = getShelfGroups();
+            const to = index + delta;
+            if (!groups[index] || to < 0 || to >= groups.length) return;
+            [groups[index], groups[to]] = [groups[to], groups[index]];
+            saveShelfGroups(groups);
+            showShelfGroupOptions(to);
+        }
+        
+        function deleteShelfGroup(index) {
+            const groups = getShelfGroups();
+            const group = groups[index];
+            if (!group) return;
+            groups.splice(index, 1);
+            saveShelfGroups(groups);
+            closeGenericSheet();
+            showToast(`Deleted ${group.name} — its games are still on your shelf`, 'info');
         }
         
         function renderShelfGames() {
@@ -22289,7 +22504,7 @@
             // v1.11.0: Show hearts only when 10+ games (favorites matter)
             const showHearts = appData.games.length >= 10;
             
-            container.innerHTML = appData.games.map(g => {
+            const shelfCard = g => {
                 const game = GAMES[g.id];
                 if (!game) return '';
                 const done = todayHistory[g.id];
@@ -22310,7 +22525,13 @@
                     <div class="game-status">${status}</div>
                     ${heartHtml}
                 </div>`;
-            }).join('');
+            };
+            // Shelf groups: empty groups show here (not on Home) so a new group is visible
+            container.innerHTML = sectionShelfByGroup(appData.games, true).map(sec =>
+                shelfGroupHeaderHtml(sec, true)
+                + (sec.entries.length ? sec.entries.map(shelfCard).join('')
+                    : '<div class="shelf-group-empty">Long-press a game to move it here</div>')
+            ).join('');
             
             // v1.3.0: Setup long-press for each game card
             container.querySelectorAll('.game-card[data-game-id]').forEach(card => {
@@ -25248,6 +25469,9 @@
                 confirmStyle: 'danger',
                 onConfirm: () => {
                     appData.games.splice(index, 1);
+                    if (shelfGroupIndexOf(gameId) >= 0 && appData.settings) {
+                        appData.settings.shelfGroups = getShelfGroups().map(g => ({ ...g, games: g.games.filter(id => id !== gameId) }));
+                    }
                     saveData();
                     syncToCloud();
                     renderAll();
@@ -25304,6 +25528,16 @@
                             ">
                                 <span>📊</span> View Stats
                             </button>
+                            
+                            ${isOnShelf ? `
+                                <button onclick="showShelfGroupPicker('${gameId}')" style="
+                                    width: 100%; padding: 14px; background: var(--bg-tertiary); border: 1px solid var(--border);
+                                    border-radius: 10px; color: var(--text-primary); font-size: 1rem; cursor: pointer;
+                                    display: flex; align-items: center; justify-content: center; gap: 8px;
+                                ">
+                                    <span>📁</span> ${(() => { const gi = shelfGroupIndexOf(gameId); return gi >= 0 ? `Group: ${escapeHtml(getShelfGroups()[gi].name)}` : 'Put in a group'; })()}
+                                </button>
+                            ` : ''}
                             
                             ${isOnShelf ? `
                                 <button onclick="closeGenericSheet(); removeFromShelf('${gameId}')" style="
@@ -30627,7 +30861,7 @@
             // v1.10.0: Start day-change detection interval
             startDayCheckInterval();
             
-            console.log('🧩 Game Shelf PWA v1.14.1 initialized');
+            console.log('🧩 Game Shelf PWA v1.15.0 initialized');
             console.log('🌅 Day-change engine active. Current day:', _lastKnownDay);
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());
