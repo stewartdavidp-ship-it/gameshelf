@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.15.0">
+    <meta name="version" content="1.15.1">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -11492,7 +11492,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.15.0</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.15.1</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -17748,6 +17748,63 @@
             }
         }
         
+        // v1.15.1: Shelf games sync. appData.removedGames = { gameId: removedAt } is a
+        // tombstone per removal, so a game removed on one device isn't put back by
+        // another device's stale shelf. Tombstones are kept even if the game is re-added;
+        // the re-add's newer addedAt is what brings it back.
+        function shelfTime(t) {
+            const ms = typeof t === 'number' ? t : Date.parse(t);
+            return isNaN(ms) ? 0 : ms;
+        }
+
+        function recordShelfRemoval(gameIds) {
+            if (!gameIds.length) return;
+            if (!appData.removedGames) appData.removedGames = {};
+            const now = new Date().toISOString();
+            gameIds.forEach(id => { appData.removedGames[id] = now; });
+        }
+
+        // RTDB hands arrays back as objects with numeric keys when they have gaps
+        function asList(value) {
+            if (!value) return [];
+            return (Array.isArray(value) ? value : Object.values(value)).filter(Boolean);
+        }
+
+        // Union by id: local order first, then cloud-only games. A game survives unless a
+        // tombstone is newer than every addedAt it has. Each survivor keeps its earliest
+        // addedAt since its last removal.
+        function mergeShelfGames(localGames, cloudGames, localRemoved, cloudRemoved) {
+            const removedGames = { ...(cloudRemoved || {}) };
+            Object.entries(localRemoved || {}).forEach(([id, at]) => {
+                if (!removedGames[id] || shelfTime(at) > shelfTime(removedGames[id])) removedGames[id] = at;
+            });
+
+            const byId = new Map();
+            [...asList(localGames), ...asList(cloudGames)].forEach(g => {
+                if (!g.id) return;
+                if (!byId.has(g.id)) byId.set(g.id, []);
+                byId.get(g.id).push(g);
+            });
+
+            const games = [];
+            byId.forEach((copies, id) => {
+                const removedAt = removedGames[id] ? shelfTime(removedGames[id]) : -Infinity;
+                const live = copies.filter(g => shelfTime(g.addedAt) > removedAt);
+                if (!live.length) return;
+                const earliest = live.reduce((a, b) => (shelfTime(b.addedAt) < shelfTime(a.addedAt) ? b : a));
+                games.push({ ...live[0], addedAt: earliest.addedAt });
+            });
+            return { games, removedGames };
+        }
+
+        // A device that never finished setup starts with DEFAULT_SHELF. Those aren't the
+        // player's picks, so they shouldn't be added to the shelf they already have.
+        function isUntouchedDefaultShelf(games) {
+            if (isSetupComplete() || Object.keys(appData.removedGames || {}).length) return false;
+            const ids = new Set(asList(games).map(g => g.id));
+            return ids.size === DEFAULT_SHELF.length && DEFAULT_SHELF.every(id => ids.has(id));
+        }
+
         async function loadFromCloud() {
             if (!currentUser) return;
             
@@ -17788,7 +17845,16 @@
                         const combined = new Set([...appData.myShelf, ...cloudData.myShelf]);
                         appData.myShelf = Array.from(combined);
                     }
-                    
+
+                    // v1.15.1: Merge the games on the shelf (union by id, honoring removals)
+                    const cloudGames = asList(cloudData.games);
+                    if (cloudGames.length || cloudData.removedGames) {
+                        const localGames = isUntouchedDefaultShelf(appData.games) && cloudGames.length ? [] : appData.games;
+                        const merged = mergeShelfGames(localGames, cloudGames, appData.removedGames, cloudData.removedGames);
+                        appData.games = merged.games;
+                        appData.removedGames = merged.removedGames;
+                    }
+
                     // Merge achievements (union)
                     if (cloudData.achievements) {
                         appData.achievements = { ...(appData.achievements || {}), ...cloudData.achievements };
@@ -19652,9 +19718,12 @@
         }
         
         // ============ WHAT'S NEW SYSTEM ============
-        const APP_VERSION = '1.15.0';
+        const APP_VERSION = '1.15.1';
 
         const RELEASE_NOTES = {
+            '1.15.1': [
+                { icon: '☁️', title: 'Your shelf follows you', desc: 'Sign in on a second phone or computer and the games on your shelf come with you. Games you remove stay removed everywhere' }
+            ],
             '1.15.0': [
                 { icon: '📁', title: 'Group your games', desc: 'Long-press any game and choose “Put in a group” to sort your shelf your way — like Morning, Word games or With the kids' }
             ],
@@ -25469,6 +25538,7 @@
                 confirmStyle: 'danger',
                 onConfirm: () => {
                     appData.games.splice(index, 1);
+                    recordShelfRemoval([gameId]);
                     if (shelfGroupIndexOf(gameId) >= 0 && appData.settings) {
                         appData.settings.shelfGroups = getShelfGroups().map(g => ({ ...g, games: g.games.filter(id => id !== gameId) }));
                     }
@@ -29922,6 +29992,11 @@
         // NEW: Finish setup and show complete screen (simplified)
         function setupFinishAndShowComplete() {
             // Replace appData.games with only the selected games
+            // v1.15.1: when reconfiguring, deselected games are removals that must sync
+            if (isSetupComplete()) {
+                const kept = new Set(setupGameConfigs.map(g => g.gameId));
+                recordShelfRemoval(appData.games.map(g => g.id).filter(id => !kept.has(id)));
+            }
             appData.games = setupGameConfigs.map(g => ({ 
                 id: g.gameId, 
                 addedAt: new Date().toISOString(),
@@ -30519,6 +30594,12 @@
                 setupDate: new Date().toISOString()
             };
             
+            // v1.15.1: when reconfiguring, deselected games are removals that must sync
+            if (isSetupComplete()) {
+                const kept = new Set(setupGameConfigs.map(g => g.gameId));
+                recordShelfRemoval(appData.games.map(g => g.id).filter(id => !kept.has(id)));
+            }
+            
             localStorage.setItem('gameshelf_config', JSON.stringify(config));
             localStorage.setItem('gameshelf_games', JSON.stringify(setupGameConfigs));
             localStorage.setItem('gameshelf_setup_complete', 'true');
@@ -30861,7 +30942,7 @@
             // v1.10.0: Start day-change detection interval
             startDayCheckInterval();
             
-            console.log('🧩 Game Shelf PWA v1.15.0 initialized');
+            console.log('🧩 Game Shelf PWA v1.15.1 initialized');
             console.log('🌅 Day-change engine active. Current day:', _lastKnownDay);
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());
