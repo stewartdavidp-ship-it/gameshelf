@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="1.0.24">
+    <meta name="version" content="1.0.25">
     <title>Slate - Daily Word Challenge</title>
     
     <!-- PWA Support -->
@@ -1652,6 +1652,11 @@
             opacity: 0.4;
             margin: 0 6px;
         }
+    
+        /* Stats: the rating bar today's game added to grows in, so the eye lands on it */
+        .rating-today-bar { animation: ratingTodayGrow 0.9s ease-out 0.3s both; transform-origin: left center; }
+        @keyframes ratingTodayGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        @media (prefers-reduced-motion: reduce) { .rating-today-bar { animation: none; } }
     </style>
     
     <!-- Firebase SDK -->
@@ -2317,7 +2322,7 @@
             <!-- 7. GAME INFO -->
             <h3>ℹ️ Game Info</h3>
             <p><strong>Puzzle:</strong> <span id="puzzle-date">Daily</span></p>
-            <p><strong>Version:</strong> v1.0.24</p>
+            <p><strong>Version:</strong> v1.0.25</p>
             <p style="font-size: 0.85rem; color: #a8b896; margin-top: 8px;">A daily word puzzle game. New words every day at midnight!</p>
             
             <!-- 8. DATA -->
@@ -3494,7 +3499,9 @@
             return stats;
         }
 
-        function generateStatsHTML(stats) {
+        // todayKey: the rating just earned (e.g. 'Expert'), drawn in gold so the
+        // player can see which bar their game moved. Omitted when the game was lost.
+        function generateStatsHTML(stats, todayKey) {
             const winRate = stats.gamesPlayed > 0 ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) : 0;
             const avgScore = stats.gamesWon > 0 ? (stats.totalScore / stats.gamesWon).toFixed(1) : '-';
             
@@ -3506,14 +3513,16 @@
             ratings.forEach(rating => {
                 const count = stats.ratingDistribution[rating] || 0;
                 const percentage = (count / maxCount) * 100;
+                const isToday = rating === todayKey;
                 distributionHTML += `
-                    <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
-                        <div style="width: 70px; font-size: 0.75rem; color: #a8b896; text-align: right;">${rating}</div>
-                        <div style="flex: 1; background: rgba(0,0,0,0.3); border-radius: 3px; height: 16px; overflow: hidden;">
-                            <div style="width: ${percentage}%; background: #5a7d5a; height: 100%; min-width: ${count > 0 ? '20px' : '0'}; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;">
-                                ${count > 0 ? `<span style="font-size: 0.7rem; color: #fff;">${count}</span>` : ''}
+                    <div class="${isToday ? 'rating-today' : ''}" style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
+                        <div style="width: 70px; font-size: 0.75rem; color: ${isToday ? '#ffd700' : '#a8b896'}; font-weight: ${isToday ? '700' : 'normal'}; text-align: right;">${rating}</div>
+                        <div style="flex: 1; background: rgba(0,0,0,0.3); border-radius: 3px; height: 16px; overflow: hidden; ${isToday ? 'box-shadow: 0 0 0 2px #ffd700, 0 0 10px rgba(255,215,0,0.45);' : ''}">
+                            <div class="${isToday ? 'rating-today-bar' : ''}" style="width: ${percentage}%; background: ${isToday ? '#ffd700' : '#5a7d5a'}; height: 100%; min-width: ${count > 0 ? '20px' : '0'}; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;">
+                                ${count > 0 ? `<span style="font-size: 0.7rem; color: ${isToday ? '#1a1a1a' : '#fff'}; font-weight: ${isToday ? '700' : 'normal'};">${count}</span>` : ''}
                             </div>
                         </div>
+                        <div style="width: 52px; font-size: 0.7rem; color: #ffd700; font-weight: 700; text-align: left; white-space: nowrap;">${isToday ? '◀ today' : ''}</div>
                     </div>
                 `;
             });
@@ -4685,7 +4694,7 @@
                         </div>
                     ` : ''}
 
-                    ${generateStatsHTML(stats)}
+                    ${generateStatsHTML(stats, won ? getRatingFromScore(currentScore, difficultyMode) : null)}
 
                     <button onclick="shareResults(${won})" style="margin: 20px 0; padding: 15px 40px; font-size: 1.1rem; background: ${won ? '#5a7d5a' : '#7a5a5a'}; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 300px; margin-left: auto; margin-right: auto;">
                         <span>📤</span> Share Results
