@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.5.4">
+    <meta name="version" content="1.5.5">
     <title>Quotle - Daily Quote Puzzle</title>
     
     <!-- Early initialization: Set defaults and apply dark mode BEFORE any CSS renders -->
@@ -2524,6 +2524,14 @@
             color: #aaa !important;
         }
 
+        [data-theme="dark"] #deep-dive-content .qi-h {
+            color: #ff6b82 !important;
+        }
+
+        [data-theme="dark"] #deep-dive-content .qi-callout {
+            background: rgba(212,175,55,0.14) !important;
+        }
+
         /* New menu element dark mode styles */
         [data-theme="dark"] .setting-row span {
             color: #e8e6e3;
@@ -3625,7 +3633,7 @@
                     <p><strong>Quote #:</strong> <span id="current-quote-number">Loading...</span></p>
                     <p><strong>Total Quotes:</strong> 365</p>
                     <p><strong>Days Live:</strong> <span id="days-since-launch">Loading...</span></p>
-                    <p><strong>Version:</strong> v1.5.4</p>
+                    <p><strong>Version:</strong> v1.5.5</p>
                 </div>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--slate); line-height: 1.5;">
                     A daily quote guessing game featuring wisdom from ancient philosophers to modern thinkers - spanning over 2,500 years of human thought.
@@ -12479,27 +12487,141 @@ const allQuotes = [
             }, 500);
         }
         
+        // The deep dive prefers this quote's own research record from quotle.info — where the
+        // line comes from, why it was said, and who said it — over the author-level text in
+        // generateHistoricalContext(), which for most authors is a fill-in-the-blanks template.
+        // Falls back to that text when the record can't be fetched (offline, or no page yet).
         async function loadDeepDive() {
             const content = document.getElementById('deep-dive-content');
             if (!content) return; // Guard for cases where element doesn't exist yet
-            
-            // Content already shows loading state from HTML, just wait briefly
-            await new Promise(resolve => setTimeout(resolve, 400));
-            
-            // Generate context based on author and period
-            const contextText = generateHistoricalContext(currentQuote);
-            
-            // Display the content
+
+            const quote = currentQuote;
+            let record = null;
+            try { record = await fetchQuotleInfoRecord(quote); } catch (e) {}
+            if (currentQuote !== quote) return; // a different puzzle was opened meanwhile
+
+            const wikiLink = `<a href="https://en.wikipedia.org/wiki/${encodeURIComponent(quote.author.replace(/ /g, '_'))}" target="_blank" rel="noopener noreferrer" style="color: var(--burgundy);">Learn more on Wikipedia →</a>`;
+
+            if (record) {
+                content.innerHTML = `
+                    ${renderQuotleInfoContext(record, quote)}
+                    <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1);">
+                        <small style="color: var(--slate); font-size: 0.8rem;">
+                            🔍 Researched by quotle.info &bull; ${wikiLink}
+                        </small>
+                    </div>
+                `;
+                return;
+            }
+
+            const contextText = generateHistoricalContext(quote);
             content.innerHTML = `
                 <div style="text-align: left; line-height: 1.7; font-size: 0.95rem;">
                     ${contextText.split('\n\n').map(p => p.trim() ? `<p style="margin-bottom: 15px;">${p}</p>` : '').join('')}
                 </div>
                 <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1);">
                     <small style="color: var(--slate); font-size: 0.8rem;">
-                        💡 Historical context &bull; <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(currentQuote.author.replace(/ /g, '_'))}" target="_blank" rel="noopener noreferrer" style="color: var(--burgundy);">Learn more on Wikipedia →</a>
+                        💡 Historical context &bull; ${wikiLink}
                     </small>
                 </div>
             `;
+        }
+
+        // quotle.info publishes each quote's research record at /data/quotes/{slug}.json (CORS *).
+        // The slug comes from the manifest that loadQuotleInfoPages() fetches at startup; if that
+        // is still in flight we wait for it briefly rather than fall back to the template.
+        async function fetchQuotleInfoRecord(quote) {
+            if (!quote) return null;
+            let entry = quotleInfoPages && quotleInfoPages[quote.index];
+            if (!entry && quotleInfoPagesPromise) {
+                await Promise.race([quotleInfoPagesPromise, new Promise(r => setTimeout(r, 4000))]);
+                entry = quotleInfoPages && quotleInfoPages[quote.index];
+            }
+            if (!entry || !entry.slug) return null;
+            const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), 6000) : null;
+            try {
+                const r = await fetch('https://quotle.info/data/quotes/' + encodeURIComponent(entry.slug) + '.json',
+                    ctrl ? { signal: ctrl.signal } : {});
+                if (!r.ok) return null;
+                const rec = await r.json();
+                // Guard against a slug that no longer points at this puzzle's quote.
+                if (!rec || (rec.dayNumber != null && rec.dayNumber !== quote.index)) return null;
+                return rec;
+            } finally {
+                if (timer) clearTimeout(timer);
+            }
+        }
+
+        // Records carry light HTML (em/strong/links, named entities). Keep only those, force
+        // links to open in a new tab, and resolve quotle.info's relative links to absolute.
+        function quotleInfoHtml(html) {
+            const tpl = document.createElement('template');
+            tpl.innerHTML = String(html || '');
+            const out = document.createElement('div');
+            (function copy(src, dst) {
+                src.childNodes.forEach(n => {
+                    if (n.nodeType === 3) { dst.appendChild(document.createTextNode(n.nodeValue)); return; }
+                    if (n.nodeType !== 1) return;
+                    const tag = n.tagName.toLowerCase();
+                    if (['em', 'i', 'strong', 'b'].includes(tag)) {
+                        const el = document.createElement(tag); copy(n, el); dst.appendChild(el);
+                    } else if (tag === 'a') {
+                        let href = '';
+                        try { href = new URL(n.getAttribute('href') || '', 'https://quotle.info/').href; } catch (e) {}
+                        if (/^https:\/\//.test(href)) {
+                            const el = document.createElement('a');
+                            el.href = href; el.target = '_blank'; el.rel = 'noopener noreferrer';
+                            el.style.color = 'var(--burgundy)';
+                            copy(n, el); dst.appendChild(el);
+                        } else copy(n, dst);
+                    } else copy(n, dst);
+                });
+            })(tpl.content, out);
+            return out.innerHTML;
+        }
+
+        function quotleInfoText(html) {
+            const el = document.createElement('div');
+            el.innerHTML = quotleInfoHtml(html);
+            return el.textContent.trim();
+        }
+
+        function renderQuotleInfoContext(rec, quote) {
+            const answer = rec.answer || {};
+            const ctx = rec.context || {};
+            const author = rec.author || {};
+            const esc = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+            const sameName = (a, b) => String(a || '').toLowerCase().replace(/[^a-z]/g, '') === String(b || '').toLowerCase().replace(/[^a-z]/g, '');
+            const h = text => `<div class="qi-h" style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1rem; color: var(--burgundy); margin: 0 0 6px;">${text}</div>`;
+            const para = html => `<p style="margin-bottom: 12px;">${quotleInfoHtml(html)}</p>`;
+            let out = '';
+
+            if (rec.confidence !== 'verified') {
+                // The player was marked correct, but the research says these aren't the exact
+                // words (a paraphrase, a softened swap, a trimmed line). Say so — it's the payoff.
+                const rightPerson = sameName(answer.authorName, quote.author) || sameName(rec.creditedTo, quote.author);
+                const title = rightPerson
+                    ? '🧐 Right person — but not quite these words'
+                    : '🧐 ' + esc(quotleInfoText(answer.label) || 'The attribution is disputed');
+                out += `<div class="qi-callout" style="border-left: 4px solid var(--gold); background: rgba(212,175,55,0.12); padding: 12px 14px; border-radius: 6px; margin-bottom: 16px;">
+                    <div style="font-weight: 700; margin-bottom: 6px;">${title}</div>
+                    ${answer.sourceLine ? `<div>${quotleInfoHtml(answer.sourceLine)}</div>` : ''}
+                </div>`;
+            } else if (answer.sourceLine) {
+                out += `<div style="margin-bottom: 14px;">${h('📜 Where it comes from')}${para(answer.sourceLine)}</div>`;
+            }
+
+            const lead = Array.isArray(ctx.lead) ? ctx.lead : (ctx.lead ? [ctx.lead] : []);
+            if (lead.length) {
+                out += `<div style="margin-bottom: 14px;">${h('💬 ' + esc(quotleInfoText(ctx.heading) || 'The story behind it'))}${lead.map(para).join('')}</div>`;
+            }
+
+            if (author.bio) {
+                out += `<div>${h('👤 About ' + esc(quotleInfoText(author.name) || quote.author))}${para(author.bio)}</div>`;
+            }
+
+            return `<div style="text-align: left; line-height: 1.65; font-size: 0.95rem;">${out}</div>`;
         }
         
         function generateHistoricalContext(quote) {
@@ -13111,6 +13233,7 @@ const allQuotes = [
         // We resolve currentQuote.index -> slug via quotle.info's published manifest (CORS *),
         // cached in localStorage, so the link auto-appears/updates as pages are published.
         let quotleInfoPages = null; // { [dayNumber]: { slug, confidence } }
+        let quotleInfoPagesPromise = null; // the in-flight manifest fetch; loadDeepDive waits on it
         (function initQuotleInfoCache(){
             try {
                 const c = JSON.parse(localStorage.getItem('quotleInfoPages') || 'null');
@@ -13118,7 +13241,7 @@ const allQuotes = [
             } catch (e) {}
         })();
         function loadQuotleInfoPages(){
-            fetch('https://quotle.info/data/manifest.json', { cache: 'no-cache' })
+            quotleInfoPagesPromise = fetch('https://quotle.info/data/manifest.json', { cache: 'no-cache' })
                 .then(function(r){ return r.ok ? r.json() : null; })
                 .then(function(list){
                     if (!Array.isArray(list)) return;
