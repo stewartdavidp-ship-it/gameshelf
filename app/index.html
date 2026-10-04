@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.15.1">
+    <meta name="version" content="1.16.0">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -75,6 +75,8 @@
     
     <!-- Tesseract.js for OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- Drag to arrange the shelf. Vendored (MIT, npm sortablejs 1.15.7) so it works offline -->
+    <script src="vendor/Sortable.min.js"></script>
     
     <style>
         * {
@@ -2755,6 +2757,20 @@
             border-radius: 10px;
             text-align: center;
         }
+
+        /* Drag to arrange: no iOS text-selection/callout while holding a tile */
+        .games-grid.shelf-sortable .game-card {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .game-card.shelf-drag-chosen {
+            transform: scale(1.06);
+            border-color: var(--accent-purple);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--accent-purple);
+        }
+        .game-card.shelf-drag-ghost { opacity: 0.35; }
+        .game-card.shelf-drag-fallback { opacity: 0.95 !important; }
 
         /* Prevent double padding in games list */
         .games-list .games-grid {
@@ -11492,7 +11508,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.15.1</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.16.0</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -11922,7 +11938,7 @@
                 <!-- Your Shelf -->
                 <div class="games-category">
                     <div class="category-title">Your Shelf <span id="shelf-count" style="color: var(--text-muted); font-weight: normal;">(0)</span></div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding-left: 4px;">Long-press any game to put it in a group or remove it</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; padding-left: 4px;">Hold a game, then drag to move it · hold and let go for options</div>
                     <div class="games-grid" id="shelf-games-grid">
                         <!-- Populated by JS -->
                     </div>
@@ -17864,6 +17880,7 @@
                     if (cloudData.settings) {
                         appData.settings = { ...(appData.settings || {}), ...cloudData.settings };
                     }
+                    applyShelfOrder(); // drag-arranged order travels in settings.shelfOrder
                     
                     // Merge launchPrefs (cloud wins)
                     if (cloudData.launchPrefs) {
@@ -19718,9 +19735,12 @@
         }
         
         // ============ WHAT'S NEW SYSTEM ============
-        const APP_VERSION = '1.15.1';
+        const APP_VERSION = '1.16.0';
 
         const RELEASE_NOTES = {
+            '1.16.0': [
+                { icon: '✋', title: 'Drag to arrange', desc: 'Hold a game, then drag it where you want it. Drop it under a group’s name to move it into that group. Hold and let go to see its options' }
+            ],
             '1.15.1': [
                 { icon: '☁️', title: 'Your shelf follows you', desc: 'Sign in on a second phone or computer and the games on your shelf come with you. Games you remove stay removed everywhere' }
             ],
@@ -22371,6 +22391,10 @@
             container.querySelectorAll('.game-card[data-game-id]').forEach(card => {
                 setupLongPress(card, card.dataset.gameId);
             });
+            
+            // Drag to arrange only when Home shows the whole shelf; with 10+ games Home is
+            // the favorites pick, whose order isn't the shelf's
+            setupShelfSortable(container, totalOnShelf <= 9);
         }
         
         // ============ SHELF GROUPS ============
@@ -22421,7 +22445,7 @@
         function shelfGroupHeaderHtml(sec, editable) {
             if (sec.name === null) return '';
             const canEdit = editable && sec.index >= 0;
-            return `<div class="shelf-group-header ${canEdit ? 'editable' : ''}" ${canEdit ? `onclick="showShelfGroupOptions(${sec.index})"` : ''}>
+            return `<div class="shelf-group-header ${canEdit ? 'editable' : ''}" data-group-index="${sec.index}" ${canEdit ? `onclick="showShelfGroupOptions(${sec.index})"` : ''}>
                 <span>${escapeHtml(sec.name)}</span><span class="shelf-group-count">${sec.entries.length}</span>
             </div>`;
         }
@@ -22555,6 +22579,136 @@
             showToast(`Deleted ${group.name} — its games are still on your shelf`, 'info');
         }
         
+        // ============ DRAG TO ARRANGE ============
+        // Press and hold a tile, then move it: the tiles reflow around it, and dropping it
+        // under another group's name moves it into that group. Hold and release without
+        // moving still opens the game's options menu, as on a phone's home screen. A quick
+        // swipe scrolls, because a tile is only picked up after the hold. Mouse drags start
+        // at once; right-click still opens the menu.
+        //
+        // The order is appData.games order. It's also written to settings.shelfOrder because
+        // the cloud merge keeps each device's own games order but carries settings across
+        // (cloud wins); applyShelfOrder() puts it back after a sync.
+        const SHELF_DRAG_HOLD_MS = 300; // under setupLongPress's 500ms, so the drag owns the hold
+        let shelfDragMoved = false;
+        let shelfDragChosen = false; // Sortable fires unchoose on every release, even a quick tap
+        let shelfDragPointer = 'mouse';
+        let suppressShelfClickUntil = 0;
+        
+        function setupShelfSortable(container, enabled) {
+            if (!container || typeof Sortable === 'undefined') return;
+            container.classList.toggle('shelf-sortable', !!enabled);
+            const existing = Sortable.get(container);
+            if (existing) { existing.option('disabled', !enabled); return; }
+            if (!enabled) return;
+            
+            container.addEventListener('pointerdown', e => { shelfDragPointer = e.pointerType || 'mouse'; }, true);
+            // The click the browser makes from the lifting finger arrives after the menu has
+            // opened, so it lands on the menu's backdrop (closing it) or on the tile (launching
+            // the game). Swallow it page-wide, not just on the grid.
+            if (!setupShelfSortable.clickGuard) {
+                setupShelfSortable.clickGuard = true;
+                document.addEventListener('click', e => {
+                    if (Date.now() < suppressShelfClickUntil) { e.stopPropagation(); e.preventDefault(); }
+                }, true);
+            }
+            
+            Sortable.create(container, {
+                // An empty group's "Drag a game here" box is a drop target but can't be
+                // picked up; without it there is no slot under that group's name to drop into
+                draggable: '.game-card[data-game-id], .shelf-group-empty',
+                filter: '.game-fav-heart, .shelf-group-empty',
+                preventOnFilter: false,
+                delay: SHELF_DRAG_HOLD_MS,
+                delayOnTouchOnly: true,
+                touchStartThreshold: 6,
+                forceFallback: true,          // the same touch behaviour on iOS, Android and desktop
+                fallbackTolerance: 4,
+                animation: 160,
+                scroll: true,
+                bubbleScroll: true,
+                scrollSensitivity: 70,
+                chosenClass: 'shelf-drag-chosen',
+                ghostClass: 'shelf-drag-ghost',
+                fallbackClass: 'shelf-drag-fallback',
+                onChoose: () => {
+                    shelfDragChosen = true;
+                    shelfDragMoved = false;
+                    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+                    if (shelfDragPointer !== 'mouse' && navigator.vibrate) { try { navigator.vibrate(10); } catch (e) {} }
+                },
+                onStart: () => { shelfDragMoved = true; },
+                onUnchoose: evt => {
+                    // Held past the pick-up delay and let go without moving (touch only):
+                    // open the menu, like before. A quick tap never got chosen.
+                    const held = shelfDragChosen;
+                    shelfDragChosen = false;
+                    if (held && !shelfDragMoved && shelfDragPointer !== 'mouse') {
+                        suppressShelfClickUntil = Date.now() + 700;
+                        showGameOptions(evt.item.dataset.gameId);
+                    }
+                },
+                onEnd: evt => {
+                    if (!shelfDragMoved) return;
+                    suppressShelfClickUntil = Date.now() + 400;
+                    commitShelfArrangement(evt.to, evt.item.dataset.gameId);
+                }
+            });
+        }
+        
+        // Read the arrangement back off the screen: tile order, and for each tile the group
+        // whose name sits above it. Tiles not on screen (Home shows at most 9) keep their order.
+        function commitShelfArrangement(container, movedId) {
+            const groups = getShelfGroups();
+            const children = Array.from(container.children);
+            const firstHeader = children.find(el => el.classList.contains('shelf-group-header'));
+            let groupIndex = firstHeader ? Number(firstHeader.dataset.groupIndex) : -1;
+            const placed = [];
+            children.forEach(el => {
+                if (el.classList.contains('shelf-group-header')) groupIndex = Number(el.dataset.groupIndex);
+                else if (el.dataset && el.dataset.gameId) placed.push({ id: el.dataset.gameId, groupIndex });
+            });
+            
+            const shown = new Set(placed.map(p => p.id));
+            const byId = new Map(appData.games.map(g => [g.id, g]));
+            appData.games = [
+                ...placed.map(p => byId.get(p.id)).filter(Boolean),
+                ...appData.games.filter(g => !shown.has(g.id))
+            ];
+            
+            const before = shelfGroupIndexOf(movedId);
+            if (groups.length) {
+                groups.forEach(g => { g.games = g.games.filter(id => !shown.has(id)); });
+                placed.forEach(p => { if (p.groupIndex >= 0 && groups[p.groupIndex]) groups[p.groupIndex].games.push(p.id); });
+            }
+            if (!appData.settings) appData.settings = {};
+            if (groups.length) appData.settings.shelfGroups = groups;
+            appData.settings.shelfOrder = appData.games.map(g => g.id);
+            saveData();
+            syncToCloud();
+            renderAll();
+            
+            const after = groups.findIndex(g => g.games.includes(movedId));
+            if (after !== before) {
+                const game = GAMES[movedId];
+                showToast(after >= 0 ? `${game ? game.name : 'Game'} moved to ${groups[after].name}`
+                    : `${game ? game.name : 'Game'} is no longer in a group`, 'success');
+            }
+        }
+        
+        // After a sync: lay appData.games out in the saved order. Games the saved order
+        // doesn't know (just added, maybe on another device) keep their place after it.
+        function applyShelfOrder() {
+            const raw = appData.settings?.shelfOrder;
+            const order = Array.isArray(raw) ? raw : (raw && typeof raw === 'object' ? Object.values(raw) : []);
+            if (!order.length || !Array.isArray(appData.games)) return;
+            const pos = new Map(order.map((id, i) => [id, i]));
+            appData.games = appData.games
+                .map((g, i) => ({ g, k: pos.has(g.id) ? pos.get(g.id) : order.length + i }))
+                .sort((a, b) => a.k - b.k)
+                .map(x => x.g);
+        }
+        
         function renderShelfGames() {
             const container = document.getElementById('shelf-games-grid');
             const todayHistory = getTodayHistory();
@@ -22599,13 +22753,14 @@
             container.innerHTML = sectionShelfByGroup(appData.games, true).map(sec =>
                 shelfGroupHeaderHtml(sec, true)
                 + (sec.entries.length ? sec.entries.map(shelfCard).join('')
-                    : '<div class="shelf-group-empty">Long-press a game to move it here</div>')
+                    : '<div class="shelf-group-empty">Drag a game here</div>')
             ).join('');
             
             // v1.3.0: Setup long-press for each game card
             container.querySelectorAll('.game-card[data-game-id]').forEach(card => {
                 setupLongPress(card, card.dataset.gameId);
             });
+            setupShelfSortable(container, true);
             
             // v1.11.1: Setup heart favorite toggles via addEventListener (prevents card click propagation)
             container.querySelectorAll('.game-fav-heart[data-fav-game]').forEach(heart => {
@@ -30942,7 +31097,7 @@
             // v1.10.0: Start day-change detection interval
             startDayCheckInterval();
             
-            console.log('🧩 Game Shelf PWA v1.15.1 initialized');
+            console.log('🧩 Game Shelf PWA v1.16.0 initialized');
             console.log('🌅 Day-change engine active. Current day:', _lastKnownDay);
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());
