@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.16.0">
+    <meta name="version" content="1.16.1">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -2370,137 +2370,6 @@
         .friend-code-input:focus {
             outline: none;
             border-color: var(--accent-purple);
-        }
-        
-        /* Contact Finder */
-        .contact-finder-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-        
-        .contact-finder-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #48bb78, #38a169);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .contact-finder-btn:active {
-            opacity: 0.9;
-        }
-        
-        .contact-finder-btn:disabled {
-            background: var(--bg-tertiary);
-            color: var(--text-muted);
-            cursor: not-allowed;
-        }
-        
-        .contact-finder-hint {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 8px;
-            text-align: center;
-        }
-        
-        .contact-results-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: 50vh;
-            overflow-y: auto;
-        }
-        
-        .contact-result-card {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px;
-            background: var(--bg-tertiary);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-        
-        .contact-result-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: white;
-            flex-shrink: 0;
-        }
-        
-        .contact-result-info {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .contact-result-name {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-        
-        .contact-result-status {
-            font-size: 0.8rem;
-            color: var(--accent-green);
-            margin-top: 2px;
-        }
-        
-        .contact-result-add {
-            background: var(--accent-purple);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-        
-        .contact-result-add:active {
-            opacity: 0.8;
-        }
-        
-        .contact-result-add.added {
-            background: var(--bg-secondary);
-            color: var(--accent-green);
-        }
-        
-        .contact-empty-state {
-            text-align: center;
-            padding: 30px 20px;
-            color: var(--text-muted);
-        }
-        
-        .contact-empty-icon {
-            font-size: 3rem;
-            margin-bottom: 12px;
-        }
-        
-        .contact-searching {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-        }
-        
-        .contact-searching-spinner {
-            font-size: 2rem;
-            animation: spin 1s linear infinite;
-            margin-bottom: 12px;
         }
         
         @keyframes spin {
@@ -11508,7 +11377,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.16.0</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.16.1</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -13510,23 +13379,6 @@
     <!-- Add Friend Bottom Sheet -->
 
     
-    <!-- Contact Finder Results Sheet -->
-    <div class="bottom-sheet-overlay" id="contact-results-sheet" onclick="closeContactResults()">
-        <div class="bottom-sheet" onclick="event.stopPropagation()" style="max-height: 80vh;">
-            <div class="bottom-sheet-handle"></div>
-            <div class="bottom-sheet-header">
-                <span>📱 Friends on Game Shelf</span>
-                <button class="bottom-sheet-close" onclick="closeContactResults()">×</button>
-            </div>
-            
-            <div id="contact-results-content">
-                <!-- Populated by JS -->
-            </div>
-            
-            <button class="share-close-btn" style="margin-top: 15px;" onclick="closeContactResults()">Done</button>
-        </div>
-    </div>
-    
     <!-- Suggest Game Bottom Sheet -->
     <div class="bottom-sheet-overlay" id="suggest-game-sheet" onclick="closeSuggestGame()">
         <div class="bottom-sheet" onclick="event.stopPropagation()">
@@ -13844,111 +13696,6 @@
         // Add friend by invite code (looks up referral code)
         
         // Handle friend link from URL
-        
-        // ============ CONTACT FINDER ============
-        let contactFinderResults = [];
-        
-        // Check if Contact Picker API is supported
-        function isContactPickerSupported() {
-            return 'contacts' in navigator && 'ContactsManager' in window;
-        }
-        
-        // Simple hash function for privacy (not cryptographic, just for matching)
-        async function hashContact(value) {
-            // Normalize: lowercase, remove spaces and special chars
-            const normalized = value.toLowerCase().replace(/[\s\-\(\)\.]/g, '');
-            
-            // Use SubtleCrypto if available, otherwise simple hash
-            if (window.crypto && window.crypto.subtle) {
-                const encoder = new TextEncoder();
-                const data = encoder.encode(normalized + '_gameshelf_salt');
-                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                return hashArray.slice(0, 8).map(b => b.toString(16).padStart(2, '0')).join('');
-            } else {
-                // Fallback simple hash
-                let hash = 0;
-                for (let i = 0; i < normalized.length; i++) {
-                    const char = normalized.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash;
-                }
-                return Math.abs(hash).toString(16).padStart(8, '0');
-            }
-        }
-        
-        // Store user's contact hashes for discovery
-        async function publishContactHashes() {
-            if (!currentUser) return;
-            
-            // Get user's email
-            const email = currentUser.email;
-            if (email) {
-                const emailHash = await hashContact(email);
-                await db.ref(`contact-hashes/${emailHash}`).set({
-                    odataId: currentUser.uid,
-                    displayName: currentUser.displayName || 'Player',
-                    photoURL: currentUser.photoURL || null
-                });
-            }
-        }
-        
-        // Find friends from contacts
-        
-        // Show manual contact finder (fallback for unsupported browsers)
-        function showManualContactFinder() {
-            const content = document.getElementById('contact-results-content');
-            content.innerHTML = `
-                <div class="contact-empty-state">
-                    <div class="contact-empty-icon">📧</div>
-                    <p style="margin-bottom: 15px;">Contact access not available on this browser.</p>
-                    <p style="font-size: 0.85rem; margin-bottom: 20px;">Enter an email to check if they're on Game Shelf:</p>
-                    <input type="email" id="manual-contact-email" placeholder="friend@email.com" 
-                           style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 10px; font-size: 0.95rem; background: var(--bg-primary); color: var(--text-primary); margin-bottom: 12px; box-sizing: border-box;">
-                    <button onclick="searchManualContact()" style="width: 100%; padding: 12px; background: var(--accent-purple); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
-                        Search
-                    </button>
-                </div>
-            `;
-            document.getElementById('contact-results-sheet').classList.add('active');
-        }
-        
-        // Search for a manually entered contact
-        async function searchManualContact() {
-            const email = document.getElementById('manual-contact-email').value.trim();
-            if (!email) {
-                showToast('Enter an email address');
-                return;
-            }
-            
-            const hash = await hashContact(email);
-            
-            try {
-                const snapshot = await db.ref(`contact-hashes/${hash}`).once('value');
-                const userData = snapshot.val();
-                
-                if (userData && userData.odataId !== currentUser.uid) {
-                    const existingFriendIds = friendsData.map(f => f.odataId);
-                    if (existingFriendIds.includes(userData.odataId)) {
-                        showToast('Already friends!');
-                    } else {
-                        contactFinderResults = [{ ...userData, contactName: email }];
-                    }
-                } else {
-                }
-            } catch (e) {
-                console.error('Search error:', e);
-                showToast('Search failed', 'error');
-            }
-        }
-        
-        // Show contact search results
-        
-        // Add a contact as friend
-        
-        function closeContactResults() {
-            document.getElementById('contact-results-sheet').classList.remove('active');
-        }
         
         // Show friend confirm sheet
         
@@ -18141,7 +17888,6 @@
                 publishPublicProfile();
                 
                 // Publish contact hashes for friend discovery
-                publishContactHashes();
                 
                 // Check for pending friend request
                 
@@ -18183,7 +17929,6 @@
                 await loadFromCloud();
                 checkReceivedNudges();
                 publishPublicProfile();
-                publishContactHashes();
                 renderAll();
             }
             // No alert if no user - that's normal on regular page load
@@ -19735,7 +19480,7 @@
         }
         
         // ============ WHAT'S NEW SYSTEM ============
-        const APP_VERSION = '1.16.0';
+        const APP_VERSION = '1.16.1';
 
         const RELEASE_NOTES = {
             '1.16.0': [
@@ -31097,7 +30842,7 @@
             // v1.10.0: Start day-change detection interval
             startDayCheckInterval();
             
-            console.log('🧩 Game Shelf PWA v1.16.0 initialized');
+            console.log('🧩 Game Shelf PWA v1.16.1 initialized');
             console.log('🌅 Day-change engine active. Current day:', _lastKnownDay);
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());
