@@ -13,7 +13,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.16.1">
+    <meta name="version" content="1.17.0">
     <meta name="gs-app-id" content="gameshelf">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="Track your daily puzzle games, build streaks, compete with friends!">
@@ -11377,7 +11377,7 @@
             </svg>
             <div style="display: flex; flex-direction: column; line-height: 1.2;">
                 <span>Game Shelf</span>
-                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.16.1</span>
+                <span id="header-version-badge" style="font-size: 0.55rem; color: var(--accent-orange); font-weight: 600;">v1.17.0</span>
             </div>
             <a href="https://gameshelf.co/beta/" class="beta-badge-link" target="_blank">BETA</a>
         </div>
@@ -11398,303 +11398,43 @@
             <button class="settings-close" onclick="toggleSettingsMenu()">✕</button>
         </div>
         <div class="settings-body">
-            <!-- Wallet Display - at top of menu (tappable) -->
-            <div class="settings-section" data-lean-hide style="padding: 16px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); border-radius: 12px; margin: 0 16px 16px; cursor: pointer;">
-                <div style="display: flex; justify-content: center; gap: 24px; font-size: 1.1rem;">
-                    <span class="tokens" style="display: flex; align-items: center; gap: 6px;">💎 <span id="token-count" style="font-weight: 700;">0</span></span>
-                    <span class="coins" style="display: flex; align-items: center; gap: 6px;">🪙 <span id="coin-count" style="font-weight: 700;">0</span></span>
-                </div>
-                <div style="text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">Tap to manage wallet</div>
-            </div>
-            
-            <!-- Account - Critical for new users -->
             <div class="settings-section">
-                <div class="settings-section-title">☁️ Account</div>
-                <div id="menu-account-section">
-                    <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(signInWithGoogle, 300)">
-                        <span class="icon">🔐</span>
-                        <span id="auth-menu-text">Sign in with Google</span>
-                        <span class="menu-chevron">›</span>
-                    </a>
-                    <p class="settings-desc">Save progress across devices</p>
-                </div>
+                <a class="settings-link" onclick="confirmReconfigureGames()">
+                    <span class="icon">🎮</span>
+                    Change my games
+                    <span class="menu-chevron">›</span>
+                </a>
             </div>
-            
-            <!-- My Games - Combined with Achievements -->
+
             <div class="settings-section">
-                <div class="settings-section-title">🎮 My Games</div>
-                <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(showAchievements, 300)">
-                    <span class="icon">🏆</span>
-                    View Achievements
-                    <span class="menu-chevron">›</span>
-                </a>
-                <p class="settings-desc">Track your progress & unlock badges</p>
-                <a class="settings-link" onclick="confirmReconfigureGames()" style="margin-top: 8px;">
-                    <span class="icon">⚙️</span>
-                    Reconfigure Games
-                    <span class="menu-chevron">›</span>
-                </a>
-                <p class="settings-desc">Change your game selection & preferences</p>
+                <div class="settings-section-title">🎨 Theme</div>
+                <div class="theme-options">
+                    <div class="theme-option active" id="theme-dark" onclick="setTheme('dark')">
+                        <div class="label">🌙 Dark</div>
+                    </div>
+                    <div class="theme-option" id="theme-light" onclick="setTheme('light')">
+                        <div class="label">☀️ Light</div>
+                    </div>
+                </div>
             </div>
-            
-            <!-- Rewards - Combined Invite + Shop -->
-            <div class="settings-section" data-lean-hide>
-                <div class="settings-section-title">🎁 Rewards</div>
-                <p class="settings-desc">Get 🎟️ 110 tokens per friend + auto-connect!</p>
-                <a class="settings-link" style="margin-top: 8px;">
-                    <span class="icon">🛍️</span>
-                    Redeem Rewards
-                    <span class="menu-chevron">›</span>
-                </a>
-                <p class="settings-desc">Use coins for rewards & gifts</p>
-            </div>
-            
-            <!-- Help - Easy access -->
+
             <div class="settings-section">
-                <div class="settings-section-title">
-                    ❓ Help
-                    <span class="help-menu-badge" id="help-menu-badge" style="display: none;"></span>
-                </div>
-                <a class="settings-link">
-                    <span class="icon">❓</span>
-                    FAQs & Support
+                <a class="settings-link" href="mailto:support@gameshelf.co?subject=Game%20Shelf%20feedback">
+                    <span class="icon">💬</span>
+                    Send feedback
                     <span class="menu-chevron">›</span>
-                    <span id="faq-menu-badge" style="display: none; background: var(--accent-red); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; margin-left: 8px;">NEW</span>
                 </a>
-                <p class="settings-desc">Answers, tutorials, feedback & more</p>
+                <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(forceAppUpdate, 300)" style="margin-top: 8px;">
+                    <span class="icon">🔄</span>
+                    Check for updates
+                </a>
+                <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(clearAllData, 300)" style="color: var(--accent-red); margin-top: 8px;">
+                    <span class="icon">🗑️</span>
+                    Reset all data
+                </a>
             </div>
-            
-            <!-- Settings Submenu Toggle - Collapsible -->
-            <div class="settings-section" style="padding-bottom: 0;">
-                <div class="settings-submenu-toggle" id="settings-submenu-toggle" onclick="toggleSettingsSubmenu()">
-                    <div class="toggle-left">
-                        <span class="toggle-icon">⚙️</span>
-                        <span class="toggle-label">Settings</span>
-                    </div>
-                    <span class="toggle-arrow">▼</span>
-                </div>
-                
-                <!-- Settings Submenu Content -->
-                <div class="settings-submenu-content" id="settings-submenu-content">
-                    <!-- Theme -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">🎨 Theme</div>
-                        <div class="theme-options">
-                            <div class="theme-option active" id="theme-dark" onclick="setTheme('dark')">
-                                <div class="label">🌙 Dark</div>
-                            </div>
-                            <div class="theme-option" id="theme-light" onclick="setTheme('light')">
-                                <div class="label">☀️ Light</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Sound -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">🔊 Sound</div>
-                        <div class="settings-toggle-row">
-                            <label>
-                                <span class="icon">🔔</span>
-                                <span>Sound Effects</span>
-                            </label>
-                            <input type="checkbox" id="sound-toggle" onchange="toggleSound(this.checked)">
-                        </div>
-                        <div class="volume-row">
-                            <span class="icon">🔉</span>
-                            <input type="range" id="sound-volume" min="0" max="100" value="50" 
-                                   oninput="setVolume(this.value)" onchange="setVolume(this.value)">
-                            <span class="icon">🔊</span>
-                        </div>
-                        <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(showSoundCustomizer, 300)">
-                            <span class="icon">🎵</span>
-                            Customize Sounds
-                            <span class="menu-chevron">›</span>
-                        </a>
-                    </div>
-                    
-                    <!-- Game Logging -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">📋 Game Logging</div>
-                        <div class="settings-toggle-row">
-                            <label>
-                                <span class="icon">⚡</span>
-                                <span>Auto-Log Results</span>
-                            </label>
-                            <input type="checkbox" id="autolog-toggle" onchange="toggleAutoLog(this.checked)" checked>
-                        </div>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 4px 0 0 36px;">
-                            Automatically log games when detected from clipboard<br>
-                            <span style="color: var(--text-muted);">⚠️ Not available on iOS due to clipboard restrictions</span>
-                        </p>
-                    </div>
-                    
-                    <!-- Game Launch Preferences -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">🚀 Game Launch</div>
-                        <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(showLaunchPrefsManager, 300)">
-                            <span class="icon">📱</span>
-                            Manage App vs Browser
-                            <span class="menu-chevron">›</span>
-                        </a>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 4px 0 0 36px;">
-                            Change how games open (app or browser)
-                        </p>
-                    </div>
-                    
-                    <!-- Activity Summary -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">👋 Activity Summary</div>
-                        <div class="settings-toggle-row">
-                            <label>
-                                <span class="icon">📊</span>
-                                <span>Show on Return</span>
-                            </label>
-                            <input type="checkbox" id="activity-summary-toggle" onchange="toggleActivitySummary(this.checked)">
-                        </div>
-                    </div>
-                    
-                    <!-- Morning Review -->
-                    <div class="settings-section" data-lean-hide>
-                        <div class="settings-section-title">☀️ Morning Review</div>
-                        <div class="settings-toggle-row">
-                            <label>
-                                <span class="icon">☀️</span>
-                                <span>Show Daily Preview</span>
-                            </label>
-                            <input type="checkbox" id="morning-review-toggle" checked>
-                        </div>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 4px 0 0 36px;">
-                            Get a spoiler-free preview of today's puzzles
-                        </p>
-                        <a class="settings-link" style="margin-top: 8px;">
-                            <span class="icon">👁️</span>
-                            View Today's Review
-                            <span class="menu-chevron">›</span>
-                        </a>
-                    </div>
-                    
-                    <!-- v1.10.0: Timezone -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">🌍 Timezone</div>
-                        <div style="padding: 8px 0 4px 36px;">
-                            <div style="font-size: 0.85rem; color: var(--text-primary);">
-                                <span style="color: var(--text-muted);">Home:</span> 
-                                <span id="settings-home-tz">—</span>
-                            </div>
-                            <div style="font-size: 0.85rem; color: var(--text-primary); margin-top: 4px;">
-                                <span style="color: var(--text-muted);">Current:</span> 
-                                <span id="settings-device-tz">—</span>
-                            </div>
-                            <div id="settings-tz-travel" style="display: none; font-size: 0.8rem; color: var(--accent-orange); margin-top: 6px; font-weight: 600;">
-                                ✈️ Traveling — <span id="settings-tz-offset"></span>
-                            </div>
-                        </div>
-                        <a class="settings-link" onclick="changeHomeTimezone()" style="margin-top: 8px;">
-                            <span class="icon">🏠</span>
-                            Change Home Timezone
-                            <span class="menu-chevron">›</span>
-                        </a>
-                    </div>
-                    
-                    <!-- Daily Goal -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">🎯 Daily Goal</div>
-                        <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(showDailyGoalPicker, 300)">
-                            <span class="icon">🎯</span>
-                            Set Daily Goal
-                            <span class="menu-chevron">›</span>
-                        </a>
-                    </div>
-                    
-                    <!-- Scheduled Sprint -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">⚡ Scheduled Sprint</div>
-                        <div class="settings-toggle-row">
-                            <label>
-                                <span class="icon">📅</span>
-                                <span>Daily Sprint Reminder</span>
-                            </label>
-                            <input type="checkbox" id="scheduled-sprint-toggle">
-                        </div>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 4px 0 0 36px;">
-                            Get prompted to start your sprint at a set time
-                        </p>
-                        <div id="scheduled-sprint-settings" style="display: none; margin-top: 12px; padding-left: 36px;">
-                            <a class="settings-link">
-                                <span class="icon">⚙️</span>
-                                Configure Schedule
-                                <span class="menu-chevron">›</span>
-                            </a>
-                            <div id="scheduled-sprint-summary" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 8px;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Advanced Submenu Toggle - Collapsible -->
-            <div class="settings-section" style="padding-bottom: 0;">
-                <div class="settings-submenu-toggle" id="advanced-submenu-toggle" onclick="toggleAdvancedSubmenu()">
-                    <div class="toggle-left">
-                        <span class="toggle-icon">🔧</span>
-                        <span class="toggle-label">Advanced</span>
-                    </div>
-                    <span class="toggle-arrow">▼</span>
-                </div>
-                
-                <!-- Advanced Submenu Content -->
-                <div class="settings-submenu-content" id="advanced-submenu-content">
-                    <!-- Data -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">📦 Data</div>
-                        <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(forceAppUpdate, 300)">
-                            <span class="icon">🔄</span>
-                            Force Update Check
-                        </a>
-                        <p class="settings-desc">Check for new version and reload</p>
-                        <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(clearAllData, 300)" style="color: var(--accent-red); margin-top: 8px;">
-                            <span class="icon">🗑️</span>
-                            Reset All Data
-                            <span class="menu-chevron">›</span>
-                        </a>
-                    </div>
-                    
-                    <!-- Developer -->
-                    <div class="settings-section">
-                        <div class="settings-section-title">🧪 Developer</div>
-                        <div class="settings-toggle-row">
-                            <label>
-                                <span class="icon">🔬</span>
-                                <span>Test Mode</span>
-                            </label>
-                            <input type="checkbox" id="test-mode-toggle" onchange="toggleTestMode(this.checked)">
-                        </div>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 4px 0 0 36px;">
-                            Use test repos for GS Originals (Quotle, Slate, Rungs, Word Boxing)
-                        </p>
-                        
-                        <div class="settings-toggle-row" style="margin-top: 12px;">
-                            <label>
-                                <span class="icon">❓</span>
-                                <span>Help Button</span>
-                            </label>
-                            <input type="checkbox" id="feedback-mode-toggle">
-                        </div>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 4px 0 0 36px;">
-                            Show floating help button for quick access
-                        </p>
-                        
-                        <a class="settings-link" onclick="toggleSettingsMenu(); setTimeout(resetPurchaseLimits, 300)" style="margin-top: 12px;">
-                            <span class="icon">🧹</span>
-                            Reset Purchase Limits
-                        </a>
-                        <p class="settings-desc">Clear purchase history after data reset (for testing)</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Legal -->
+
             <div class="settings-section" style="border-top: 1px solid var(--border); margin-top: 8px; padding-top: 16px;">
-                <div class="settings-section-title">📜 Legal</div>
                 <a class="settings-link" href="https://gameshelf.co/terms" target="_blank">
                     <span class="icon">📋</span>
                     Terms of Service
@@ -11711,7 +11451,7 @@
             </div>
         </div>
         <div class="settings-footer">
-            <div class="settings-version">Game Shelf PWA v1.12.0</div>
+            <div class="settings-version">Game Shelf</div>
         </div>
     </div>
     
@@ -19480,9 +19220,13 @@
         }
         
         // ============ WHAT'S NEW SYSTEM ============
-        const APP_VERSION = '1.16.1';
+        const APP_VERSION = '1.17.0';
+        { const v = document.querySelector('.settings-version'); if (v) v.textContent = 'Game Shelf v' + APP_VERSION; }
 
         const RELEASE_NOTES = {
+            '1.17.0': [
+                { icon: '☰', title: 'A simpler menu', desc: 'The menu now holds just what you need: change your games, theme, feedback and updates.' }
+            ],
             '1.16.0': [
                 { icon: '✋', title: 'Drag to arrange', desc: 'Hold a game, then drag it where you want it. Drop it under a group’s name to move it into that group. Hold and let go to see its options' }
             ],
@@ -29617,14 +29361,11 @@
             
             showConfirmModal({
                 icon: '⚙️',
-                title: 'Reconfigure Games',
-                message: 'This will open the game setup wizard where you can add/remove games and change preferences. Your stats and history will be preserved.',
+                title: 'Change your games',
+                message: 'Pick which games are on your shelf. Your scores and history stay.',
                 confirmText: 'Continue',
                 confirmStyle: 'primary',
-                onConfirm: () => startSetupFlow(),
-                altText: 'Cancel',
-                altStyle: 'secondary',
-                onAlt: () => {}
+                onConfirm: () => startSetupFlow()
             });
         }
 
@@ -30842,7 +30583,7 @@
             // v1.10.0: Start day-change detection interval
             startDayCheckInterval();
             
-            console.log('🧩 Game Shelf PWA v1.16.1 initialized');
+            console.log('🧩 Game Shelf PWA v1.17.0 initialized');
             console.log('🌅 Day-change engine active. Current day:', _lastKnownDay);
             console.log('Setup complete:', isSetupComplete());
             console.log('Standalone:', isStandalone(), 'iOS:', isIOS());
