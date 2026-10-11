@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.5.6">
+    <meta name="version" content="1.5.7">
     <title>Quotle - Daily Quote Puzzle</title>
     
     <!-- Early initialization: Set defaults and apply dark mode BEFORE any CSS renders -->
@@ -3641,7 +3641,7 @@
                     <p><strong>Quote #:</strong> <span id="current-quote-number">Loading...</span></p>
                     <p><strong>Total Quotes:</strong> 365</p>
                     <p><strong>Days Live:</strong> <span id="days-since-launch">Loading...</span></p>
-                    <p><strong>Version:</strong> v1.5.6</p>
+                    <p><strong>Version:</strong> v1.5.7</p>
                 </div>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--slate); line-height: 1.5;">
                     A daily quote guessing game featuring wisdom from ancient philosophers to modern thinkers - spanning over 2,500 years of human thought.
@@ -10340,7 +10340,7 @@ const allQuotes = [
             }];
 
         // The game never shows an unverified attribution. Everything downstream — the daily
-        // rotation (daysSinceLaunch % quotes.length), the author dropdown, the clue feedback —
+        // rotation (quoteIndexForDate), the author dropdown, the clue feedback —
         // reads `quotes`, so gating here gates the whole game.
         const quotes = allQuotes.filter(q => q.verified);
         // Get all unique authors for dropdown
@@ -11262,14 +11262,103 @@ const allQuotes = [
         }
         
         function getQuoteIndexForDate(date) {
+            return quoteIndexForDate(date);
+        }
+
+        // Play order. Until SPREAD_FROM the game played `quotes` in file order, and quotes are
+        // added in themed batches — so Oct 5-11 2026 was seven presidents in a row, with five
+        // Obamas queued next. Days before SPREAD_FROM keep the old rule exactly (including its
+        // floor() count, which runs a day behind during daylight saving) so the archive and
+        // saved results don't change. From SPREAD_FROM on, the unplayed quotes play in a
+        // spread order: categories paced evenly by size, and no author again within
+        // AUTHOR_GAP days. After those, every later pass plays the whole list, spread the same way.
+        const SPREAD_FROM = new Date(2026, 9, 12);
+        // Position the old rule reached on SPREAD_FROM in US/European time zones. Pinned rather than
+        // computed: the old count already differed by a day between hemispheres, and pinning it
+        // gives everyone the same schedule from SPREAD_FROM on.
+        const SPREAD_FROM_POSITION = 258;
+        const AUTHOR_GAP = 14;
+        let spreadPlan = null;
+
+        function legacyQuoteIndex(date) {
             const dateCopy = new Date(date);
             dateCopy.setHours(0, 0, 0, 0);
-            
             const launchCopy = new Date(LAUNCH_DATE);
             launchCopy.setHours(0, 0, 0, 0);
-            
             const daysSinceLaunch = Math.floor((dateCopy - launchCopy) / (1000 * 60 * 60 * 24));
-            return daysSinceLaunch % quotes.length;
+            return ((daysSinceLaunch % quotes.length) + quotes.length) % quotes.length;
+        }
+
+        // Calendar days between two local dates, by date parts so DST can't shift it.
+        function calendarDaysBetween(from, to) {
+            return Math.round((Date.UTC(to.getFullYear(), to.getMonth(), to.getDate()) -
+                Date.UTC(from.getFullYear(), from.getMonth(), from.getDate())) / 86400000);
+        }
+
+        // Spread: each category gets days in proportion to its size, evenly spaced (at each step
+        // take the category furthest behind its share), and an author never repeats within
+        // AUTHOR_GAP days unless nothing else is left (with `stopWhenStuck`, stop there instead).
+        // Within a category, authors are paced the same way, so prolific ones don't pile up at
+        // the end; then file order.
+        function spreadOrder(pool, recent, stopWhenStuck) {
+            const left = pool.slice();
+            const played = recent.slice();
+            const total = {}, placed = {};
+            left.forEach(i => {
+                for (const key of ['c:' + quotes[i].category, 'a:' + quotes[i].author]) {
+                    total[key] = (total[key] || 0) + 1;
+                    placed[key] = 0;
+                }
+            });
+            const pace = key => (placed[key] + 0.5) / total[key];
+            const before = (i, j) => {
+                const c = pace('c:' + quotes[i].category) - pace('c:' + quotes[j].category);
+                return c !== 0 ? c < 0 : pace('a:' + quotes[i].author) < pace('a:' + quotes[j].author);
+            };
+            const out = [];
+            while (left.length) {
+                const recentAuthors = new Set(played.slice(-AUTHOR_GAP).map(i => quotes[i].author));
+                let pick = -1;
+                for (const allowed of [i => !recentAuthors.has(quotes[i].author), () => true]) {
+                    left.forEach((i, pos) => {
+                        if (allowed(i) && (pick < 0 || before(i, left[pick]))) pick = pos;
+                    });
+                    if (pick >= 0) break;
+                    if (stopWhenStuck) return out;
+                }
+                const chosen = left.splice(pick, 1)[0];
+                placed['c:' + quotes[chosen].category]++;
+                placed['a:' + quotes[chosen].author]++;
+                out.push(chosen);
+                played.push(chosen);
+            }
+            return out;
+        }
+
+        function quoteIndexForDate(date) {
+            const day = new Date(date);
+            day.setHours(0, 0, 0, 0);
+            if (day < SPREAD_FROM) return legacyQuoteIndex(day);
+            if (!spreadPlan) {
+                const all = quotes.map((_, i) => i);
+                const recent = all.slice(SPREAD_FROM_POSITION - AUTHOR_GAP, SPREAD_FROM_POSITION);
+                // Quotes the first pass can't place without repeating an author soon (five Obamas
+                // in 52 days) are left out of it; they still play, in the full pass that follows.
+                const first = spreadOrder(all.slice(SPREAD_FROM_POSITION), recent, true);
+                spreadPlan = { all, first, cycles: [], lastPlayed: recent.concat(first) };
+            }
+            const k = calendarDaysBetween(SPREAD_FROM, day);
+            if (k < spreadPlan.first.length) return spreadPlan.first[k];
+            // Each pass is spread starting from where the one before it ended, so the seam between
+            // passes doesn't repeat an author either.
+            const n = spreadPlan.all.length;
+            const pass = Math.floor((k - spreadPlan.first.length) / n);
+            while (spreadPlan.cycles.length <= pass) {
+                const next = spreadOrder(spreadPlan.all, spreadPlan.lastPlayed.slice(-AUTHOR_GAP));
+                spreadPlan.cycles.push(next);
+                spreadPlan.lastPlayed = next;
+            }
+            return spreadPlan.cycles[pass][(k - spreadPlan.first.length) % n];
         }
         
         function startPractice(date) {
@@ -11444,17 +11533,7 @@ const allQuotes = [
         function getDailyQuoteIndex() {
             // Local midnight for both today and launch date (constructed as local),
             // so the puzzle rolls over at the player's local midnight consistently.
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            const launchDate = new Date(LAUNCH_DATE);
-            launchDate.setHours(0, 0, 0, 0);
-            
-            const daysSinceLaunch = Math.floor((today - launchDate) / (1000 * 60 * 60 * 24));
-            
-            // Handle pre-launch dates (negative days) by wrapping correctly
-            // JavaScript % can return negative, so we add quotes.length and mod again
-            return ((daysSinceLaunch % quotes.length) + quotes.length) % quotes.length;
+            return quoteIndexForDate(new Date());
         }
         
         // Store puzzle data for Game Shelf Hint Helper (exposes quote, NOT author)
