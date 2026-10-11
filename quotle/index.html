@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.5.7">
+    <meta name="version" content="1.5.8">
     <title>Quotle - Daily Quote Puzzle</title>
     
     <!-- Early initialization: Set defaults and apply dark mode BEFORE any CSS renders -->
@@ -3641,7 +3641,7 @@
                     <p><strong>Quote #:</strong> <span id="current-quote-number">Loading...</span></p>
                     <p><strong>Total Quotes:</strong> 365</p>
                     <p><strong>Days Live:</strong> <span id="days-since-launch">Loading...</span></p>
-                    <p><strong>Version:</strong> v1.5.7</p>
+                    <p><strong>Version:</strong> v1.5.8</p>
                 </div>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--slate); line-height: 1.5;">
                     A daily quote guessing game featuring wisdom from ancient philosophers to modern thinkers - spanning over 2,500 years of human thought.
@@ -3895,6 +3895,17 @@
                 <button type="button" class="modal-btn" style="background: var(--slate);" onclick="closeModal('give-up-modal')">Keep Trying</button>
                 <button type="button" class="modal-btn" style="background: var(--burgundy);" onclick="executeGiveUp()">Reveal Answer</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Popular mix-up: a wrong guess that is a documented misattribution of today's quote -->
+    <div id="mixup-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <button class="modal-close" onclick="closeModal('mixup-modal')" type="button">&times;</button>
+            <h2 class="modal-title" style="font-size: 1.5rem;">🔀 Popular mix-up!</h2>
+            <p id="mixup-text" style="margin: 20px 0 12px; line-height: 1.6;"></p>
+            <p id="mixup-clue" style="margin-bottom: 25px; color: var(--slate); font-size: 0.9rem;"></p>
+            <button type="button" class="modal-btn" style="background: var(--burgundy);" onclick="closeModal('mixup-modal')">Keep guessing</button>
         </div>
     </div>
 
@@ -11722,6 +11733,7 @@ const allQuotes = [
             
             // Input event - filter as user types
             input.addEventListener('input', function() {
+                prefetchQuotleInfoRecord(currentQuote); // the mix-up check needs it before the guess
                 const query = this.value.toLowerCase().trim();
                 debugLog('INPUT: "' + query + '"');
                 
@@ -11766,6 +11778,7 @@ const allQuotes = [
             // Focus event - show dropdown
             input.addEventListener('focus', function() {
                 debugLog('Input focused');
+                prefetchQuotleInfoRecord(currentQuote);
                 const query = this.value.toLowerCase().trim();
                 if (currentAuthors.length > 0) {
                     renderDropdown(query);
@@ -12617,8 +12630,19 @@ const allQuotes = [
         // quotle.info publishes each quote's research record at /data/quotes/{slug}.json (CORS *).
         // The slug comes from the manifest that loadQuotleInfoPages() fetches at startup; if that
         // is still in flight we wait for it briefly rather than fall back to the template.
+        const quotleInfoRecords = {}; // quote.index -> record, once fetched
+        const quotleInfoRecordFetches = {};
+
+        function prefetchQuotleInfoRecord(quote) {
+            if (!quote || quotleInfoRecords[quote.index] || quotleInfoRecordFetches[quote.index]) return;
+            quotleInfoRecordFetches[quote.index] = fetchQuotleInfoRecord(quote)
+                .catch(() => null)
+                .finally(() => { delete quotleInfoRecordFetches[quote.index]; });
+        }
+
         async function fetchQuotleInfoRecord(quote) {
             if (!quote) return null;
+            if (quotleInfoRecords[quote.index]) return quotleInfoRecords[quote.index];
             let entry = quotleInfoPages && quotleInfoPages[quote.index];
             if (!entry && quotleInfoPagesPromise) {
                 await Promise.race([quotleInfoPagesPromise, new Promise(r => setTimeout(r, 4000))]);
@@ -12634,6 +12658,7 @@ const allQuotes = [
                 const rec = await r.json();
                 // Guard against a slug that no longer points at this puzzle's quote.
                 if (!rec || (rec.dayNumber != null && rec.dayNumber !== quote.index)) return null;
+                quotleInfoRecords[quote.index] = rec;
                 return rec;
             } finally {
                 if (timer) clearTimeout(timer);
@@ -12674,6 +12699,34 @@ const allQuotes = [
             return el.textContent.trim();
         }
 
+        // The game's other authors that quotle.info's fact-check says this quote gets wrongly
+        // credited to. Only names in the game's own list can be guessed, so only those count.
+        // Items that are a related idea or an older precursor aren't a mix-up of these words.
+        function quoteMixupNames(quote) {
+            const rec = quote && quotleInfoRecords[quote.index];
+            const items = (rec && rec.misattribution && rec.misattribution.items) || [];
+            const norm = s => quotleInfoText(s).toLowerCase().replace(/[^a-z]/g, '');
+            const names = [];
+            items.forEach(item => {
+                if (/related|precursor|kindred|the idea|concept|different quote|variant/i.test(quotleInfoText(item.tag) + ' ' + quotleInfoText(item.scope))) return;
+                String(item.who || '').split(/\/|;|,| and /).forEach(part => {
+                    const name = authors.find(a => norm(a) === norm(part));
+                    if (name && name !== quote.author && !names.includes(name)) names.push(name);
+                });
+            });
+            return names;
+        }
+
+        function showMixup(name) {
+            const esc = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+            const period = currentQuote.period === 'Ancient' ? 'ancient times' : 'the ' + currentQuote.period;
+            document.getElementById('mixup-text').innerHTML =
+                `This line gets pinned on <strong>${esc(name)}</strong> &mdash; but it isn&rsquo;t ${esc(name)}&rsquo;s.`;
+            document.getElementById('mixup-clue').textContent =
+                `That guess doesn't count. Clue: the real author is from ${period}.`;
+            openModal('mixup-modal');
+        }
+
         function renderQuotleInfoContext(rec, quote) {
             const answer = rec.answer || {};
             const ctx = rec.context || {};
@@ -12697,6 +12750,19 @@ const allQuotes = [
                 </div>`;
             } else if (answer.sourceLine) {
                 out += `<div style="margin-bottom: 14px;">${h('📜 Where it comes from')}${para(answer.sourceLine)}</div>`;
+            }
+
+            // quotle.info's fact-check: who it gets credited to, and how the words drift.
+            const check = rec.misattribution || {};
+            const checkItems = Array.isArray(check.items) ? check.items : [];
+            if (check.intro || checkItems.length) {
+                out += `<div style="margin-bottom: 14px;">${h('🔀 ' + esc(quotleInfoText(check.heading) || 'The fact-check'))}`
+                    + (check.intro ? para(check.intro) : '')
+                    + checkItems.map(item => para(
+                        (item.who ? `<strong>${quotleInfoHtml(item.who)}</strong>` : '')
+                        + (item.tag ? ` <em>(${quotleInfoHtml(item.tag)})</em>` : '')
+                        + (item.who || item.tag ? ' &mdash; ' : '') + (item.why || ''))).join('')
+                    + `</div>`;
             }
 
             const lead = Array.isArray(ctx.lead) ? ctx.lead : (ctx.lead ? [ctx.lead] : []);
@@ -13050,6 +13116,13 @@ const allQuotes = [
                 return;
             }
             
+            // A documented mix-up for this quote: say so, give a clue, and don't use up a try.
+            if (guessedAuthor !== currentQuote.author && quoteMixupNames(currentQuote).includes(guessedAuthor)) {
+                showMixup(guessedAuthor);
+                resetAutocomplete();
+                return;
+            }
+
             // Find the guessed author's details
             const guessedQuote = quotes.find(q => q.author === guessedAuthor);
             const isCorrect = guessedAuthor === currentQuote.author;
