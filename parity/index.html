@@ -3,10 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.1.1">
+    <meta name="version" content="1.1.2">
     <meta name="gs-app-id" content="parity">
     <title>Parity - Daily Puzzle</title>
     <meta name="description" content="Nine tiles, three rules. Odd tiles slide sideways, even tiles move up and down, and partners that sum to 10 trade places. A new board every day.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gameshelf.co/parity/">
+    <meta property="og:title" content="Parity - a daily tile puzzle">
+    <meta property="og:description" content="Nine tiles, three rules, a new board every day. Can you match par?">
+    <meta property="og:image" content="https://gameshelf.co/parity/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="A Parity board beside its three rules: odd tiles slide sideways, even tiles move up and down, tiles that add up to 10 swap anywhere.">
+    <meta name="twitter:card" content="summary_large_image">
 
     <!-- PWA Support -->
     <link rel="manifest" href="manifest.json">
@@ -693,7 +702,8 @@
     var over=moves-par;
     return "\ud83d\udd22 Parity #"+puzzleNumber()+" · "+(easyRules?"Easy":"Hard")+"\n"
          + moves+" moves · par "+par+(over===0?" \ud83c\udf1f perfect":" (+"+over+")")+"\n"
-         + "gameshelf.co/parity";
+         + "Nine tiles, three rules, a new board every day:\n"
+         + "https://gameshelf.co/parity/";
   }
 
   function applySwap(a,b,why){
