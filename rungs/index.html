@@ -3461,6 +3461,7 @@
             const result = getTodayResult();
             const stats = getStats();
             gameOver = true;
+            updateThemeHint(); // greys out Hint now that the day is done
             
             const modal = document.getElementById('result-modal');
             const content = document.getElementById('result-content');
@@ -3635,8 +3636,14 @@
         }
 
         // ============ SELECTION ============
+        // After the game is over (or already played today) the board is read-only; a tap
+        // brings the result back instead of silently doing nothing.
+        function showResultAgain() {
+            document.getElementById('result-modal').classList.add('active');
+        }
+
         function selectItem(id) {
-            if (gameOver) return;
+            if (gameOver) { showResultAgain(); return; }
             
             // Clear slot selection when selecting pool items
             if (selectedSlot !== null) {
@@ -3663,7 +3670,7 @@
         }
 
         function selectSlot(slotIndex) {
-            if (gameOver) return;
+            if (gameOver) { showResultAgain(); return; }
             if (stack[slotIndex] === null) return;
             
             // Clear pool selection
