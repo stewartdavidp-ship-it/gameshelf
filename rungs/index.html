@@ -3507,6 +3507,9 @@
         }
 
         function initGame() {
+            // Test mode's puzzle list must fill even when today is already played
+            if (DEBUG_MODE) populatePuzzleDropdown();
+
             // Check if already played today (daily mode only)
             if (!isPracticeMode && !isTutorialMode && hasPlayedToday()) {
                 currentPuzzle = getDailyPuzzle();
