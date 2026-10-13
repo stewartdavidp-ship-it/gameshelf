@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.5.12">
+    <meta name="version" content="1.5.13">
     <title>Quotle - Daily Quote Puzzle</title>
     
     <!-- Early initialization: Set defaults and apply dark mode BEFORE any CSS renders -->
@@ -3660,7 +3660,7 @@
                     <p><strong>Quote #:</strong> <span id="current-quote-number">Loading...</span></p>
                     <p><strong>Total Quotes:</strong> 365</p>
                     <p><strong>Days Live:</strong> <span id="days-since-launch">Loading...</span></p>
-                    <p><strong>Version:</strong> v1.5.12</p>
+                    <p><strong>Version:</strong> v1.5.13</p>
                 </div>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--slate); line-height: 1.5;">
                     A daily quote guessing game featuring wisdom from ancient philosophers to modern thinkers - spanning over 2,500 years of human thought.
@@ -10373,7 +10373,10 @@ const allQuotes = [
         // rotation (quoteIndexForDate), the author dropdown, the clue feedback —
         // reads `quotes`, so gating here gates the whole game.
         const quotes = allQuotes.filter(q => q.verified);
-        // Get all unique authors for dropdown
+        // The built-in list's size. The schedule for days before FEED_FROM is computed over these
+        // only, so quotes appended from the quotle.info feed never move a past day.
+        const BASE_QUOTE_COUNT = quotes.length;
+        // Get all unique authors for dropdown (refilled in place when the feed adds authors)
         const authors = [...new Set(quotes.map(q => q.author))].sort();
         
         // Game state
@@ -11316,7 +11319,7 @@ const allQuotes = [
             const launchCopy = new Date(LAUNCH_DATE);
             launchCopy.setHours(0, 0, 0, 0);
             const daysSinceLaunch = Math.floor((dateCopy - launchCopy) / (1000 * 60 * 60 * 24));
-            return ((daysSinceLaunch % quotes.length) + quotes.length) % quotes.length;
+            return ((daysSinceLaunch % BASE_QUOTE_COUNT) + BASE_QUOTE_COUNT) % BASE_QUOTE_COUNT;
         }
 
         // Calendar days between two local dates, by date parts so DST can't shift it.
@@ -11365,12 +11368,76 @@ const allQuotes = [
             return out;
         }
 
+        // --- quotle.info game feed ------------------------------------------------------------
+        // From FEED_FROM the daily quote comes from quotle.info's published schedule
+        // (/data/game/feed.json), so quotes verified there reach the game without editing it.
+        // Feed quotes are appended to `quotes` (existing positions never move; the built-in
+        // quotes keep their own clues). quotle.info locks past days and the next 60, so a cached
+        // copy of the feed gives the same answer as a fresh one. If no feed can be had, a day
+        // falls back to the built-in spread rule.
+        const FEED_URL = 'https://quotle.info/data/game/feed.json';
+        const FEED_FROM = new Date(2026, 9, 15);
+        const FEED_WAIT_MS = 4000;
+        let gameFeed = null;
+        const feedPosition = new Map(); // game index → position in `quotes`
+
+        function applyGameFeed(feed) {
+            if (!feed || !Array.isArray(feed.quotes) || !Array.isArray(feed.days) || !feed.from) return false;
+            quotes.forEach((q, i) => feedPosition.set(q.index, i));
+            feed.quotes.forEach(fq => {
+                const at = feedPosition.get(fq.index);
+                if (at != null) {
+                    quotes[at].slug = fq.slug;
+                    quotes[at].authorSlug = fq.authorSlug;
+                    return;
+                }
+                quotes.push(Object.assign({}, fq, { verified: true }));
+                feedPosition.set(fq.index, quotes.length - 1);
+            });
+            const names = [...new Set(quotes.map(q => q.author))].sort();
+            authors.length = 0;
+            authors.push(...names);
+            gameFeed = feed;
+            return true;
+        }
+
+        function cachedGameFeed() {
+            try {
+                const c = JSON.parse(localStorage.getItem('quotleGameFeed') || 'null');
+                return c && c.feed ? c.feed : null;
+            } catch (e) { return null; }
+        }
+
+        function fetchGameFeed() {
+            return fetch(FEED_URL, { cache: 'no-cache' })
+                .then(r => r.ok ? r.json() : null)
+                .then(feed => {
+                    if (feed && Array.isArray(feed.quotes)) {
+                        try { localStorage.setItem('quotleGameFeed', JSON.stringify({ t: Date.now(), feed })); } catch (e) {}
+                        return feed;
+                    }
+                    return null;
+                })
+                .catch(() => null);
+        }
+
+        function feedQuoteIndexForDate(day) {
+            if (!gameFeed || day < FEED_FROM) return null;
+            const parts = gameFeed.from.split('-').map(Number);
+            const k = calendarDaysBetween(new Date(parts[0], parts[1] - 1, parts[2]), day);
+            if (k < 0 || k >= gameFeed.days.length) return null;
+            const pos = feedPosition.get(gameFeed.days[k]);
+            return pos == null ? null : pos;
+        }
+
         function quoteIndexForDate(date) {
             const day = new Date(date);
             day.setHours(0, 0, 0, 0);
             if (day < SPREAD_FROM) return legacyQuoteIndex(day);
+            const fromFeed = feedQuoteIndexForDate(day);
+            if (fromFeed != null) return fromFeed;
             if (!spreadPlan) {
-                const all = quotes.map((_, i) => i);
+                const all = Array.from({ length: BASE_QUOTE_COUNT }, (_, i) => i);
                 const recent = all.slice(SPREAD_FROM_POSITION - AUTHOR_GAP, SPREAD_FROM_POSITION);
                 // Quotes the first pass can't place without repeating an author soon (five Obamas
                 // in 52 days) are left out of it; they still play, in the full pass that follows.
@@ -12674,10 +12741,10 @@ const allQuotes = [
         async function fetchQuotleInfoRecord(quote) {
             if (!quote) return null;
             if (quotleInfoRecords[quote.index]) return quotleInfoRecords[quote.index];
-            let entry = quotleInfoPages && quotleInfoPages[quote.index];
+            let entry = quotleInfoEntry(quote);
             if (!entry && quotleInfoPagesPromise) {
                 await Promise.race([quotleInfoPagesPromise, new Promise(r => setTimeout(r, 4000))]);
-                entry = quotleInfoPages && quotleInfoPages[quote.index];
+                entry = quotleInfoEntry(quote);
             }
             if (!entry || !entry.slug) return null;
             const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
@@ -13449,8 +13516,18 @@ const allQuotes = [
         // The page slug comes from the manifest, so names the site spells differently still resolve
         // ("Seneca" → seneca-the-younger). Until the manifest arrives the name renders plain, then
         // linkAuthorNames() upgrades it in place.
+        // quotle.info slugs for a quote: from the manifest by game index, or — for quotes that came
+        // from the feed and aren't numbered in the manifest — from the feed itself.
+        function quotleInfoEntry(quote){
+            if (!quote) return null;
+            const m = quotleInfoPages && quotleInfoPages[quote.index];
+            if (m) return m;
+            if (quote.slug) return { slug: quote.slug, authorSlug: quote.authorSlug };
+            const q = typeof quotes !== 'undefined' && quotes.find(x => x.index === quote.index);
+            return q && q.slug ? { slug: q.slug, authorSlug: q.authorSlug } : null;
+        }
         function authorPageUrl(quote){
-            const e = quote && quotleInfoPages && quotleInfoPages[quote.index];
+            const e = quotleInfoEntry(quote);
             return e && e.authorSlug ? 'https://quotle.info/authors/' + e.authorSlug + '/?from=game' : null;
         }
         function authorNameHTML(quote){
@@ -13472,7 +13549,7 @@ const allQuotes = [
             linkAuthorNames();
             const slot = document.getElementById('who-said-slot');
             if (!slot || typeof currentQuote === 'undefined' || !currentQuote) return;
-            const entry = quotleInfoPages && quotleInfoPages[currentQuote.index];
+            const entry = quotleInfoEntry(currentQuote);
             if (!entry) { slot.innerHTML = ''; return; }
             slot.innerHTML =
                 '<a href="https://quotle.info/who-said/' + entry.slug + '/?from=game" target="_blank" rel="noopener" '
@@ -13890,7 +13967,18 @@ const allQuotes = [
         };
         
         // Start game on load
-        initGame();
+        // Start: a cached feed is applied at once (its locked days match a fresh one); a fresh copy
+        // is fetched for next time. With no cache on a feed day, wait up to FEED_WAIT_MS for it.
+        (function startWithFeed() {
+            const cached = cachedGameFeed();
+            if (cached) applyGameFeed(cached);
+            const fresh = fetchGameFeed();
+            if (cached || new Date() < FEED_FROM) { initGame(); return; }
+            let started = false;
+            const go = () => { if (!started) { started = true; initGame(); } };
+            fresh.then(feed => { if (!started && feed) applyGameFeed(feed); go(); });
+            setTimeout(go, FEED_WAIT_MS);
+        })();
     </script>
     
     <!-- PWA Service Worker Registration -->
