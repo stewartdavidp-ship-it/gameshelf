@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.5.10">
+    <meta name="version" content="1.5.11">
     <title>Quotle - Daily Quote Puzzle</title>
     
     <!-- Early initialization: Set defaults and apply dark mode BEFORE any CSS renders -->
@@ -69,18 +69,19 @@
         }
         
         [data-theme="dark"] {
-            --cream: #1a1a2e;
-            --ink: #e8e0f0;
-            --burgundy: #d4627a;
-            --gold: #ffd369;
-            --sage: #7eb38b;
-            --slate: #a8b0c0;
-            --card-bg: #252538;
-            --card-bg-alt: #1e1e30;
-            --border-subtle: rgba(255,255,255,0.1);
+            /* Mix 1 (2026-10-13): dark green study, coral accents, gold for share/today */
+            --cream: #0f1b17;
+            --ink: #efe8d8;
+            --burgundy: #e8765f;
+            --gold: #e0b55a;
+            --sage: #7cc59a;
+            --slate: #a7b5ae;
+            --card-bg: #16261f;
+            --card-bg-alt: #13211b;
+            --border-subtle: rgba(239,232,216,0.1);
             --shadow-color: rgba(0,0,0,0.3);
-            --modal-bg: #252538;
-            --input-bg: #1e1e30;
+            --modal-bg: #16261f;
+            --input-bg: #13211b;
             --overlay-bg: rgba(0,0,0,0.7);
         }
         
@@ -2183,8 +2184,8 @@
         
         /* Dark Mode Support - Toggle-based */
         [data-theme="dark"] body {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: #e8e6e3;
+            background: linear-gradient(135deg, #0b1411 0%, #16261f 100%);
+            color: #efe8d8;
         }
 
         /* Removed dark mode pattern */
@@ -2196,7 +2197,7 @@
         }
 
         [data-theme="dark"] .header {
-            border-bottom: 2px solid #444;
+            border-bottom: 2px solid #284236;
         }
 
         [data-theme="dark"] .title {
@@ -2209,19 +2210,19 @@
         }
 
         [data-theme="dark"] .quote-display {
-            background: linear-gradient(to bottom, #242424, #2d2d2d);
+            background: linear-gradient(to bottom, #13211b, #16261f);
             border-left: 4px solid var(--burgundy);
-            color: #e8e6e3;
+            color: #efe8d8;
         }
 
         [data-theme="dark"] .quote-display::before {
-            color: rgba(201, 58, 78, 0.2);
+            color: rgba(232, 118, 95, 0.2);
         }
 
         /* Share button - dark mode fix */
         [data-theme="dark"] .share-btn {
             background: var(--gold);
-            color: #1a1a1a;
+            color: #0b1411;
             border-color: var(--gold);
         }
 
@@ -2233,65 +2234,65 @@
 
         /* Gold difficulty badge - better contrast */
         [data-theme="dark"] [style*="background: var(--gold)"] {
-            color: #1a1a1a !important;
+            color: #0b1411 !important;
         }
 
         /* Ensure any gold backgrounds have dark text */
         [data-theme="dark"] .new-game-btn {
             background: var(--gold);
-            color: #1a1a1a;
+            color: #0b1411;
         }
 
         [data-theme="dark"] .new-game-btn:hover {
             background: white;
-            color: #1a1a1a;
+            color: #0b1411;
         }
 
         /* Perfect game text - override gold color for readability */
         [data-theme="dark"] .game-over strong[style*="color: var(--gold)"] {
-            color: #ffd700 !important;
+            color: #e0b55a !important;
         }
 
         /* Wikipedia links - better visibility in dark mode */
         [data-theme="dark"] .reveal a {
-            color: #ff6b82 !important;
+            color: #f08c76 !important;
             text-decoration: underline !important;
         }
 
         [data-theme="dark"] .reveal a:hover {
-            color: #ff8fa3 !important;
+            color: #f5a593 !important;
         }
 
         [data-theme="dark"] select {
-            background: #242424;
-            color: #e8e6e3;
-            border: 2px solid #444;
+            background: #13211b;
+            color: #efe8d8;
+            border: 2px solid #284236;
         }
 
         [data-theme="dark"] select:focus {
             border-color: var(--burgundy);
-            background: #2d2d2d;
+            background: #16261f;
         }
 
         [data-theme="dark"] select option {
-            background: #2d2d2d;
-            color: #e8e6e3;
+            background: #16261f;
+            color: #efe8d8;
         }
 
         /* Dark mode autocomplete */
         [data-theme="dark"] #author-input {
-            background: #242424;
-            color: #e8e6e3;
-            border: 2px solid #444;
+            background: #13211b;
+            color: #efe8d8;
+            border: 2px solid #284236;
         }
 
         [data-theme="dark"] #author-input:hover {
-            background: #2d2d2d;
+            background: #16261f;
         }
 
         [data-theme="dark"] #author-input:focus {
             border-color: var(--burgundy);
-            background: #2d2d2d;
+            background: #16261f;
         }
 
         [data-theme="dark"] #author-input.has-value {
@@ -2299,26 +2300,26 @@
         }
 
         [data-theme="dark"] #author-input::placeholder {
-            color: #888;
+            color: #a7b5ae;
         }
 
         [data-theme="dark"] .autocomplete-dropdown {
-            background: #2d2d2d;
-            border-color: #444;
+            background: #16261f;
+            border-color: #284236;
         }
 
         [data-theme="dark"] .autocomplete-item {
-            color: #e8e6e3;
-            border-bottom-color: #444;
+            color: #efe8d8;
+            border-bottom-color: #284236;
         }
 
         [data-theme="dark"] .autocomplete-item.highlighted {
-            background: #3d3d3d;
+            background: #284236;
             color: var(--burgundy);
         }
 
         [data-theme="dark"] .autocomplete-no-results {
-            color: #888;
+            color: #a7b5ae;
         }
 
         /* Dark mode hint section */
@@ -2333,7 +2334,7 @@
         }
 
         [data-theme="dark"] .hint-text {
-            color: #e8e6e3;
+            color: #efe8d8;
         }
 
         [data-theme="dark"] .stat-box {
@@ -2342,9 +2343,9 @@
         }
 
         [data-theme="dark"] button {
-            background: #242424;
-            color: #e8e6e3;
-            border: 2px solid #444;
+            background: #13211b;
+            color: #efe8d8;
+            border: 2px solid #284236;
         }
 
         [data-theme="dark"] button:hover:not(:disabled) {
@@ -2353,18 +2354,18 @@
         }
 
         [data-theme="dark"] button:disabled {
-            background: #1a1a1a;
-            color: #666;
-            border-color: #333;
+            background: #0b1411;
+            color: #4a6656;
+            border-color: #1f3329;
         }
 
         [data-theme="dark"] .attempt-dot {
-            background: #242424;
-            border: 3px solid #444;
+            background: #13211b;
+            border: 3px solid #284236;
         }
 
         [data-theme="dark"] .attempt-dot.used {
-            background: #444;
+            background: #284236;
         }
 
         [data-theme="dark"] .attempt-dot.correct {
@@ -2373,40 +2374,40 @@
         }
 
         [data-theme="dark"] .feedback-item {
-            background: #242424;
-            border: 2px solid #444;
+            background: #13211b;
+            border: 2px solid #284236;
         }
 
         [data-theme="dark"] .feedback-author {
-            color: #e8e6e3;
+            color: #efe8d8;
         }
 
         [data-theme="dark"] .hint-tag {
-            background: #1a1a1a;
-            color: #999;
-            border: 1px solid #444;
+            background: #0b1411;
+            color: #a7b5ae;
+            border: 1px solid #284236;
         }
 
         [data-theme="dark"] .hint-tag.correct {
             background: var(--sage);
-            color: #1a1a1a;
+            color: #0b1411;
             border-color: var(--sage);
         }
 
         [data-theme="dark"] .hint-tag.incorrect {
-            background: #333;
-            color: #888;
+            background: #1f3329;
+            color: #a7b5ae;
             opacity: 0.8;
         }
 
         [data-theme="dark"] .game-over {
-            background: linear-gradient(135deg, #c93a4e, #1a1a1a);
-            border: 3px solid #444;
+            background: linear-gradient(135deg, #e8765f, #0b1411);
+            border: 3px solid #284236;
         }
 
         [data-theme="dark"] .reveal {
-            background: #242424;
-            border: 2px solid #444;
+            background: #13211b;
+            border: 2px solid #284236;
         }
 
         [data-theme="dark"] .modal {
@@ -2414,13 +2415,13 @@
         }
 
         [data-theme="dark"] .modal-content {
-            background: #2d2d2d;
-            border: 3px solid #444;
+            background: #16261f;
+            border: 3px solid #284236;
             box-shadow: 12px 12px 0 rgba(0,0,0,0.5);
         }
 
         [data-theme="dark"] .modal-close {
-            background: #444;
+            background: #284236;
             color: white;
         }
 
@@ -2434,30 +2435,30 @@
         }
 
         [data-theme="dark"] .modal-section h3 {
-            color: #e8e6e3;
+            color: #efe8d8;
         }
 
         [data-theme="dark"] .modal-section p {
-            color: #c0c0c0;
+            color: #c9d3cc;
         }
 
         [data-theme="dark"] .modal-section ul li {
-            color: #c0c0c0;
+            color: #c9d3cc;
         }
 
         [data-theme="dark"] .difficulty-option {
-            border: 2px solid #444;
-            background: #242424;
-            color: #e8e6e3;
+            border: 2px solid #284236;
+            background: #13211b;
+            color: #efe8d8;
         }
 
         [data-theme="dark"] .difficulty-option:hover {
-            background: #333;
+            background: #1f3329;
         }
 
         [data-theme="dark"] .difficulty-option.selected {
             background: var(--sage);
-            color: #1a1a1a;
+            color: #0b1411;
             border-color: var(--sage);
         }
 
@@ -2472,18 +2473,18 @@
 
         [data-theme="dark"] .modal-btn {
             background: var(--burgundy);
-            color: #e8e6e3;
-            border: 2px solid #444;
+            color: #efe8d8;
+            border: 2px solid #284236;
         }
 
         [data-theme="dark"] .modal-btn:hover {
-            background: #a82e3f;
+            background: #c9604b;
         }
 
         /* Stats grid in dark mode */
         [data-theme="dark"] .game-over > div[style*="grid"] > div {
-            background: #242424 !important;
-            border: 2px solid #444 !important;
+            background: #13211b !important;
+            border: 2px solid #284236 !important;
         }
 
         /* Stats: the bar today's game added to grows in, so the eye lands on it */
@@ -2493,28 +2494,28 @@
 
         /* Guess distribution bars */
         [data-theme="dark"] .game-over div[style*="background: var(--cream)"] {
-            background: #242424 !important;
-            border: 2px solid #444 !important;
+            background: #13211b !important;
+            border: 2px solid #284236 !important;
         }
 
         /* Next puzzle box */
         [data-theme="dark"] .game-over div[style*="background: rgba(255, [data-theme="dark"] 255, [data-theme="dark"] 255, [data-theme="dark"] 0.5)"] {
             background: rgba(255,255,255,0.05) !important;
-            border: 2px solid #444 !important;
+            border: 2px solid #284236 !important;
         }
 
         /* Deep dive / Historical Context section - dark mode */
         [data-theme="dark"] #deep-dive-section {
-            background: linear-gradient(135deg, rgba(201,58,78,0.15) 0%, rgba(168,186,143,0.15) 100%) !important;
+            background: linear-gradient(135deg, rgba(232, 118, 95,0.15) 0%, rgba(168,186,143,0.15) 100%) !important;
             border-color: var(--burgundy) !important;
         }
 
         [data-theme="dark"] #deep-dive-section h3 {
-            color: #ff6b82 !important;
+            color: #f08c76 !important;
         }
 
         [data-theme="dark"] #deep-dive-content {
-            color: #e8e6e3 !important;
+            color: #efe8d8 !important;
         }
 
         [data-theme="dark"] #deep-dive-content p {
@@ -2522,7 +2523,7 @@
         }
 
         [data-theme="dark"] #deep-dive-content a {
-            color: #ff6b82 !important;
+            color: #f08c76 !important;
         }
 
         [data-theme="dark"] #deep-dive-content small {
@@ -2530,7 +2531,7 @@
         }
 
         [data-theme="dark"] #deep-dive-content .qi-h {
-            color: #ff6b82 !important;
+            color: #f08c76 !important;
         }
 
         [data-theme="dark"] #deep-dive-content .qi-callout {
@@ -2539,27 +2540,27 @@
 
         /* New menu element dark mode styles */
         [data-theme="dark"] .setting-row span {
-            color: #e8e6e3;
+            color: #efe8d8;
         }
 
         [data-theme="dark"] .section-desc {
-            color: #999 !important;
+            color: #a7b5ae !important;
         }
 
         [data-theme="dark"] .action-btn {
-            background: #333;
-            border-color: #555;
-            color: #e8e6e3;
+            background: #1f3329;
+            border-color: #33503f;
+            color: #efe8d8;
         }
 
         [data-theme="dark"] .action-btn:hover {
-            background: #444;
+            background: #284236;
             border-color: var(--burgundy);
         }
 
         [data-theme="dark"] .action-btn.primary {
             background: var(--gold);
-            color: #1a1a1a;
+            color: #0b1411;
             border-color: var(--gold);
         }
 
@@ -2568,8 +2569,8 @@
         }
 
         [data-theme="dark"] .action-btn.danger {
-            color: #e74c3c;
-            border-color: #e74c3c;
+            color: #e8765f;
+            border-color: #e8765f;
         }
 
         [data-theme="dark"] .action-btn.danger:hover {
@@ -2577,49 +2578,49 @@
         }
 
         [data-theme="dark"] .action-btn-small {
-            background: #333;
-            border-color: #555;
+            background: #1f3329;
+            border-color: #33503f;
             color: #ccc;
         }
 
         [data-theme="dark"] .action-btn-small:hover {
-            background: #444;
+            background: #284236;
             color: #fff;
         }
 
         [data-theme="dark"] kbd {
             background: rgba(255,255,255,0.1);
             border-color: rgba(255,255,255,0.2);
-            color: #e8e6e3;
+            color: #efe8d8;
         }
 
         [data-theme="dark"] details summary {
-            color: #ff6b82;
+            color: #f08c76;
         }
 
         [data-theme="dark"] .info-grid p {
-            color: #c0c0c0;
+            color: #c9d3cc;
         }
 
         [data-theme="dark"] .account-signed-in {
-            background: #333;
+            background: #1f3329;
         }
 
         [data-theme="dark"] .account-email {
-            color: #e8e6e3;
+            color: #efe8d8;
         }
 
         [data-theme="dark"] .account-sync {
-            color: #999;
+            color: #a7b5ae;
         }
 
         [data-theme="dark"] .sync-indicator {
-            background: #333;
-            border-color: #666;
+            background: #1f3329;
+            border-color: #4a6656;
         }
 
         [data-theme="dark"] .sync-indicator:hover {
-            background: #444;
+            background: #284236;
         }
 
         
@@ -2780,35 +2781,35 @@
         
         /* Dark mode tutorial styles */
         [data-theme="dark"] .tutorial-modal-content {
-            background: #2d2d2d;
-            border-color: #c93a4e;
+            background: #16261f;
+            border-color: #e8765f;
         }
         
         [data-theme="dark"] .tutorial-modal-content h2 {
-            color: #c93a4e;
+            color: #e8765f;
         }
         
         [data-theme="dark"] .tutorial-modal-content p {
-            color: #e8e6e3;
+            color: #efe8d8;
         }
         
         [data-theme="dark"] .tutorial-example {
-            background: #242424;
+            background: #13211b;
             border-color: rgba(255,255,255,0.1);
             border-left-color: var(--sage);
         }
         
         [data-theme="dark"] .tutorial-example-dark {
-            background: rgba(201, 58, 78, 0.15);
-            border-left-color: #c93a4e;
+            background: rgba(232, 118, 95, 0.15);
+            border-left-color: #e8765f;
         }
         
         [data-theme="dark"] .step-dot {
-            background: rgba(201, 58, 78, 0.3);
+            background: rgba(232, 118, 95, 0.3);
         }
         
         [data-theme="dark"] .step-dot.active {
-            background: #c93a4e;
+            background: #e8765f;
         }
         
         /* More Games Component - Quotle themed */
@@ -2921,6 +2922,17 @@
         [data-theme="dark"] .more-games-subtle a {
             color: var(--burgundy);
         }
+    
+        /* Mix 1: one calm surface instead of the red→light gradient (in dark mode --ink is light,
+           so the old burgundy→ink blend landed on pink-red-brown) */
+        [data-theme="dark"] body { background: #0b1411; }
+        [data-theme="dark"] .container { background: var(--cream); }
+        [data-theme="dark"] .title { color: var(--burgundy); text-shadow: none; }
+        [data-theme="dark"] .game-over { background: var(--card-bg); border: 1px solid #284236; color: var(--ink); }
+        [data-theme="dark"] .game-over h2 { color: var(--sage); }
+        [data-theme="dark"] .game-over .reveal { background: var(--cream); border: none; border-left: 4px solid var(--burgundy); }
+        [data-theme="dark"] .game-over > div[style*="grid"] > div,
+        [data-theme="dark"] .game-over div[style*="background: var(--cream)"] { background: var(--cream) !important; border: 1px solid #284236 !important; }
     </style>
     
     <!-- Firebase SDK (required for cloud sync) -->
@@ -3646,7 +3658,7 @@
                     <p><strong>Quote #:</strong> <span id="current-quote-number">Loading...</span></p>
                     <p><strong>Total Quotes:</strong> 365</p>
                     <p><strong>Days Live:</strong> <span id="days-since-launch">Loading...</span></p>
-                    <p><strong>Version:</strong> v1.5.10</p>
+                    <p><strong>Version:</strong> v1.5.11</p>
                 </div>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--slate); line-height: 1.5;">
                     A daily quote guessing game featuring wisdom from ancient philosophers to modern thinkers - spanning over 2,500 years of human thought.
