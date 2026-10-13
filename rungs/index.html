@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.1.1">
+    <meta name="version" content="1.2.0">
     <title>Rungs - Daily Puzzle</title>
     
     <!-- PWA Support -->
@@ -1519,6 +1519,8 @@
         @keyframes distGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
         @media (prefers-reduced-motion: reduce) { .dist-row.today .dist-fill { animation: none; } }
 
+        .hint-line { font-size: 0.85rem; color: var(--accent-gold); margin-top: 4px; padding: 0 12px; }
+        .answer-mark { color: var(--text-secondary); font-size: 0.85rem; }
         /* The hidden ladder */
         .key-word { color: var(--accent-gold); font-weight: 700; }
         .ladder-box { margin: 14px 0; padding: 12px; background: var(--bg-tertiary); border: 2px solid var(--accent-gold); border-radius: 10px; }
@@ -1824,6 +1826,7 @@
         <header class="header">
             <h1>RUNGS</h1>
             <div class="subtitle" id="subtitle">Pair the words. Find the hidden ladder.</div>
+            <div class="hint-line" id="hint-line" hidden></div>
             <div style="display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap;">
                 <div class="difficulty-badge" id="difficulty-badge"></div>
                 <div class="solve-time" id="solve-time" style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 4px 10px; border-radius: 12px;"></div>
@@ -1864,10 +1867,11 @@
             <button class="btn btn-danger" id="unstack-btn" disabled onclick="unstackSelected()">Remove</button>
             <button class="btn btn-secondary" id="reset-btn" disabled onclick="resetGame()">Reset</button>
             <button class="btn btn-success" id="submit-btn" disabled onclick="validateStack()">Submit</button>
+            <button class="btn btn-secondary" id="hint-btn" onclick="showHint()">💡 Hint</button>
         </div>
 
         <footer class="footer">
-            v1.1.1 &bull; Rungs
+            v1.2.0 &bull; Rungs
         </footer>
     </div>
 
@@ -2003,6 +2007,7 @@
                         <li>Tap two words, then <strong>Place</strong></li>
                         <li>Stack the phrases so the ladder climbs, lowest at the bottom. The ladder word can be either word in a phrase</li>
                         <li>Tap ⇄ to flip the words on a rung</li>
+                        <li>Harder days hide the ladder in trickier ways. Tap 💡 Hint to see how</li>
                         <li>Submit. 4 attempts. Once your pairs are right, you can guess the ladder for free</li>
                     </ul>
                 </div>
@@ -2207,6 +2212,7 @@
                 <div class="about-text" style="text-align: left;">
                     <p>You have <strong>4 attempts</strong>.</p>
                     <p style="margin-top: 10px;">If a pair is wrong, you'll see which ones. The words in wrong pairs belong with each other.</p>
+                    <p style="margin-top: 10px;">Harder days hide the ladder in trickier ways. Tap <strong>💡 Hint</strong> to see how.</p>
                     <p style="margin-top: 10px;">Once all four pairs are right, the ladder words light up and you can <strong>guess the ladder for free</strong>:</p>
                     <div style="background: var(--bg-tertiary); padding: 12px; border-radius: 12px; margin-top: 10px; font-size: 0.9rem; text-align: center;">
                         <span class="key-word">SMALL · MEDIUM · LARGE · JUMBO</span>
@@ -2255,7 +2261,7 @@
                 </p>
                 
                 <p style="margin-top: 10px; padding: 10px; background: var(--bg-tertiary); border-radius: 8px;">
-                    <strong style="color: var(--accent-gold);">💡 Stuck?</strong> Once all four pairs are right, you can guess the ladder for free.
+                    <strong style="color: var(--accent-gold);">💡 Stuck?</strong> Harder days hide the ladder in trickier ways. Tap <strong>Hint</strong> to see how. Once all four pairs are right, you can also guess the ladder for free.
                 </p>
             </div>
             
@@ -2372,7 +2378,7 @@
         // ============ END GAME SHELF INTEGRATION ============
 
         // ============ CONFIGURATION ============
-        const VERSION = '1.1.1';
+        const VERSION = '1.2.0';
         const GAME_URL = 'https://gameshelf.co/rungs/';
         const DEBUG_MODE = false; // Set to true to show test mode in menu
         
@@ -2399,27 +2405,33 @@
         };
 
         const PUZZLES = [
-            {"items": [{"id": 1, "display": "LOVE", "type": "text"}, {"id": 2, "display": "BIRD", "type": "text"}, {"id": 3, "display": "FIFTEEN", "type": "text"}, {"id": 4, "display": "MINUTES", "type": "text"}, {"id": 5, "display": "THIRTY", "type": "text"}, {"id": 6, "display": "SOMETHING", "type": "text"}, {"id": 7, "display": "FORTY", "type": "text"}, {"id": 8, "display": "WINKS", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Tennis scores", "ladder": "love (0) → 15 → 30 → 40", "decoys": ["Romance", "Sleep", "Ages"], "difficulty": "medium"},
-            {"items": [{"id": 1, "display": "WHITE", "type": "text"}, {"id": 2, "display": "LIE", "type": "text"}, {"id": 3, "display": "GREEN", "type": "text"}, {"id": 4, "display": "HOUSE", "type": "text"}, {"id": 5, "display": "BROWN", "type": "text"}, {"id": 6, "display": "NOSE", "type": "text"}, {"id": 7, "display": "BLACK", "type": "text"}, {"id": 8, "display": "MAIL", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Karate belts", "ladder": "white → green → brown → black", "decoys": ["Traffic lights", "Paint", "Politics"], "difficulty": "medium"},
-            {"items": [{"id": 1, "display": "VILLAGE", "type": "text"}, {"id": 2, "display": "PEOPLE", "type": "text"}, {"id": 3, "display": "TOWN", "type": "text"}, {"id": 4, "display": "CRIER", "type": "text"}, {"id": 5, "display": "CITY", "type": "text"}, {"id": 6, "display": "SLICKER", "type": "text"}, {"id": 7, "display": "STATE", "type": "text"}, {"id": 8, "display": "TROOPER", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Places, small to large", "ladder": "village → town → city → state", "decoys": ["Bands", "Jobs", "Raincoats"], "difficulty": "easy"},
-            {"items": [{"id": 1, "display": "DOE", "type": "text"}, {"id": 2, "display": "EYED", "type": "text"}, {"id": 3, "display": "RAY", "type": "text"}, {"id": 4, "display": "GUN", "type": "text"}, {"id": 5, "display": "ME", "type": "text"}, {"id": 6, "display": "TIME", "type": "text"}, {"id": 7, "display": "FAR", "type": "text"}, {"id": 8, "display": "OUT", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Do-re-mi (by sound)", "ladder": "do → re → mi → fa", "decoys": ["Deer", "Sci-fi", "Distance"], "difficulty": "hard"},
-            {"items": [{"id": 1, "display": "TOP", "type": "text"}, {"id": 2, "display": "TEN", "type": "text"}, {"id": 3, "display": "JACK", "type": "text"}, {"id": 4, "display": "POT", "type": "text"}, {"id": 5, "display": "DRAMA", "type": "text"}, {"id": 6, "display": "QUEEN", "type": "text"}, {"id": 7, "display": "KING", "type": "text"}, {"id": 8, "display": "CRAB", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 3, 6, 7], "stackName": "Playing cards", "ladder": "ten → jack → queen → king", "decoys": ["Royalty", "Seafood", "Charts"], "difficulty": "medium"},
-            {"items": [{"id": 1, "display": "MOUSE", "type": "text"}, {"id": 2, "display": "PAD", "type": "text"}, {"id": 3, "display": "CAT", "type": "text"}, {"id": 4, "display": "NAP", "type": "text"}, {"id": 5, "display": "COW", "type": "text"}, {"id": 6, "display": "LICK", "type": "text"}, {"id": 7, "display": "WHITE", "type": "text"}, {"id": 8, "display": "ELEPHANT", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 8], "stackName": "Animal size", "ladder": "mouse → cat → cow → elephant", "decoys": ["Pets", "Farm", "Gifts"], "difficulty": "easy"},
-            {"items": [{"id": 1, "display": "PAPER", "type": "text"}, {"id": 2, "display": "TIGER", "type": "text"}, {"id": 3, "display": "SILVER", "type": "text"}, {"id": 4, "display": "SPOON", "type": "text"}, {"id": 5, "display": "GOLD", "type": "text"}, {"id": 6, "display": "DIGGER", "type": "text"}, {"id": 7, "display": "DIAMOND", "type": "text"}, {"id": 8, "display": "BACK", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Wedding anniversaries", "ladder": "paper (1st) → silver (25th) → gold (50th) → diamond (60th)", "decoys": ["Jewelry", "Animals", "Olympic medals"], "difficulty": "hard"},
-            {"items": [{"id": 1, "display": "FIRST", "type": "text"}, {"id": 2, "display": "AID", "type": "text"}, {"id": 3, "display": "SECOND", "type": "text"}, {"id": 4, "display": "HAND", "type": "text"}, {"id": 5, "display": "THIRD", "type": "text"}, {"id": 6, "display": "WHEEL", "type": "text"}, {"id": 7, "display": "HOME", "type": "text"}, {"id": 8, "display": "SICK", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Baseball bases", "ladder": "first → second → third → home", "decoys": ["Hospitals", "Cars", "Race finishes"], "difficulty": "medium"},
-            {"items": [{"id": 1, "display": "ICE", "type": "text"}, {"id": 2, "display": "BERG", "type": "text"}, {"id": 3, "display": "WATER", "type": "text"}, {"id": 4, "display": "MELON", "type": "text"}, {"id": 5, "display": "STEAM", "type": "text"}, {"id": 6, "display": "ROLLER", "type": "text"}, {"id": 7, "display": "PLASMA", "type": "text"}, {"id": 8, "display": "SCREEN", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "States of matter", "ladder": "ice → water → steam → plasma", "decoys": ["Fruit", "Machines", "Kitchen"], "difficulty": "medium"},
-            {"items": [{"id": 1, "display": "PRIVATE", "type": "text"}, {"id": 2, "display": "EYE", "type": "text"}, {"id": 3, "display": "CORPORAL", "type": "text"}, {"id": 4, "display": "PUNISHMENT", "type": "text"}, {"id": 5, "display": "MAJOR", "type": "text"}, {"id": 6, "display": "LEAGUE", "type": "text"}, {"id": 7, "display": "GENERAL", "type": "text"}, {"id": 8, "display": "STORE", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Army ranks", "ladder": "private → corporal → major → general", "decoys": ["Detectives", "Baseball", "Shopping"], "difficulty": "easy"},
-            {"items": [{"id": 1, "display": "MORNING", "type": "text"}, {"id": 2, "display": "GLORY", "type": "text"}, {"id": 3, "display": "HIGH", "type": "text"}, {"id": 4, "display": "NOON", "type": "text"}, {"id": 5, "display": "TWILIGHT", "type": "text"}, {"id": 6, "display": "ZONE", "type": "text"}, {"id": 7, "display": "NIGHT", "type": "text"}, {"id": 8, "display": "OWL", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 4, 5, 7], "stackName": "Times of day", "ladder": "morning → noon → evening twilight → night", "decoys": ["Westerns", "TV shows", "Flowers"], "difficulty": "medium"},
-            {"items": [{"id": 1, "display": "TWIN", "type": "text"}, {"id": 2, "display": "PEAKS", "type": "text"}, {"id": 3, "display": "FULL", "type": "text"}, {"id": 4, "display": "MOON", "type": "text"}, {"id": 5, "display": "QUEEN", "type": "text"}, {"id": 6, "display": "BEE", "type": "text"}, {"id": 7, "display": "KING", "type": "text"}, {"id": 8, "display": "KONG", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Bed sizes", "ladder": "twin → full → queen → king", "decoys": ["Chess pieces", "Royalty", "Insects"], "difficulty": "hard"},
-            {"items": [{"id": 1, "display": "SNAIL", "type": "text"}, {"id": 2, "display": "MAIL", "type": "text"}, {"id": 3, "display": "HORSE", "type": "text"}, {"id": 4, "display": "POWER", "type": "text"}, {"id": 5, "display": "JET", "type": "text"}, {"id": 6, "display": "LAG", "type": "text"}, {"id": 7, "display": "LIGHT", "type": "text"}, {"id": 8, "display": "YEAR", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Speed", "ladder": "snail → horse → jet → light", "decoys": ["Animals", "Travel", "Post office"], "difficulty": "medium"},
-            {"items": [{"id": 1, "display": "BABY", "type": "text"}, {"id": 2, "display": "SHOWER", "type": "text"}, {"id": 3, "display": "CHILD", "type": "text"}, {"id": 4, "display": "PROOF", "type": "text"}, {"id": 5, "display": "TEEN", "type": "text"}, {"id": 6, "display": "IDOL", "type": "text"}, {"id": 7, "display": "SENIOR", "type": "text"}, {"id": 8, "display": "MOMENT", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Life stages", "ladder": "baby → child → teen → senior", "decoys": ["Parties", "Music", "Safety"], "difficulty": "easy"},
-            {"items": [{"id": 1, "display": "RAW", "type": "text"}, {"id": 2, "display": "DEAL", "type": "text"}, {"id": 3, "display": "RARE", "type": "text"}, {"id": 4, "display": "BIRD", "type": "text"}, {"id": 5, "display": "HAPPY", "type": "text"}, {"id": 6, "display": "MEDIUM", "type": "text"}, {"id": 7, "display": "WISHING", "type": "text"}, {"id": 8, "display": "WELL", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 6, 8], "stackName": "Steak doneness", "ladder": "raw → rare → medium → well done", "decoys": ["Fortune-telling", "Birds", "Bargains"], "difficulty": "hard"},
-            {"items": [{"id": 1, "display": "DEAD", "type": "text"}, {"id": 2, "display": "CALM", "type": "text"}, {"id": 3, "display": "SEA", "type": "text"}, {"id": 4, "display": "BREEZE", "type": "text"}, {"id": 5, "display": "GALE", "type": "text"}, {"id": 6, "display": "FORCE", "type": "text"}, {"id": 7, "display": "HURRICANE", "type": "text"}, {"id": 8, "display": "SEASON", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 4, 5, 7], "stackName": "Wind strength", "ladder": "calm → breeze → gale → hurricane", "decoys": ["Sailing", "Physics", "Weather reports"], "difficulty": "medium"},
-            {"items": [{"id": 1, "display": "FREDDIE", "type": "text"}, {"id": 2, "display": "MERCURY", "type": "text"}, {"id": 3, "display": "VENUS", "type": "text"}, {"id": 4, "display": "WILLIAMS", "type": "text"}, {"id": 5, "display": "EARTH", "type": "text"}, {"id": 6, "display": "QUAKE", "type": "text"}, {"id": 7, "display": "BRUNO", "type": "text"}, {"id": 8, "display": "MARS", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 3, 5, 8], "stackName": "Planets from the sun", "ladder": "Mercury → Venus → Earth → Mars", "decoys": ["Celebrities", "Roman gods", "Elements"], "difficulty": "easy"},
-            {"items": [{"id": 1, "display": "QUARTER", "type": "text"}, {"id": 2, "display": "BACK", "type": "text"}, {"id": 3, "display": "HALF", "type": "text"}, {"id": 4, "display": "WIT", "type": "text"}, {"id": 5, "display": "WHOLE", "type": "text"}, {"id": 6, "display": "SALE", "type": "text"}, {"id": 7, "display": "DOUBLE", "type": "text"}, {"id": 8, "display": "TAKE", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Amounts", "ladder": "quarter → half → whole → double", "decoys": ["Football", "Shopping", "Film"], "difficulty": "medium"},
-            {"items": [{"id": 1, "display": "FEATHER", "type": "text"}, {"id": 2, "display": "BED", "type": "text"}, {"id": 3, "display": "LIGHT", "type": "text"}, {"id": 4, "display": "HOUSE", "type": "text"}, {"id": 5, "display": "MIDDLE", "type": "text"}, {"id": 6, "display": "MAN", "type": "text"}, {"id": 7, "display": "HEAVY", "type": "text"}, {"id": 8, "display": "METAL", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Boxing weights", "ladder": "feather → light → middle → heavy", "decoys": ["Music", "Furniture", "Buildings"], "difficulty": "medium"},
-            {"items": [{"id": 1, "display": "BEE", "type": "text"}, {"id": 2, "display": "HIVE", "type": "text"}, {"id": 3, "display": "BLUE", "type": "text"}, {"id": 4, "display": "JAY", "type": "text"}, {"id": 5, "display": "PEA", "type": "text"}, {"id": 6, "display": "COAT", "type": "text"}, {"id": 7, "display": "TEA", "type": "text"}, {"id": 8, "display": "POT", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 4, 5, 7], "stackName": "The alphabet (by sound)", "ladder": "B → J → P → T", "decoys": ["Birds", "Kitchen", "Garden"], "difficulty": "hard"},
-            {"items": [{"id": 1, "display": "PINCH", "type": "text"}, {"id": 2, "display": "HITTER", "type": "text"}, {"id": 3, "display": "CUP", "type": "text"}, {"id": 4, "display": "BOARD", "type": "text"}, {"id": 5, "display": "PINT", "type": "text"}, {"id": 6, "display": "GLASS", "type": "text"}, {"id": 7, "display": "TEN", "type": "text"}, {"id": 8, "display": "GALLON", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 8], "stackName": "Kitchen measures", "ladder": "pinch → cup → pint → gallon", "decoys": ["Baseball", "Bars", "Hats"], "difficulty": "medium"}
+            {"items": [{"id": 1, "display": "LOVE", "type": "text"}, {"id": 2, "display": "BIRD", "type": "text"}, {"id": 3, "display": "FIFTEEN", "type": "text"}, {"id": 4, "display": "MINUTES", "type": "text"}, {"id": 5, "display": "THIRTY", "type": "text"}, {"id": 6, "display": "SOMETHING", "type": "text"}, {"id": 7, "display": "FORTY", "type": "text"}, {"id": 8, "display": "WINKS", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Tennis scores", "ladder": "love (0) → 15 → 30 → 40", "decoys": ["Romance", "Sleep", "Ages"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "WHITE", "type": "text"}, {"id": 2, "display": "LIE", "type": "text"}, {"id": 3, "display": "GREEN", "type": "text"}, {"id": 4, "display": "HOUSE", "type": "text"}, {"id": 5, "display": "BROWN", "type": "text"}, {"id": 6, "display": "NOSE", "type": "text"}, {"id": 7, "display": "BLACK", "type": "text"}, {"id": 8, "display": "MAIL", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Karate belts", "ladder": "white → green → brown → black", "decoys": ["Traffic lights", "Paint", "Politics"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "VILLAGE", "type": "text"}, {"id": 2, "display": "PEOPLE", "type": "text"}, {"id": 3, "display": "TOWN", "type": "text"}, {"id": 4, "display": "CRIER", "type": "text"}, {"id": 5, "display": "CITY", "type": "text"}, {"id": 6, "display": "SLICKER", "type": "text"}, {"id": 7, "display": "STATE", "type": "text"}, {"id": 8, "display": "TROOPER", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Places, small to large", "ladder": "village → town → city → state", "decoys": ["Bands", "Jobs", "Raincoats"], "difficulty": "easy", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "DOE", "type": "text"}, {"id": 2, "display": "EYED", "type": "text"}, {"id": 3, "display": "RAY", "type": "text"}, {"id": 4, "display": "GUN", "type": "text"}, {"id": 5, "display": "ME", "type": "text"}, {"id": 6, "display": "TIME", "type": "text"}, {"id": 7, "display": "FAR", "type": "text"}, {"id": 8, "display": "OUT", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Do-re-mi (by sound)", "ladder": "do → re → mi → fa", "decoys": ["Deer", "Sci-fi", "Distance"], "difficulty": "hard", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "TOP", "type": "text"}, {"id": 2, "display": "TEN", "type": "text"}, {"id": 3, "display": "JACK", "type": "text"}, {"id": 4, "display": "POT", "type": "text"}, {"id": 5, "display": "DRAMA", "type": "text"}, {"id": 6, "display": "QUEEN", "type": "text"}, {"id": 7, "display": "KING", "type": "text"}, {"id": 8, "display": "CRAB", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 3, 6, 7], "stackName": "Playing cards", "ladder": "ten → jack → queen → king", "decoys": ["Royalty", "Seafood", "Charts"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "HIGH", "type": "text"}, {"id": 2, "display": "CARD", "type": "text"}, {"id": 3, "display": "TWO", "type": "text"}, {"id": 4, "display": "PAIR", "type": "text"}, {"id": 5, "display": "FULL", "type": "text"}, {"id": 6, "display": "HOUSE", "type": "text"}, {"id": 7, "display": "ROYAL", "type": "text"}, {"id": 8, "display": "FLUSH", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [null, null, null, null], "stackName": "Poker hands", "ladder": "high card → two pair → full house → royal flush", "decoys": ["Real estate", "Bathrooms", "Royalty"], "difficulty": "medium", "kind": "phrase", "hint": "Each whole phrase is one step on the ladder."},
+            {"items": [{"id": 1, "display": "MOUSE", "type": "text"}, {"id": 2, "display": "PAD", "type": "text"}, {"id": 3, "display": "CAT", "type": "text"}, {"id": 4, "display": "NAP", "type": "text"}, {"id": 5, "display": "COW", "type": "text"}, {"id": 6, "display": "LICK", "type": "text"}, {"id": 7, "display": "WHITE", "type": "text"}, {"id": 8, "display": "ELEPHANT", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 8], "stackName": "Animal size", "ladder": "mouse → cat → cow → elephant", "decoys": ["Pets", "Farm", "Gifts"], "difficulty": "easy", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "PAPER", "type": "text"}, {"id": 2, "display": "TIGER", "type": "text"}, {"id": 3, "display": "SILVER", "type": "text"}, {"id": 4, "display": "SPOON", "type": "text"}, {"id": 5, "display": "GOLD", "type": "text"}, {"id": 6, "display": "DIGGER", "type": "text"}, {"id": 7, "display": "DIAMOND", "type": "text"}, {"id": 8, "display": "BACK", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Wedding anniversaries", "ladder": "paper (1st) → silver (25th) → gold (50th) → diamond (60th)", "decoys": ["Jewelry", "Animals", "Olympic medals"], "difficulty": "hard", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "FIRST", "type": "text"}, {"id": 2, "display": "AID", "type": "text"}, {"id": 3, "display": "SECOND", "type": "text"}, {"id": 4, "display": "HAND", "type": "text"}, {"id": 5, "display": "THIRD", "type": "text"}, {"id": 6, "display": "WHEEL", "type": "text"}, {"id": 7, "display": "HOME", "type": "text"}, {"id": 8, "display": "SICK", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Baseball bases", "ladder": "first → second → third → home", "decoys": ["Hospitals", "Cars", "Race finishes"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "HOT", "type": "text"}, {"id": 2, "display": "TUB", "type": "text"}, {"id": 3, "display": "DEAD", "type": "text"}, {"id": 4, "display": "END", "type": "text"}, {"id": 5, "display": "JUMPER", "type": "text"}, {"id": 6, "display": "CABLES", "type": "text"}, {"id": 7, "display": "RED", "type": "text"}, {"id": 8, "display": "ROVER", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [null, null, null, null], "stackName": "Presidents", "ladder": "Harry Truman (33rd) → Dwight Eisenhower (34th) → Jimmy Carter (39th) → Ronald Reagan (40th)", "decoys": ["Radio call signs", "Sports teams", "Airport codes"], "difficulty": "hard", "kind": "letters", "hint": "Each phrase's initials belong to a U.S. president.", "marks": ["Truman", "Eisenhower", "Carter", "Reagan"], "codes": ["HT", "DE", "JC", "RR"]},
+            {"items": [{"id": 1, "display": "ICE", "type": "text"}, {"id": 2, "display": "BERG", "type": "text"}, {"id": 3, "display": "WATER", "type": "text"}, {"id": 4, "display": "MELON", "type": "text"}, {"id": 5, "display": "STEAM", "type": "text"}, {"id": 6, "display": "ROLLER", "type": "text"}, {"id": 7, "display": "PLASMA", "type": "text"}, {"id": 8, "display": "SCREEN", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "States of matter", "ladder": "ice → water → steam → plasma", "decoys": ["Fruit", "Machines", "Kitchen"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "PRIVATE", "type": "text"}, {"id": 2, "display": "EYE", "type": "text"}, {"id": 3, "display": "CORPORAL", "type": "text"}, {"id": 4, "display": "PUNISHMENT", "type": "text"}, {"id": 5, "display": "MAJOR", "type": "text"}, {"id": 6, "display": "LEAGUE", "type": "text"}, {"id": 7, "display": "GENERAL", "type": "text"}, {"id": 8, "display": "STORE", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Army ranks", "ladder": "private → corporal → major → general", "decoys": ["Detectives", "Baseball", "Shopping"], "difficulty": "easy", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "TWIN", "type": "text"}, {"id": 2, "display": "PEAKS", "type": "text"}, {"id": 3, "display": "FULL", "type": "text"}, {"id": 4, "display": "MOON", "type": "text"}, {"id": 5, "display": "QUEEN", "type": "text"}, {"id": 6, "display": "BEE", "type": "text"}, {"id": 7, "display": "KING", "type": "text"}, {"id": 8, "display": "KONG", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Bed sizes", "ladder": "twin → full → queen → king", "decoys": ["Chess pieces", "Royalty", "Insects"], "difficulty": "hard", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "DAY", "type": "text"}, {"id": 2, "display": "BREAK", "type": "text"}, {"id": 3, "display": "HIGH", "type": "text"}, {"id": 4, "display": "NOON", "type": "text"}, {"id": 5, "display": "SUN", "type": "text"}, {"id": 6, "display": "SET", "type": "text"}, {"id": 7, "display": "NIGHT", "type": "text"}, {"id": 8, "display": "FALL", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [null, null, null, null], "stackName": "Times of day", "ladder": "daybreak → high noon → sunset → nightfall", "decoys": ["Weekdays", "Seasons", "Westerns"], "difficulty": "medium", "kind": "phrase", "hint": "Each whole phrase is one step on the ladder."},
+            {"items": [{"id": 1, "display": "SNAIL", "type": "text"}, {"id": 2, "display": "MAIL", "type": "text"}, {"id": 3, "display": "HORSE", "type": "text"}, {"id": 4, "display": "POWER", "type": "text"}, {"id": 5, "display": "JET", "type": "text"}, {"id": 6, "display": "LAG", "type": "text"}, {"id": 7, "display": "LIGHT", "type": "text"}, {"id": 8, "display": "YEAR", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Speed", "ladder": "snail → horse → jet → light", "decoys": ["Animals", "Travel", "Post office"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "TAN", "type": "text"}, {"id": 2, "display": "LINE", "type": "text"}, {"id": 3, "display": "ART", "type": "text"}, {"id": 4, "display": "SCHOOL", "type": "text"}, {"id": 5, "display": "GOD", "type": "text"}, {"id": 6, "display": "FATHER", "type": "text"}, {"id": 7, "display": "SHORE", "type": "text"}, {"id": 8, "display": "LEAVE", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Animal sizes (scrambled)", "ladder": "ant → rat → dog → horse", "decoys": ["Beach day", "Family", "Painting"], "difficulty": "hard", "kind": "anagram", "hint": "The ladder words are scrambled. Unscramble one word in each phrase.", "marks": ["ANT", "RAT", "DOG", "HORSE"]},
+            {"items": [{"id": 1, "display": "BABY", "type": "text"}, {"id": 2, "display": "SHOWER", "type": "text"}, {"id": 3, "display": "CHILD", "type": "text"}, {"id": 4, "display": "PROOF", "type": "text"}, {"id": 5, "display": "TEEN", "type": "text"}, {"id": 6, "display": "IDOL", "type": "text"}, {"id": 7, "display": "SENIOR", "type": "text"}, {"id": 8, "display": "MOMENT", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Life stages", "ladder": "baby → child → teen → senior", "decoys": ["Parties", "Music", "Safety"], "difficulty": "easy", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "RAW", "type": "text"}, {"id": 2, "display": "DEAL", "type": "text"}, {"id": 3, "display": "RARE", "type": "text"}, {"id": 4, "display": "BIRD", "type": "text"}, {"id": 5, "display": "HAPPY", "type": "text"}, {"id": 6, "display": "MEDIUM", "type": "text"}, {"id": 7, "display": "WISHING", "type": "text"}, {"id": 8, "display": "WELL", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 6, 8], "stackName": "Steak doneness", "ladder": "raw → rare → medium → well done", "decoys": ["Fortune-telling", "Birds", "Bargains"], "difficulty": "hard", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "DEAD", "type": "text"}, {"id": 2, "display": "CALM", "type": "text"}, {"id": 3, "display": "SEA", "type": "text"}, {"id": 4, "display": "BREEZE", "type": "text"}, {"id": 5, "display": "GALE", "type": "text"}, {"id": 6, "display": "FORCE", "type": "text"}, {"id": 7, "display": "HURRICANE", "type": "text"}, {"id": 8, "display": "SEASON", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 4, 5, 7], "stackName": "Wind strength", "ladder": "calm → breeze → gale → hurricane", "decoys": ["Sailing", "Physics", "Weather reports"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "HEAT", "type": "text"}, {"id": 2, "display": "WAVE", "type": "text"}, {"id": 3, "display": "LIME", "type": "text"}, {"id": 4, "display": "LIGHT", "type": "text"}, {"id": 5, "display": "BEAN", "type": "text"}, {"id": 6, "display": "BAG", "type": "text"}, {"id": 7, "display": "NEST", "type": "text"}, {"id": 8, "display": "EGG", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "The periodic table", "ladder": "He (2) → Li (3) → Be (4) → Ne (10)", "decoys": ["Kitchen", "Weather", "Birds"], "difficulty": "hard", "kind": "letters", "hint": "The ladder hides in the first two letters of each phrase.", "marks": ["helium", "lithium", "beryllium", "neon"], "codes": ["HE", "LI", "BE", "NE"]},
+            {"items": [{"id": 1, "display": "FREDDIE", "type": "text"}, {"id": 2, "display": "MERCURY", "type": "text"}, {"id": 3, "display": "VENUS", "type": "text"}, {"id": 4, "display": "WILLIAMS", "type": "text"}, {"id": 5, "display": "EARTH", "type": "text"}, {"id": 6, "display": "QUAKE", "type": "text"}, {"id": 7, "display": "BRUNO", "type": "text"}, {"id": 8, "display": "MARS", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 3, 5, 8], "stackName": "Planets from the sun", "ladder": "Mercury → Venus → Earth → Mars", "decoys": ["Celebrities", "Roman gods", "Elements"], "difficulty": "easy", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "IVY", "type": "text"}, {"id": 2, "display": "LEAGUE", "type": "text"}, {"id": 3, "display": "VINYL", "type": "text"}, {"id": 4, "display": "RECORD", "type": "text"}, {"id": 5, "display": "LIVE", "type": "text"}, {"id": 6, "display": "WIRE", "type": "text"}, {"id": 7, "display": "CIVIL", "type": "text"}, {"id": 8, "display": "WAR", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Roman numerals", "ladder": "IV (4) → VI (6) → LI (51) → CI (101)", "decoys": ["Colleges", "Music", "History"], "difficulty": "hard", "kind": "letters", "hint": "The ladder hides in Roman numerals: the first two letters of one word in each phrase.", "marks": ["4", "6", "51", "101"], "codes": ["IV", "VI", "LI", "CI"]},
+            {"items": [{"id": 1, "display": "🪨", "type": "emoji"}, {"id": 2, "display": "🍑", "type": "emoji"}, {"id": 3, "display": "🌙", "type": "emoji"}, {"id": 4, "display": "🚶", "type": "emoji"}, {"id": 5, "display": "🌍", "type": "emoji"}, {"id": 6, "display": "🪱", "type": "emoji"}, {"id": 7, "display": "☀️", "type": "emoji"}, {"id": 8, "display": "🌸", "type": "emoji"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Space sizes", "ladder": "rock → moon → earth → sun", "decoys": ["Weather", "Night sky", "Gardening"], "difficulty": "hard", "kind": "word", "hint": "Every tile is a picture. Read each pair as one word or phrase, then find the ladder.", "marks": ["rock bottom", "moonwalk", "earthworm", "sunflower"]},
+            {"items": [{"id": 1, "display": "QUARTER", "type": "text"}, {"id": 2, "display": "BACK", "type": "text"}, {"id": 3, "display": "HALF", "type": "text"}, {"id": 4, "display": "WIT", "type": "text"}, {"id": 5, "display": "WHOLE", "type": "text"}, {"id": 6, "display": "SALE", "type": "text"}, {"id": 7, "display": "DOUBLE", "type": "text"}, {"id": 8, "display": "TAKE", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Amounts", "ladder": "quarter → half → whole → double", "decoys": ["Football", "Shopping", "Film"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "FEATHER", "type": "text"}, {"id": 2, "display": "BED", "type": "text"}, {"id": 3, "display": "LIGHT", "type": "text"}, {"id": 4, "display": "HOUSE", "type": "text"}, {"id": 5, "display": "MIDDLE", "type": "text"}, {"id": 6, "display": "MAN", "type": "text"}, {"id": 7, "display": "HEAVY", "type": "text"}, {"id": 8, "display": "METAL", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 7], "stackName": "Boxing weights", "ladder": "feather → light → middle → heavy", "decoys": ["Music", "Furniture", "Buildings"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "BEE", "type": "text"}, {"id": 2, "display": "HIVE", "type": "text"}, {"id": 3, "display": "BLUE", "type": "text"}, {"id": 4, "display": "JAY", "type": "text"}, {"id": 5, "display": "PEA", "type": "text"}, {"id": 6, "display": "COAT", "type": "text"}, {"id": 7, "display": "TEA", "type": "text"}, {"id": 8, "display": "POT", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 4, 5, 7], "stackName": "The alphabet (by sound)", "ladder": "B → J → P → T", "decoys": ["Birds", "Kitchen", "Garden"], "difficulty": "hard", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
+            {"items": [{"id": 1, "display": "PINCH", "type": "text"}, {"id": 2, "display": "HITTER", "type": "text"}, {"id": 3, "display": "CUP", "type": "text"}, {"id": 4, "display": "BOARD", "type": "text"}, {"id": 5, "display": "PINT", "type": "text"}, {"id": 6, "display": "GLASS", "type": "text"}, {"id": 7, "display": "TEN", "type": "text"}, {"id": 8, "display": "GALLON", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 8], "stackName": "Kitchen measures", "ladder": "pinch → cup → pint → gallon", "decoys": ["Baseball", "Bars", "Hats"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."}
         ];
 
         // ============ GAME STATE ============
@@ -2433,6 +2445,7 @@
         let gameWon = false;
         let pairsFound = false;   // all four pairs confirmed: key words light up on the rungs
         let ladderFound = false;  // the player named the hidden ladder (the free mid-game hint)
+        let hintUsed = false;     // the player tapped Hint (how today's ladder hides)
         let showIntroOnStart = localStorage.getItem('rungsShowIntro') !== 'false';
         let tutorialCompleted = localStorage.getItem('rungsTutorialDone') === 'true';
         let isTutorialMode = false;
@@ -2459,6 +2472,7 @@
                 attemptsUsed: attemptsUsed,
                 pairsFound: pairsFound,
                 ladderFound: ladderFound,
+                hintUsed: hintUsed,
                 stackedItems: []
             };
             document.querySelectorAll('.item.stacked').forEach(el => {
@@ -2502,6 +2516,7 @@
             attemptsUsed = state.attemptsUsed || 0;
             pairsFound = !!state.pairsFound;
             ladderFound = !!state.ladderFound;
+            hintUsed = !!state.hintUsed;
             
             // Mark stacked items
             (state.stackedItems || []).forEach(id => {
@@ -2833,6 +2848,13 @@
         function updateThemeHint() {
             const subtitle = document.getElementById('subtitle');
             if (!currentPuzzle || !subtitle) return;
+            const hintLine = document.getElementById('hint-line');
+            const hintBtn = document.getElementById('hint-btn');
+            if (hintLine) {
+                hintLine.textContent = '💡 ' + puzzleHint(currentPuzzle);
+                hintLine.hidden = !(hintUsed && !gameOver);
+            }
+            if (hintBtn) hintBtn.disabled = hintUsed || gameOver;
             if (ladderFound && !gameOver) {
                 subtitle.textContent = `Ladder: ${currentPuzzle.stackName}`;
                 subtitle.classList.add('hint-revealed');
@@ -3044,6 +3066,7 @@
             gameWon = false;
             pairsFound = false;
             ladderFound = false;
+            hintUsed = false;
             
             // Load puzzle for selected date
             currentPuzzle = getPuzzleForDate(date);
@@ -3181,7 +3204,7 @@
                     date: getTodayString(),
                     won: won,
                     attempts: attempts,
-                    ladderHint: ladderFound,
+                    ladderHint: ladderFound || hintUsed,
                     puzzleNumber: currentPuzzleNumber,
                     stackName: currentPuzzle.stackName,
                     shareText: shareText
@@ -3543,6 +3566,7 @@
             gameWon = false;
             pairsFound = false;
             ladderFound = false;
+            hintUsed = false;
             
             updateAttempts();
             updateButtons();
@@ -3949,20 +3973,49 @@
         // FIFTEEN MINUTES, THIRTY SOMETHING, FORTY WINKS climb tennis scores. Once the
         // pairs are right, the player sees the four keys and may guess the ladder
         // from four choices. Guessing is free; the answer then shows in the header.
-        function keyWord(puzzle, pairIndex) {
-            return puzzle.items.find(it => it.id === puzzle.keys[pairIndex]).display;
+        // A puzzle hides its ladder one way on every rung (its kind):
+        //   word    — one word of each phrase is the step (LOVE BIRD)
+        //   phrase  — the whole phrase is the step (FULL HOUSE)
+        //   anagram — one word is the step scrambled (TAN LINE → ANT)
+        //   letters — letters spell the step: initials (HOT TUB → HT, Truman) or a word's first letters (HEAT → He)
+        // Nothing on the board says which; the difficulty badge says how hard, and Hint says how.
+        function puzzleHint(puzzle) {
+            return puzzle.hint || 'One word in each phrase is a step on the ladder. It can be either word.';
+        }
+
+        function showHint() {
+            if (gameOver || hintUsed) return;
+            hintUsed = true;
+            saveGameState();
+            updateThemeHint();
         }
 
         function phraseHTML(puzzle, pairIndex, lightKey) {
+            const kind = puzzle.kind || 'word';
+            const key = puzzle.keys[pairIndex];
+            const code = puzzle.codes ? puzzle.codes[pairIndex] : null;
             return puzzle.pairs[pairIndex].map(id => {
-                const it = puzzle.items.find(x => x.id === id);
-                return lightKey && id === puzzle.keys[pairIndex] ? `<span class="key-word">${it.display}</span>` : it.display;
+                const word = puzzle.items.find(x => x.id === id).display;
+                if (!lightKey) return word;
+                if (kind === 'phrase') return `<span class="key-word">${word}</span>`;
+                if (kind === 'letters') {
+                    const n = key === null ? 1 : (id === key ? code.length : 0);
+                    return n ? `<span class="key-word">${word.slice(0, n)}</span>${word.slice(n)}` : word;
+                }
+                return id === key ? `<span class="key-word">${word}</span>` : word;
             }).join(' ');
+        }
+
+        // What the ladder question shows for a rung: the key word, or the lit phrase when the step isn't one word
+        function keyChipHTML(puzzle, pairIndex) {
+            const kind = puzzle.kind || 'word';
+            if (kind === 'word' || kind === 'anagram') return puzzle.items.find(it => it.id === puzzle.keys[pairIndex]).display;
+            return phraseHTML(puzzle, pairIndex, true);
         }
 
         function ladderQuestionHTML() {
             // Keys in the player's current rung order, bottom first, so nothing is given away
-            const keys = stack.map(pair => keyWord(currentPuzzle, getCorrectPairDisplay(pair).pairIndex));
+            const keys = stack.map(pair => keyChipHTML(currentPuzzle, getCorrectPairDisplay(pair).pairIndex));
             const chips = `<div class="ladder-keys">${keys.map(k => `<span class="key-chip">${k}</span>`).join('')}</div>`;
             if (ladderFound) {
                 return `<div class="ladder-box" id="ladder-box">${chips}
@@ -3993,7 +4046,10 @@
 
         // The solved ladder, top rung first, each key word lit
         function answerLadderHTML(puzzle) {
-            const rungs = puzzle.order.map(pi => `<div class="answer-rung">${phraseHTML(puzzle, pi, true)}</div>`).reverse().join('');
+            const rungs = puzzle.order.map(pi => {
+                const mark = puzzle.marks && puzzle.marks[pi] ? ` <span class="answer-mark">→ ${puzzle.marks[pi]}</span>` : '';
+                return `<div class="answer-rung">${phraseHTML(puzzle, pi, true)}${mark}</div>`;
+            }).reverse().join('');
             return `<div class="answer-ladder">
                 <div class="ladder-name">${puzzle.stackName}</div>
                 <div class="ladder-line">${puzzle.ladder || ''}</div>
@@ -4080,7 +4136,7 @@
             content.innerHTML = `
                 <button class="modal-close-btn" onclick="closeResultModal()">&times;</button>
                 <h2 class="${won ? 'success' : 'fail'}">${won ? '🎉 You climbed it!' : 'Out of attempts'}</h2>
-                <p>${won ? `Solved in ${tries} attempt${tries > 1 ? 's' : ''}${ladderFound ? ', with the ladder hint' : ''}.` : 'Here is how it climbs:'}</p>
+                <p>${won ? `Solved in ${tries} attempt${tries > 1 ? 's' : ''}${ladderFound || hintUsed ? ', with a hint' : ''}.` : 'Here is how it climbs:'}</p>
                 ${answerLadderHTML(currentPuzzle)}
                 ${distHTML}
                 <div class="share-text" id="share-text"></div>
@@ -4127,7 +4183,7 @@
                 won: won,
                 attempts: attempts,
                 maxAttempts: 4,
-                perfect: won && attempts === 1 && !ladderFound,
+                perfect: won && attempts === 1 && !ladderFound && !hintUsed,
                 streak: {
                     current: stats.currentStreak || 0,
                     max: stats.maxStreak || 0
@@ -4137,6 +4193,7 @@
                 shareText: shareText,
                 meta: {
                     ladderHint: ladderFound,
+                    hint: hintUsed,
                     stackName: currentPuzzle.stackName,
                     difficulty: currentPuzzle.difficulty
                 }
@@ -4148,7 +4205,7 @@
             const attempts = won ? attemptsUsed + 1 : 4;
             const grid = won ? '🟩'.repeat(attempts) + '⬛'.repeat(4 - attempts) : '🟥🟥🟥🟥';
             let scoreLine = won ? `${attempts}/4` : 'X/4';
-            if (ladderFound) scoreLine += ' · 💡';
+            if (ladderFound || hintUsed) scoreLine += ' · 💡';
             if (stats.currentStreak > 1) scoreLine += ` · 🔥${stats.currentStreak}`;
             
             const result = `🪜 Rungs #${currentPuzzleNumber} ${won ? '✅' : '❌'}
