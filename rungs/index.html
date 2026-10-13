@@ -204,10 +204,11 @@
             font-size: 1.1rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s, font-size 0s; /* fitTiles measures font size instantly */
             padding: 8px;
             text-align: center;
-            word-break: break-word;
+            white-space: nowrap;   /* never break a word; fitTiles() shrinks the font instead */
+            overflow: hidden;
         }
 
         .item:hover {
@@ -2432,9 +2433,9 @@
             {"items": [{"id": 1, "display": "FEATHER", "type": "text"}, {"id": 2, "display": "BED", "type": "text"}, {"id": 3, "display": "FLASH", "type": "text"}, {"id": 4, "display": "LIGHT", "type": "text"}, {"id": 5, "display": "MIDDLE", "type": "text"}, {"id": 6, "display": "MAN", "type": "text"}, {"id": 7, "display": "TOP", "type": "text"}, {"id": 8, "display": "HEAVY", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 4, 5, 8], "stackName": "Boxing weights", "ladder": "feather → light → middle → heavy", "decoys": ["Music", "Furniture", "Buildings"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
             {"items": [{"id": 1, "display": "BEE", "type": "text"}, {"id": 2, "display": "HIVE", "type": "text"}, {"id": 3, "display": "BLUE", "type": "text"}, {"id": 4, "display": "JAY", "type": "text"}, {"id": 5, "display": "PEA", "type": "text"}, {"id": 6, "display": "COAT", "type": "text"}, {"id": 7, "display": "TEA", "type": "text"}, {"id": 8, "display": "POT", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 4, 5, 7], "stackName": "The alphabet (by sound)", "ladder": "B → J → P → T", "decoys": ["Birds", "Kitchen", "Garden"], "difficulty": "hard", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
             {"items": [{"id": 1, "display": "PINCH", "type": "text"}, {"id": 2, "display": "HITTER", "type": "text"}, {"id": 3, "display": "CUP", "type": "text"}, {"id": 4, "display": "BOARD", "type": "text"}, {"id": 5, "display": "PINT", "type": "text"}, {"id": 6, "display": "GLASS", "type": "text"}, {"id": 7, "display": "TEN", "type": "text"}, {"id": 8, "display": "GALLON", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 3, 5, 8], "stackName": "Kitchen measures", "ladder": "pinch → cup → pint → gallon", "decoys": ["Baseball", "Bars", "Hats"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
-            {"items": [{"id": 1, "display": "LEGAL", "type": "text"}, {"id": 2, "display": "EAGLE", "type": "text"}, {"id": 3, "display": "LITTLE", "type": "text"}, {"id": 4, "display": "BIRDIE", "type": "text"}, {"id": 5, "display": "SUB", "type": "text"}, {"id": 6, "display": "PAR", "type": "text"}, {"id": 7, "display": "BOGEY", "type": "text"}, {"id": 8, "display": "MAN", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 4, 6, 7], "stackName": "Golf scores", "ladder": "eagle (-2) → birdie (-1) → par → bogey (+1), fewest strokes at the bottom", "decoys": ["Birds", "Scary things", "Courtroom"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is the step. Lowest number at the bottom."},
-            {"items": [{"id": 1, "display": "VENN", "type": "text"}, {"id": 2, "display": "DIAGRAM", "type": "text"}, {"id": 3, "display": "BOUNCE", "type": "text"}, {"id": 4, "display": "HOUSE", "type": "text"}, {"id": 5, "display": "COMPOUND", "type": "text"}, {"id": 6, "display": "INTEREST", "type": "text"}, {"id": 7, "display": "SKELETON", "type": "text"}, {"id": 8, "display": "KEY", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 3, 5, 7], "stackName": "Weights", "ladder": "gram → ounce → pound → ton", "decoys": ["Halloween", "Math class", "Kids’ parties"], "difficulty": "hard", "kind": "hidden", "hint": "A unit of measure is spelled inside one word of each phrase.", "marks": ["gram", "ounce", "pound", "ton"], "codes": ["GRAM", "OUNCE", "POUND", "TON"]},
-            {"items": [{"id": 1, "display": "KIDNEY", "type": "text"}, {"id": 2, "display": "STONE", "type": "text"}, {"id": 3, "display": "IRON", "type": "text"}, {"id": 4, "display": "MAN", "type": "text"}, {"id": 5, "display": "SMOOTH", "type": "text"}, {"id": 6, "display": "JAZZ", "type": "text"}, {"id": 7, "display": "OUTER", "type": "text"}, {"id": 8, "display": "SPACE", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 3, 6, 8], "stackName": "Ages of history", "ladder": "Stone Age → Iron Age → Jazz Age (1920s) → Space Age (1957–)", "decoys": ["Rock bands", "Superheroes", "Music genres"], "difficulty": "easy", "kind": "word", "hint": "Put the same word after one word in each phrase and you name a stretch of history."},
+            {"items": [{"id": 1, "display": "LEGAL", "type": "text"}, {"id": 2, "display": "EAGLE", "type": "text"}, {"id": 3, "display": "LITTLE", "type": "text"}, {"id": 4, "display": "BIRDIE", "type": "text"}, {"id": 5, "display": "SUB", "type": "text"}, {"id": 6, "display": "PAR", "type": "text"}, {"id": 7, "display": "BOGEY", "type": "text"}, {"id": 8, "display": "MAN", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 4, 6, 7], "stackName": "Golf scores", "ladder": "eagle (-2) → birdie (-1) → par → bogey (+1), fewest strokes at the bottom", "decoys": ["Birds", "Scary things", "Courtroom"], "difficulty": "easy", "kind": "word", "hint": "One word in each phrase is the step. Lowest number at the bottom."},
+            {"items": [{"id": 1, "display": "VENN", "type": "text"}, {"id": 2, "display": "DIAGRAM", "type": "text"}, {"id": 3, "display": "BOUNCE", "type": "text"}, {"id": 4, "display": "HOUSE", "type": "text"}, {"id": 5, "display": "COMPOUND", "type": "text"}, {"id": 6, "display": "INTEREST", "type": "text"}, {"id": 7, "display": "SKELETON", "type": "text"}, {"id": 8, "display": "KEY", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 3, 5, 7], "stackName": "Weights", "ladder": "gram → ounce → pound → ton", "decoys": ["Halloween", "Math class", "Kids’ parties"], "difficulty": "medium", "kind": "hidden", "hint": "A unit of measure is spelled inside one word of each phrase.", "marks": ["gram", "ounce", "pound", "ton"], "codes": ["GRAM", "OUNCE", "POUND", "TON"]},
+            {"items": [{"id": 1, "display": "KIDNEY", "type": "text"}, {"id": 2, "display": "STONE", "type": "text"}, {"id": 3, "display": "IRON", "type": "text"}, {"id": 4, "display": "MAN", "type": "text"}, {"id": 5, "display": "SMOOTH", "type": "text"}, {"id": 6, "display": "JAZZ", "type": "text"}, {"id": 7, "display": "OUTER", "type": "text"}, {"id": 8, "display": "SPACE", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [2, 3, 6, 8], "stackName": "Ages of history", "ladder": "Stone Age → Iron Age → Jazz Age (1920s) → Space Age (1957–)", "decoys": ["Rock bands", "Superheroes", "Music genres"], "difficulty": "medium", "kind": "word", "hint": "Put the same word after one word in each phrase and you name a stretch of history."},
             {"items": [{"id": 1, "display": "SURF", "type": "text"}, {"id": 2, "display": "BOARD", "type": "text"}, {"id": 3, "display": "GOOD", "type": "text"}, {"id": 4, "display": "NIGHT", "type": "text"}, {"id": 5, "display": "BARREN", "type": "text"}, {"id": 6, "display": "WASTELAND", "type": "text"}, {"id": 7, "display": "FINGER", "type": "text"}, {"id": 8, "display": "PRINTS", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 4, 5, 8], "stackName": "Feudal ranks (by sound)", "ladder": "serf → knight → baron → prince", "decoys": ["Beach life", "Bedtime", "Crime scenes"], "difficulty": "hard", "kind": "word", "hint": "One word in each phrase SOUNDS like a ladder step but is spelled differently.", "marks": ["serf", "knight", "baron", "prince"]},
             {"items": [{"id": 1, "display": "CELL", "type": "text"}, {"id": 2, "display": "PHONE", "type": "text"}, {"id": 3, "display": "SCAR", "type": "text"}, {"id": 4, "display": "TISSUE", "type": "text"}, {"id": 5, "display": "PIPE", "type": "text"}, {"id": 6, "display": "ORGAN", "type": "text"}, {"id": 7, "display": "BUDDY", "type": "text"}, {"id": 8, "display": "SYSTEM", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [1, 4, 6, 8], "stackName": "Levels of the body", "ladder": "cell → tissue → organ → (organ) system", "decoys": ["Music", "Phones", "Prison"], "difficulty": "medium", "kind": "word", "hint": "One word in each phrase is a step on the ladder. It can be either word."},
             {"items": [{"id": 1, "display": "LEMON", "type": "text"}, {"id": 2, "display": "EXTRACT", "type": "text"}, {"id": 3, "display": "ART", "type": "text"}, {"id": 4, "display": "WORK", "type": "text"}, {"id": 5, "display": "SPORTS", "type": "text"}, {"id": 6, "display": "EVENT", "type": "text"}, {"id": 7, "display": "FRONT", "type": "text"}, {"id": 8, "display": "END", "type": "text"}], "pairs": [[1, 2], [3, 4], [5, 6], [7, 8]], "order": [0, 1, 2, 3], "keys": [null, null, null, null], "stackName": "Numbers", "ladder": "one → two → seven → ten", "decoys": ["Baking", "Business", "Cars"], "difficulty": "hard", "kind": "straddle", "hint": "Each step straddles the gap: it starts at the end of the first word and finishes at the start of the second.", "marks": ["one", "two", "seven", "ten"], "codes": ["ONE", "TWO", "SEVEN", "TEN"]},
@@ -3612,6 +3613,7 @@
             updateButtons();
             updateThemeHint();
             updateDifficultyBadge();
+            requestAnimationFrame(fitTiles);
             
             // Show intro on first visit (unless coming from tutorial)
             if (showIntroOnStart && !skipIntroAfterTutorial) {
@@ -3619,6 +3621,28 @@
             }
             skipIntroAfterTutorial = false; // Reset flag
         }
+
+        // A long word (PUNISHMENT, SKELETON) shrinks to fit its tile instead of wrapping mid-word.
+        function fitTiles() {
+            document.querySelectorAll('#pool .item').forEach(tile => {
+                if (tile.querySelector('.emoji')) return;
+                tile.style.fontSize = '';
+                let size = parseFloat(getComputedStyle(tile).fontSize);
+                const room = () => tile.clientWidth - parseFloat(getComputedStyle(tile).paddingLeft) - parseFloat(getComputedStyle(tile).paddingRight);
+                while (tile.scrollWidth > tile.clientWidth && size > 8) {
+                    size -= 0.5;
+                    tile.style.fontSize = size + 'px';
+                }
+                // scrollWidth can equal clientWidth while text still touches the padding; measure the text itself
+                const range = document.createRange(); range.selectNodeContents(tile);
+                while (range.getBoundingClientRect().width > room() && size > 8) {
+                    size -= 0.5;
+                    tile.style.fontSize = size + 'px';
+                }
+            });
+        }
+        window.addEventListener('resize', () => fitTiles());
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitTiles());
 
         function updateDifficultyBadge() {
             const badge = document.getElementById('difficulty-badge');
@@ -3957,6 +3981,7 @@
                 gameOver = true;
                 clearGameState(); // v1.0.9: Clear saved state on win
                 updateStats(true, attemptsUsed + 1);
+                updateThemeHint(); // greys out Hint; the board now shows the solved ladder
                 playWinSound();
                 showFinalResult(true, results);
             } else {
@@ -3966,6 +3991,7 @@
                 
                 if (attemptsUsed >= 4) {
                     gameOver = true;
+                    updateThemeHint();
                     clearGameState(); // v1.0.9: Clear saved state on loss
                     playLoseSound();
                     showFinalResult(false, results);
@@ -4046,11 +4072,12 @@
                 const [w1, w2] = puzzle.pairs[pairIndex].map(id => puzzle.items.find(x => x.id === id).display);
                 for (let j = 1; j < code.length; j++) {
                     if (w1.endsWith(code.slice(0, j)) && w2.startsWith(code.slice(j))) {
-                        return `${w1.slice(0, w1.length - j)}<span class="key-word">${w1.slice(-j)}</span> <span class="key-word">${code.slice(j)}</span>${w2.slice(code.length - j)}`;
+                        return `<span class="word">${w1.slice(0, w1.length - j)}<span class="key-word">${w1.slice(-j)}</span></span> <span class="word"><span class="key-word">${code.slice(j)}</span>${w2.slice(code.length - j)}</span>`;
                     }
                 }
             }
-            return puzzle.pairs[pairIndex].map(id => {
+            return puzzle.pairs[pairIndex].map(id => `<span class="word">${wordHTML(id)}</span>`).join(' ');
+            function wordHTML(id) {
                 const word = puzzle.items.find(x => x.id === id).display;
                 if (!lightKey) return word;
                 if (kind === 'phrase') return `<span class="key-word">${word}</span>`;
@@ -4063,7 +4090,7 @@
                     return `${word.slice(0, at)}<span class="key-word">${code}</span>${word.slice(at + code.length)}`;
                 }
                 return id === key ? `<span class="key-word">${word}</span>` : word;
-            }).join(' ');
+            }
         }
 
         // What the ladder question shows for a rung: the key word, or the lit phrase when the step isn't one word
