@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.0.19">
+    <meta name="version" content="1.0.20">
     <title>Rungs - Daily Puzzle</title>
     
     <!-- PWA Support -->
@@ -1491,6 +1491,21 @@
             opacity: 0.4;
             margin: 0 6px;
         }
+
+        /* Results chart: the row today's game added to is gold and grows in */
+        .dist { margin: 16px auto 4px; max-width: 320px; text-align: left; }
+        .dist-title { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-align: center; margin-bottom: 8px; }
+        .dist-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+        .dist-label { width: 30px; text-align: right; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); }
+        .dist-track { flex: 1; height: 20px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; }
+        .dist-fill { height: 100%; background: var(--bg-selected); color: var(--text-primary); display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; box-sizing: border-box; font-size: 0.75rem; font-weight: 700; border-radius: 4px; }
+        .dist-row.miss .dist-fill { background: var(--accent-error); color: #fff; }
+        .dist-tag { width: 52px; font-size: 0.75rem; font-weight: 700; color: var(--accent-gold); white-space: nowrap; }
+        .dist-row.today .dist-label { color: var(--accent-gold); font-weight: 800; }
+        .dist-row.today .dist-track { box-shadow: 0 0 0 2px var(--accent-gold); }
+        .dist-row.today .dist-fill { background: var(--accent-gold); color: #1a1a1a; animation: distGrow 0.9s ease-out 0.3s both; transform-origin: left center; }
+        @keyframes distGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        @media (prefers-reduced-motion: reduce) { .dist-row.today .dist-fill { animation: none; } }
     </style>
     
     <!-- Firebase SDK -->
@@ -1648,6 +1663,11 @@
                     maxStreak: Math.max(ls.maxStreak || 0, cs.maxStreak || 0),
                     lastPlayedDate: ls.lastPlayedDate > cs.lastPlayedDate ? ls.lastPlayedDate : cs.lastPlayedDate
                 };
+                if (ls.dist || cs.dist) {
+                    const ld = ls.dist || {}, cd = cs.dist || {};
+                    merged.stats.dist = {};
+                    [1, 2, 3, 4, 'X'].forEach(r => { merged.stats.dist[r] = Math.max(ld[r] || 0, cd[r] || 0); });
+                }
             }
             if (local.practice || cloud.practice) {
                 const lp = local.practice || {};
@@ -1819,7 +1839,7 @@
         </div>
 
         <footer class="footer">
-            v1.0.19 &bull; Rungs
+            v1.0.20 &bull; Rungs
         </footer>
     </div>
 
@@ -2384,7 +2404,7 @@
         // ============ END GAME SHELF INTEGRATION ============
 
         // ============ CONFIGURATION ============
-        const VERSION = '1.0.19';
+        const VERSION = '1.0.20';
         const GAME_URL = 'https://rfrbrn.github.io/rungs/rungs.html'; // Update this when hosted
         const DEBUG_MODE = false; // Set to true to show test mode in menu
         
@@ -4414,6 +4434,9 @@
             }
             
             stats.gamesPlayed++;
+            stats.dist = stats.dist || { 1: 0, 2: 0, 3: 0, 4: 0, X: 0 };
+            const row = won ? attempts : 'X';
+            stats.dist[row] = (stats.dist[row] || 0) + 1;
             
             if (won) {
                 stats.gamesWon++;
@@ -4444,6 +4467,30 @@
             stats.lastPlayedDate = today;
             saveStats(stats);
             return stats;
+        }
+
+        // Today's outcome is drawn in gold, as in Slate and Quotle, so the player
+        // can see which bar their game moved: a win marks its attempt count, a
+        // loss marks the ✗ row. Counting started in v1.0.20.
+        function distributionHTML(todayRow) {
+            const d = getStats().dist || {};
+            const rows = (d.X || 0) > 0 || todayRow === 'X' ? [1, 2, 3, 4, 'X'] : [1, 2, 3, 4];
+            const max = Math.max(...rows.map(r => d[r] || 0), 1);
+            return `
+                <div class="dist">
+                    <h4 class="dist-title">Your results</h4>
+                    ${rows.map(r => {
+                        const count = d[r] || 0;
+                        const label = r === 1 ? '1st' : r === 2 ? '2nd' : r === 3 ? '3rd' : r === 4 ? '4th' : '✗';
+                        const cls = 'dist-row' + (r === 'X' ? ' miss' : '') + (r === todayRow ? ' today' : '');
+                        return `
+                            <div class="${cls}">
+                                <div class="dist-label">${label}</div>
+                                <div class="dist-track"><div class="dist-fill" style="width: ${(count / max) * 100}%; min-width: ${count > 0 ? '22px' : '0'};">${count > 0 ? count : ''}</div></div>
+                                <div class="dist-tag">${r === todayRow ? '◀ today' : ''}</div>
+                            </div>`;
+                    }).join('')}
+                </div>`;
         }
 
         function updateStatsDisplay() {
@@ -4607,6 +4654,7 @@
                     ${explanation ? `<p style="margin-top: 8px; font-size: 0.9rem; color: var(--text-muted); font-style: italic;">${explanation}</p>` : ''}
                     ${bonusText ? `<p style="margin-top: 10px;">${bonusText}</p>` : ''}
                     ${stats.currentStreak > 1 ? `<p style="margin-top: 10px;">🔥 Current Streak: <strong>${stats.currentStreak}</strong></p>` : ''}
+                    ${distributionHTML(result.attempts)}
                     <div class="share-text" id="share-text">${result.shareText || ''}</div>
                     <button class="btn btn-primary" onclick="copyShareFromSaved()">Share Result</button>
                     <p style="margin-top: 20px; color: var(--text-muted);">⏰ Come back tomorrow for a new puzzle!</p>
@@ -4620,6 +4668,7 @@
                     <p style="margin-bottom: 10px;" class="text-secondary">The correct answer was:</p>
                     <p style="margin-bottom: 15px;"><strong class="text-accent">${result.stackName}</strong></p>
                     ${explanation ? `<p style="margin-bottom: 15px; font-size: 0.9rem; color: var(--text-muted); font-style: italic;">${explanation}</p>` : ''}
+                    ${distributionHTML('X')}
                     <div class="share-text" id="share-text">${result.shareText || ''}</div>
                     <button class="btn btn-primary" onclick="copyShareFromSaved()">Share Result</button>
                     <p style="margin-top: 20px; color: var(--text-muted);">⏰ Come back tomorrow for a new puzzle!</p>
@@ -5292,6 +5341,7 @@
             if (!won) {
                 updateStats(false, attemptsUsed);
             }
+            const distHTML = isPracticeMode || isTutorialMode ? '' : distributionHTML(won ? attemptsUsed + 1 : 'X');
             
             const detailedExp = currentPuzzle.detailedExplanation || '';
             const tellMeMoreHTML = detailedExp ? `
@@ -5315,6 +5365,7 @@
                     <p style="margin-top: 10px;" class="text-secondary">The stack was: <strong class="text-accent">${currentPuzzle.stackName}</strong></p>
                     ${explanation ? `<p style="margin-top: 8px; font-size: 0.9rem; color: var(--text-muted); font-style: italic;">${explanation}</p>` : ''}
                     ${bonusText ? `<p style="margin-top: 10px;">${bonusText}</p>` : ''}
+                    ${distHTML}
                     ${tellMeMoreHTML}
                     <div class="share-text" id="share-text"></div>
                     <button class="btn btn-primary" onclick="copyShare()">Share Result</button>
@@ -5356,6 +5407,7 @@
                     <div class="result-pairs">
                         ${correctPairsHTML}
                     </div>
+                    ${distHTML}
                     ${tellMeMoreHTML}
                     <div class="share-text" id="share-text"></div>
                     <button class="btn btn-primary" onclick="copyShare()">Share Result</button>

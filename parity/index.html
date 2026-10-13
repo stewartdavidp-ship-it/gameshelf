@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.1.2">
+    <meta name="version" content="1.1.3">
     <meta name="gs-app-id" content="parity">
     <title>Parity - Daily Puzzle</title>
     <meta name="description" content="Nine tiles, three rules. Odd tiles slide sideways, even tiles move up and down, and partners that sum to 10 trade places. A new board every day.">
@@ -90,7 +90,7 @@
 
   /* ---- board ---- */
   .stage{flex:1 1 0; min-height:40px; display:grid; place-items:center; overflow:hidden; container-type:size}
-  .board{width:min(100%, 100cqh); height:auto; max-width:100%; aspect-ratio:1; display:grid; grid-template-columns:repeat(3,1fr); gap:3%}
+  .board{width:min(100%, 100cqh); height:auto; max-width:100%; aspect-ratio:1; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,minmax(0,1fr)); gap:3%}
   .tile{
     appearance:none; position:relative; touch-action:manipulation; cursor:pointer;
     background:var(--tile); color:var(--ink); font:inherit; padding:0;
@@ -98,7 +98,7 @@
     display:grid; place-content:center; gap:2px;
     transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
   }
-  .tile .digit{font-family:"Zilla Slab",Georgia,serif; font-weight:600; font-size:min(12vw,44px); line-height:1; font-variant-numeric:tabular-nums}
+  .tile .digit{font-family:"Zilla Slab",Georgia,serif; font-weight:600; font-size:min(12vw,44px,14cqh); line-height:1; font-variant-numeric:tabular-nums}
   .tile .axis{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-2)}
   .tile.sel{background:var(--accent-tint); border-color:var(--accent); box-shadow:0 0 0 2px var(--accent); transform:scale(1.04)}
   .tile.legal{border-color:var(--ok); background:var(--ok-tint); outline:2px dashed var(--ok); outline-offset:-7px}
@@ -153,6 +153,22 @@
   .result button.primary{background:var(--ok); color:var(--paper-2); border-color:var(--ok)}
   @keyframes rise{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
   @media (prefers-reduced-motion: reduce){ .result{animation:none} }
+  /* results chart: the row this board added to is in the accent and grows in */
+  .dist{display:grid; gap:3px; margin:0 0 12px}
+  .dist-row{display:grid; grid-template-columns:68px 1fr 70px; align-items:center; gap:8px;
+    font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-2)}
+  .dist-label{text-align:right; white-space:nowrap}
+  .dist-track{height:15px; background:var(--paper); border-radius:2px; overflow:hidden}
+  .dist-fill{height:100%; background:var(--ok-tint); border-right:2px solid var(--ok); color:var(--ink);
+    display:flex; align-items:center; justify-content:flex-end; padding-right:4px; box-sizing:border-box; font-size:10px}
+  .dist-row.shown .dist-fill{background:var(--paper-2); border-right-color:var(--ink-2)}
+  .dist-tag{color:var(--accent); font-weight:500; white-space:nowrap}
+  .dist-row.today .dist-label{color:var(--accent); font-weight:500}
+  .dist-row.today .dist-track{box-shadow:0 0 0 2px var(--accent)}
+  .dist-row.today .dist-fill{background:var(--accent); border-right-color:var(--accent); color:var(--paper-2); font-weight:500;
+    animation:distGrow .9s ease-out .3s both; transform-origin:left center}
+  @keyframes distGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @media (prefers-reduced-motion: reduce){ .dist-row.today .dist-fill{animation:none} }
 
   /* ---- sheet ---- */
   .scrim{position:fixed; inset:0; background:var(--scrim); z-index:9}
@@ -231,6 +247,7 @@
     <span class="eyebrow" id="res-eyebrow"></span>
     <h2 id="res-head"></h2>
     <p class="detail" id="res-detail"></p>
+    <div class="dist" id="res-dist"></div>
     <div class="btns">
       <button class="primary" id="btn-share">Share result</button>
       <button class="primary" id="btn-again" hidden>New board</button>
@@ -532,6 +549,7 @@
   var btnHint=document.getElementById("btn-hint"), btnSolve=document.getElementById("btn-solve");
   var speedbar=document.getElementById("speedbar");
   var btnAgain=document.getElementById("btn-again");
+  var resDist=document.getElementById("res-dist");
   var resultBox=document.getElementById("result"), btnShare=document.getElementById("btn-share");
   var resEyebrow=document.getElementById("res-eyebrow"), resHead=document.getElementById("res-head");
   var resDetail=document.getElementById("res-detail"), btnDismiss=document.getElementById("btn-dismiss");
@@ -651,12 +669,36 @@
   }
   function newDaily(){ begin(dailyBoard(), true); closeSheet(); }
 
+  // Every finished board lands in one row: how far over par it was solved, or
+  // "shown" when the answer was played for you. The row this board added to is
+  // marked, as in Slate and Quotle, so you can see where it went. Counting
+  // started in v1.1.3.
+  var DIST_ROWS=[["par","Par"],["1-2","+1\u20132"],["3-5","+3\u20135"],["6+","+6 or more"],["shown","Shown"]];
+  function distRow(over){ return over===0 ? "par" : over<=2 ? "1-2" : over<=5 ? "3-5" : "6+"; }
+  function countDist(row){
+    save.stats.dist = save.stats.dist || {};
+    save.stats.dist[row] = (save.stats.dist[row]||0)+1;
+  }
+  function paintDist(today){
+    var d=save.stats.dist||{};
+    var rows=DIST_ROWS.filter(function(r){ return r[0]!=="shown" || (d.shown||0)>0 || today==="shown"; });
+    var max=Math.max.apply(null, rows.map(function(r){ return d[r[0]]||0; }).concat([1]));
+    resDist.innerHTML = rows.map(function(r){
+      var n=d[r[0]]||0, on=r[0]===today;
+      return '<div class="dist-row'+(r[0]==="shown"?" shown":"")+(on?" today":"")+'">'
+        + '<span class="dist-label">'+r[1]+'</span>'
+        + '<span class="dist-track"><span class="dist-fill" style="width:'+(n/max*100)+'%;min-width:'+(n>0?"18px":"0")+'">'+(n>0?n:"")+'</span></span>'
+        + '<span class="dist-tag">'+(on?"\u25c0 this one":"")+'</span></div>';
+    }).join("");
+  }
+
   function finish(){
     solved=true; buzz([25,45,25]);
     var over=moves-par;
     if(!counted){
       counted=true; save.stats.solved++;
       if(over===0) save.stats.perfect++;
+      countDist(distRow(over));
       if(isDaily){
         var k=todayKey();
         if(save.stats.last!==k){ save.stats.streak = save.stats.streak+1; save.stats.last=k; }
@@ -679,6 +721,7 @@
                   : " \u2014 "+over+" more than the best possible.")
       + (isDaily && save.stats.streak>1 ? "<br>Daily streak: <b>"+save.stats.streak+"</b>." : "")
       + (isStarter && (save.starterStep||0)<STARTER.length ? "<br>Next up: <b>"+STARTER[save.starterStep]+"</b> moves." : "");
+    paintDist(distRow(over));
     var sg=suggestion();
     pendingSuggest=sg;
     suggestBox.hidden=!sg;
@@ -769,6 +812,7 @@
 
   function runSolution(){
     var total=DIST[rank(state)]; if(!total) return;
+    if(!counted){ countDist("shown"); persist(); }
     sel=null; counted=true;
     say("Playing the shortest line — "+total+" moves."); render();
     playing=setInterval(function(){
@@ -778,6 +822,7 @@
         resEyebrow.textContent = (isStarter ? "Starter" : isDaily ? "Parity" : "Free board")+" — answer played";
         resHead.textContent = "Shown, not solved";
         resDetail.innerHTML = "The shortest line from where you were was <b>"+total+"</b> move"+(total===1?"":"s")+".";
+        paintDist("shown");
         if(typeof btnShare !== "undefined") btnShare.hidden = true;
         btnAgain.textContent = isStarter ? "Another board" : "New board";
         btnAgain.hidden = false; suggestBox.hidden = true;
