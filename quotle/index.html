@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.5.11">
+    <meta name="version" content="1.5.12">
     <title>Quotle - Daily Quote Puzzle</title>
     
     <!-- Early initialization: Set defaults and apply dark mode BEFORE any CSS renders -->
@@ -2933,6 +2933,8 @@
         [data-theme="dark"] .game-over .reveal { background: var(--cream); border: none; border-left: 4px solid var(--burgundy); }
         [data-theme="dark"] .game-over > div[style*="grid"] > div,
         [data-theme="dark"] .game-over div[style*="background: var(--cream)"] { background: var(--cream) !important; border: 1px solid #284236 !important; }
+        /* the answer's name links to its quotle.info author page */
+        .reveal a.author-link { color: inherit !important; font-weight: 700; text-decoration: underline !important; text-underline-offset: 3px; }
     </style>
     
     <!-- Firebase SDK (required for cloud sync) -->
@@ -3658,7 +3660,7 @@
                     <p><strong>Quote #:</strong> <span id="current-quote-number">Loading...</span></p>
                     <p><strong>Total Quotes:</strong> 365</p>
                     <p><strong>Days Live:</strong> <span id="days-since-launch">Loading...</span></p>
-                    <p><strong>Version:</strong> v1.5.11</p>
+                    <p><strong>Version:</strong> v1.5.12</p>
                 </div>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--slate); line-height: 1.5;">
                     A daily quote guessing game featuring wisdom from ancient philosophers to modern thinkers - spanning over 2,500 years of human thought.
@@ -12297,7 +12299,7 @@ const allQuotes = [
                     
                     <div class="reveal">
                         <div style="font-style: italic; margin-bottom: 15px;">"${todayResult.quote.text}"</div>
-                        <strong>${todayResult.quote.author}</strong><br>
+                        ${authorNameHTML(todayResult.quote)}<br>
                         ${todayResult.quote.gender} &bull; ${todayResult.quote.category} &bull; ${todayResult.quote.period}
                     </div>
                     
@@ -12628,14 +12630,15 @@ const allQuotes = [
             try { record = await fetchQuotleInfoRecord(quote); } catch (e) {}
             if (currentQuote !== quote) return; // a different puzzle was opened meanwhile
 
-            const wikiLink = `<a href="https://en.wikipedia.org/wiki/${encodeURIComponent(quote.author.replace(/ /g, '_'))}" target="_blank" rel="noopener noreferrer" style="color: var(--burgundy);">Learn more on Wikipedia →</a>`;
+            const authorUrl = authorPageUrl(quote);
+            const wikiLink = authorUrl ? `<a href="${authorUrl}" target="_blank" rel="noopener" style="color: var(--burgundy);">More about ${quote.author} on quotle.info →</a>` : '';
 
             if (record) {
                 content.innerHTML = `
                     ${renderQuotleInfoContext(record, quote)}
                     <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1);">
                         <small style="color: var(--slate); font-size: 0.8rem;">
-                            🔍 Researched by quotle.info &bull; ${wikiLink}
+                            🔍 Researched by quotle.info${wikiLink ? ' &bull; ' + wikiLink : ''}
                         </small>
                     </div>
                 `;
@@ -12649,7 +12652,7 @@ const allQuotes = [
                 </div>
                 <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1);">
                     <small style="color: var(--slate); font-size: 0.8rem;">
-                        💡 Historical context &bull; ${wikiLink}
+                        💡 Historical context${wikiLink ? ' &bull; ' + wikiLink : ''}
                     </small>
                 </div>
             `;
@@ -13425,7 +13428,7 @@ const allQuotes = [
         let quotleInfoPagesPromise = null; // the in-flight manifest fetch; loadDeepDive waits on it
         (function initQuotleInfoCache(){
             try {
-                const c = JSON.parse(localStorage.getItem('quotleInfoPages') || 'null');
+                const c = JSON.parse(localStorage.getItem('quotleInfoPages2') || 'null');
                 if (c && c.t && (Date.now() - c.t) < 86400000) quotleInfoPages = c.m;
             } catch (e) {}
         })();
@@ -13435,14 +13438,38 @@ const allQuotes = [
                 .then(function(list){
                     if (!Array.isArray(list)) return;
                     const m = {};
-                    list.forEach(function(x){ if (x && x.dayNumber != null) m[x.dayNumber] = { slug: x.quoteSlug, confidence: x.confidence }; });
+                    list.forEach(function(x){ if (x && x.dayNumber != null) m[x.dayNumber] = { slug: x.quoteSlug, confidence: x.confidence, authorSlug: x.authorSlug }; });
                     quotleInfoPages = m;
-                    try { localStorage.setItem('quotleInfoPages', JSON.stringify({ t: Date.now(), m: m })); } catch (e) {}
+                    try { localStorage.setItem('quotleInfoPages2', JSON.stringify({ t: Date.now(), m: m })); } catch (e) {}
                     renderWhoSaidLink();
                 })
                 .catch(function(){});
         }
+        // The answer's name links to its author page on quotle.info (our own research, not Wikipedia).
+        // The page slug comes from the manifest, so names the site spells differently still resolve
+        // ("Seneca" → seneca-the-younger). Until the manifest arrives the name renders plain, then
+        // linkAuthorNames() upgrades it in place.
+        function authorPageUrl(quote){
+            const e = quote && quotleInfoPages && quotleInfoPages[quote.index];
+            return e && e.authorSlug ? 'https://quotle.info/authors/' + e.authorSlug + '/?from=game' : null;
+        }
+        function authorNameHTML(quote){
+            const url = authorPageUrl(quote);
+            return url
+                ? '<a class="author-link" data-qi="' + quote.index + '" href="' + url + '" target="_blank" rel="noopener">' + quote.author + '</a>'
+                : '<strong class="author-link" data-qi="' + quote.index + '">' + quote.author + '</strong>';
+        }
+        function linkAuthorNames(){
+            document.querySelectorAll('strong.author-link[data-qi]').forEach(function(el){
+                const url = authorPageUrl({ index: +el.dataset.qi });
+                if (!url) return;
+                const a = document.createElement('a');
+                a.className = 'author-link'; a.dataset.qi = el.dataset.qi; a.href = url; a.target = '_blank'; a.rel = 'noopener';
+                a.textContent = el.textContent; el.replaceWith(a);
+            });
+        }
         function renderWhoSaidLink(){
+            linkAuthorNames();
             const slot = document.getElementById('who-said-slot');
             if (!slot || typeof currentQuote === 'undefined' || !currentQuote) return;
             const entry = quotleInfoPages && quotleInfoPages[currentQuote.index];
@@ -13655,14 +13682,8 @@ const allQuotes = [
                         <h2>${perfectGame ? '🎯 PERFECT! 🎯' : '🎉 Brilliant!'}</h2>
                         <p>${perfectGame ? '<strong style="font-size: 1.1rem; color: var(--gold);">FIRST TRY!</strong><br>' : ''}You got it in ${guesses.length} ${guesses.length === 1 ? 'try' : 'tries'}!</p>
                         <div class="reveal">
-                            <strong>${currentQuote.author}</strong><br>
+                            ${authorNameHTML(currentQuote)}<br>
                             <span style="font-size: 0.85rem;">${currentQuote.gender} &bull; ${currentQuote.category} &bull; ${currentQuote.period}</span><br>
-                            <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(currentQuote.author.replace(/ /g, '_'))}" 
-                               target="_blank" 
-                               rel="noopener noreferrer"
-                               style="color: var(--burgundy); text-decoration: none; font-size: 0.85rem; margin-top: 6px; display: inline-block;">
-                               📚 Learn more →
-                            </a>
                             <div id="who-said-slot" style="text-align:center;"></div>
                         </div>
                         
@@ -13710,14 +13731,8 @@ const allQuotes = [
                         <h2>Game Over</h2>
                         <p>The correct answer was:</p>
                         <div class="reveal">
-                            <strong>${currentQuote.author}</strong><br>
+                            ${authorNameHTML(currentQuote)}<br>
                             <span style="font-size: 0.85rem;">${currentQuote.gender} &bull; ${currentQuote.category} &bull; ${currentQuote.period}</span><br>
-                            <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(currentQuote.author.replace(/ /g, '_'))}" 
-                               target="_blank" 
-                               rel="noopener noreferrer"
-                               style="color: var(--burgundy); text-decoration: none; font-size: 0.85rem; margin-top: 6px; display: inline-block;">
-                               📚 Learn more →
-                            </a>
                             <div id="who-said-slot" style="text-align:center;"></div>
                         </div>
                         
