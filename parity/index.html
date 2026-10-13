@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="version" content="1.1.3">
+    <meta name="version" content="1.1.4">
     <meta name="gs-app-id" content="parity">
     <title>Parity - Daily Puzzle</title>
     <meta name="description" content="Nine tiles, three rules. Odd tiles slide sideways, even tiles move up and down, and partners that sum to 10 trade places. A new board every day.">
@@ -215,6 +215,10 @@
   .rule-item .tag{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); padding-top:3px}
   .rule-item p{margin:0}
   .note{font-size:12.5px; color:var(--ink-2); margin:12px 0 0}
+  .more-games{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px}
+  .more-games a{display:block; padding:10px 12px; border:1px solid var(--rule); border-radius:3px; background:var(--paper);
+    color:var(--ink); text-decoration:none; font-weight:600; font-size:14px}
+  .more-games a small{display:block; font-weight:400; font-size:11.5px; color:var(--ink-2); margin-top:2px}
 </style>
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XRL2SVN0YF"></script>
@@ -309,9 +313,16 @@
   <div class="rule-item"><span class="tag">Odd</span><p><b>1, 3, 5, 7, 9 move sideways.</b> Swap with the tile left or right of it, if the two differ by exactly 1.</p></div>
   <div class="rule-item"><span class="tag">Even</span><p><b>2, 4, 6, 8 move vertically.</b> Swap with the tile above or below it, if the two differ by exactly 1.</p></div>
   <div class="rule-item"><span class="tag">Sum 10</span><p><b>Partners trade from anywhere.</b> 1&ndash;9, 2&ndash;8, 3&ndash;7 and 4&ndash;6 swap across the whole grid, however far apart.</p></div>
-  <div class="rule-item" id="rule-five" hidden><span class="tag">Starter &amp; Easy</span><p><b>5 can jump to the centre</b> &mdash; its finishing square &mdash; trading with whatever tile sits there, from anywhere on the grid.</p></div>
+  <div class="rule-item" id="rule-five" hidden><span class="tag">Starter &amp; Easy</span><p><b>5 can jump to the center</b> &mdash; its finishing square &mdash; trading with whatever tile sits there, from anywhere on the grid.</p></div>
   <p class="note"><b>Don&rsquo;t play by tiles in place.</b> Getting five of nine home still leaves you 30 moves out, against 41 with none placed &mdash; sum&#8209;10 reaches across the grid and pulls finished rows apart. <b>Left at best</b> is the only honest score.</p>
   <p class="note" id="note-five"><b>Watch the 5.</b> It has no sum&#8209;10 partner and only steps sideways under its own power, so it changes rows only when 4 or 6 drags it. Getting the 5 home is the hard part &mdash; which is exactly what Easy mode hands you.</p>
+  <h2>More from Game Shelf</h2>
+  <div class="more-games">
+    <a href="https://gameshelf.co/quotle/">💬 Quotle<small>Guess the famous quote</small></a>
+    <a href="https://gameshelf.co/slate/">🪨 Slate<small>Find 8 hidden words</small></a>
+    <a href="https://gameshelf.co/rungs/">🪜 Rungs<small>Find the hidden ladder</small></a>
+    <a href="https://gameshelf.co/wordboxing/">🥊 Word Boxing<small>Real-time word battles</small></a>
+  </div>
   <p class="note" style="text-align:center">Parity v<span id="v-num"></span> &middot; a Game Shelf original</p>
   <button class="act" id="btn-close" style="margin-top:14px">Close</button>
 </aside>
@@ -442,15 +453,15 @@
       }
     }
     for(i=0;i<9;i++) for(j=i+1;j<9;j++) if(s[i]+s[j]===10) add(i,j,s[i]+" and "+s[j]+" trade places");
-    if(easy){ var f=s.indexOf(5); if(f!==4) add(f,4,"5 jumps to the centre"); }
+    if(easy){ var f=s.indexOf(5); if(f!==4) add(f,4,"5 jumps to the center"); }
     return out;
   }
 
   var TABLES={}, DIST=null, BY_DIST=null, OFF=null, MAXD=0, easyRules=true;
   function predSwaps(s, easy){
     var out=legalSwaps(s, false);            // every other rule is a symmetric swap
-    if(easy && s[4]===5){                    // reverse of "5 jumps to the centre"
-      for(var f=0;f<9;f++) if(f!==4) out.push([f,4,"5 jumps to the centre"]);
+    if(easy && s[4]===5){                    // reverse of "5 jumps to the center"
+      for(var f=0;f<9;f++) if(f!==4) out.push([f,4,"5 jumps to the center"]);
     }
     return out;
   }
@@ -901,7 +912,8 @@
 
   // ---- boot ----
   function start(hot){
-    document.getElementById("v-num").textContent=VERSION;
+    // the page's own version (VERSION here is the shared integration module's, 1.0.9)
+    document.getElementById("v-num").textContent=document.querySelector('meta[name="version"]').content;
     load(); target=save.target||25; solveSpeed=save.speed||420; slider.value=target; depthOut.value=target+" moves"; paintStats();
     setTimeout(function(){
       TABLES.easy=buildTable(true); TABLES.hard=buildTable(false);
