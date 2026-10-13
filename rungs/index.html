@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.1.0">
+    <meta name="version" content="1.1.1">
     <title>Rungs - Daily Puzzle</title>
     
     <!-- PWA Support -->
@@ -316,6 +316,18 @@
 
         .stack-slot.filled:hover .drag-handle {
             opacity: 1;
+        }
+
+        .stack-slot .swap-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--accent-gold);
+            font-size: 0.9rem;
+            line-height: 1;
+            padding: 3px 6px;
+            margin: 0 2px;
+            cursor: pointer;
         }
 
         .stack-slot .reorder-btn {
@@ -1855,7 +1867,7 @@
         </div>
 
         <footer class="footer">
-            v1.1.0 &bull; Rungs
+            v1.1.1 &bull; Rungs
         </footer>
     </div>
 
@@ -1989,7 +2001,8 @@
                     <p>Pair the 8 words into 4 everyday phrases. One word in each phrase belongs to a <strong>hidden ladder</strong>: a score, a size, a scale.</p>
                     <ul style="margin: 10px 0 0 15px; font-size: 0.9rem;">
                         <li>Tap two words, then <strong>Place</strong></li>
-                        <li>Stack the phrases so the ladder climbs, lowest at the bottom</li>
+                        <li>Stack the phrases so the ladder climbs, lowest at the bottom. The ladder word can be either word in a phrase</li>
+                        <li>Tap ⇄ to flip the words on a rung</li>
                         <li>Submit. 4 attempts. Once your pairs are right, you can guess the ladder for free</li>
                     </ul>
                 </div>
@@ -2164,7 +2177,7 @@
                             <span style="background: var(--bg-hover); padding: 8px 12px; border-radius: 8px;">TALK</span>
                         </div>
                     </div>
-                    <p>You get <strong>8 words</strong>. Tap two that make an everyday phrase, like <strong>SMALL + TALK</strong>, then tap <strong>Place</strong>.</p>
+                    <p>You get <strong>8 words</strong>. Tap two that make an everyday phrase, like <strong>SMALL + TALK</strong>, then tap <strong>Place</strong>. Tap ⇄ on a rung to flip its words.</p>
                     <p style="margin-top: 10px;">Watch for traps: SMALL PRINT is a phrase too, but then TALK has no partner.</p>
                 </div>
             </div>
@@ -2181,7 +2194,7 @@
                             <div style="background: var(--bg-hover); padding: 10px; border-radius: 8px;">1. <span class="key-word">SMALL</span> TALK</div>
                         </div>
                     </div>
-                    <p>One word in each phrase is a step on a real-world ladder. Here it's sizes: small, medium, large, jumbo.</p>
+                    <p>One word in each phrase is a step on a real-world ladder. Here it's sizes: small, medium, large, jumbo. The ladder word can be <strong>either</strong> word in its phrase.</p>
                     <p style="margin-top: 10px; padding: 10px; background: var(--bg-tertiary); border-radius: 8px;">
                         <strong style="color: var(--accent-gold);">📏 Stack it so the ladder climbs:</strong> lowest at the bottom, highest at the top. Use ▲ and ▼ to move a rung.
                     </p>
@@ -2231,9 +2244,9 @@
             <div class="about-text" style="text-align: left;">
                 <p><strong>Goal:</strong> Pair the 8 words into 4 everyday phrases, then stack them so a hidden ladder climbs.</p>
                 
-                <p><strong>Step 1:</strong> Tap two words that make a phrase, then <strong>Place</strong></p>
+                <p><strong>Step 1:</strong> Tap two words that make a phrase, then <strong>Place</strong>. Tap ⇄ to flip the words on a rung; the order inside a rung never counts against you</p>
                 
-                <p><strong>Step 2:</strong> One word in each phrase is a step on a real-world ladder: a score, a size, a scale. Order the rungs with ▲ and ▼</p>
+                <p><strong>Step 2:</strong> One word in each phrase is a step on a real-world ladder: a score, a size, a scale. It can be either word in the phrase. Order the rungs with ▲ and ▼</p>
                 
                 <p><strong>Step 3:</strong> Tap <strong>Submit</strong>. You have 4 attempts</p>
                 
@@ -2359,7 +2372,7 @@
         // ============ END GAME SHELF INTEGRATION ============
 
         // ============ CONFIGURATION ============
-        const VERSION = '1.1.0';
+        const VERSION = '1.1.1';
         const GAME_URL = 'https://gameshelf.co/rungs/';
         const DEBUG_MODE = false; // Set to true to show test mode in menu
         
@@ -3715,7 +3728,7 @@
                     const pairDisplay = pairsFound && pairIndex !== -1
                         ? phraseHTML(currentPuzzle, pairIndex, true)
                         : pair.map(id => currentPuzzle.items.find(it => it.id === id).display)
-                              .join(' <span style="color: var(--accent-gold); margin: 0 4px;">&</span> ');
+                              .join(` <button class="swap-btn" onclick="event.stopPropagation(); swapPairWords(${i})" title="Swap the two words" aria-label="Swap the two words">⇄</button> `);
                     
                     // With column-reverse, higher index = visually higher on screen
                     // So "up" means +1 index, "down" means -1 index
@@ -3745,6 +3758,15 @@
             }
             
             updateButtons();
+        }
+
+        // Flip the two words on a rung (COAT ⇄ PEA → PEA ⇄ COAT). Word order never
+        // affects the answer; this is only so the rung reads as the phrase you mean.
+        function swapPairWords(index) {
+            if (gameOver || !stack[index]) return;
+            stack[index] = [stack[index][1], stack[index][0]];
+            updateStackDisplay();
+            saveGameState();
         }
 
         function moveStackItem(index, direction) {
