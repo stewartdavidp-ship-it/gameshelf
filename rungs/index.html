@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="version" content="1.3.0">
+    <meta name="version" content="1.3.1">
     <title>Rungs - Daily Puzzle</title>
     
     <!-- PWA Support -->
@@ -1872,7 +1872,7 @@
         </div>
 
         <footer class="footer">
-            v1.3.0 &bull; Rungs
+            v1.3.1 &bull; Rungs
         </footer>
     </div>
 
@@ -2379,7 +2379,7 @@
         // ============ END GAME SHELF INTEGRATION ============
 
         // ============ CONFIGURATION ============
-        const VERSION = '1.3.0';
+        const VERSION = '1.3.1';
         const GAME_URL = 'https://gameshelf.co/rungs/';
         const DEBUG_MODE = false; // Set to true to show test mode in menu
         
@@ -3463,6 +3463,7 @@
             const stats = getStats();
             gameOver = true;
             updateThemeHint(); // greys out Hint now that the day is done
+            updateButtons();
             
             const modal = document.getElementById('result-modal');
             const content = document.getElementById('result-content');
@@ -3892,9 +3893,9 @@
             const hasStackedItems = stack.some(s => s !== null);
             document.getElementById('reset-btn').disabled = !hasStackedItems && selectedItems.length === 0;
             
-            // Submit enabled only when all 4 slots are filled
+            // Submit enabled only when all 4 slots are filled and the game isn't over
             const allSlotsFilled = stack.every(s => s !== null);
-            document.getElementById('submit-btn').disabled = !allSlotsFilled;
+            document.getElementById('submit-btn').disabled = !allSlotsFilled || gameOver;
         }
 
         function updateAttempts() {
@@ -3934,6 +3935,8 @@
         }
 
         function validateStack() {
+            // A finished game is read-only: show the result again, never re-score or re-report it
+            if (gameOver) { showResultAgain(); return; }
             const results = {
                 pairs: [],
                 orderCorrect: true
@@ -3982,6 +3985,7 @@
                 clearGameState(); // v1.0.9: Clear saved state on win
                 updateStats(true, attemptsUsed + 1);
                 updateThemeHint(); // greys out Hint; the board now shows the solved ladder
+                updateButtons();   // and Submit
                 playWinSound();
                 showFinalResult(true, results);
             } else {
@@ -3992,6 +3996,7 @@
                 if (attemptsUsed >= 4) {
                     gameOver = true;
                     updateThemeHint();
+                    updateButtons();
                     clearGameState(); // v1.0.9: Clear saved state on loss
                     playLoseSound();
                     showFinalResult(false, results);
