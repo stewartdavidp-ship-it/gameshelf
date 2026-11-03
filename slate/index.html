@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="1.0.27">
+    <meta name="version" content="1.0.28">
     <title>Slate - Daily Word Challenge</title>
     
     <!-- PWA Support -->
@@ -1875,6 +1875,9 @@
             const isPlainModeOn = typeof plainMode !== 'undefined' ? plainMode : false;
             
             if (currentUser) {
+                const accountBoxShown = section.closest('.modal-section, .menu-section');
+                if (accountBoxShown) accountBoxShown.hidden = false;
+                else if (section.previousElementSibling && section.previousElementSibling.tagName === 'H3') section.previousElementSibling.hidden = false;
                 section.innerHTML = `
                     <div class="account-signed-in">
                         <div class="account-user-row">
@@ -1887,21 +1890,12 @@
                         </div>
                     </div>
                 `;
-            } else if (isPlainModeOn) {
-                section.innerHTML = `
-                    <div class="account-signed-out account-disabled">
-                        <p style="font-size: 0.85rem; color: #a8b896; margin-bottom: 10px;">Cloud sync & extra features</p>
-                        <button type="button" class="action-btn disabled" disabled>🔒 Sign in with Google</button>
-                        <p style="font-size: 0.75rem; color: #888; margin-top: 8px;">Turn off Plain Mode to enable</p>
-                    </div>
-                `;
             } else {
-                section.innerHTML = `
-                    <div class="account-signed-out">
-                        <p style="font-size: 0.85rem; color: #a8b896; margin-bottom: 10px;">Save progress across devices</p>
-                        <button type="button" class="action-btn" onclick="GSAuth.signIn()">🔐 Sign in with Google</button>
-                    </div>
-                `;
+                section.innerHTML = '';
+                // Google sign-in was retired 2026-11 (its OAuth client lapsed); signed-out players see no Account section
+                const accountBox = section.closest('.modal-section, .menu-section');
+                if (accountBox) accountBox.hidden = true;
+                else if (section.previousElementSibling && section.previousElementSibling.tagName === 'H3') section.previousElementSibling.hidden = true;
             }
         }
         
@@ -2238,13 +2232,7 @@
             
             <!-- 0. ACCOUNT -->
             <h3>&#9729; Account</h3>
-            <div id="account-section" class="account-section">
-                <div class="account-signed-out account-disabled">
-                    <p style="font-size: 0.85rem; color: #a8b896; margin-bottom: 10px;">Cloud sync & extra features</p>
-                    <button type="button" class="action-btn disabled" disabled>🔒 Sign in with Google</button>
-                    <p style="font-size: 0.75rem; color: #888; margin-top: 8px;">Turn off Plain Mode to enable</p>
-                </div>
-            </div>
+            <div id="account-section" class="account-section"></div>
             
             <!-- 1. DIFFICULTY -->
             <h3>&#9881; Difficulty</h3>
@@ -2330,7 +2318,7 @@
             <!-- 7. GAME INFO -->
             <h3>ℹ️ Game Info</h3>
             <p><strong>Puzzle:</strong> <span id="puzzle-date">Daily</span></p>
-            <p><strong>Version:</strong> v1.0.27</p>
+            <p><strong>Version:</strong> v1.0.28</p>
             <p style="font-size: 0.85rem; color: #a8b896; margin-top: 8px;">A daily word puzzle game. New words every day at midnight!</p>
             
             <!-- 8. DATA -->
